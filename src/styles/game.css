@@ -1,0 +1,1203 @@
+/* ============================================================
+ * A Dark Room (React) — 全局布局与主题
+ * 布局以 flex 为主，尽量避免 absolute 定位
+ * ============================================================ */
+
+:root {
+  --bg: #fff;
+  --fg: #000;
+  --accent: #666;
+  --border: #000;
+  --disabled: #b2b2b2;
+  --cooldown: #ddd;
+  --panel-width: 700px;
+  --notif-width: 200px;
+}
+
+body.noMask {
+  --bg: #000;
+  --fg: #fff;
+  --border: #fff;
+  --disabled: #555;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+#root {
+  height: 100%;
+}
+
+body,
+.tooltip,
+select.menuBtn {
+  font-size: 16px;
+  font-weight: normal;
+  line-height: normal;
+  letter-spacing: normal;
+}
+
+::selection {
+  background-color: transparent;
+}
+
+/* ---------------- 整体框架（flex 三明治） ---------------- */
+
+#game {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+#layout {
+  width: calc(var(--panel-width) + 20px + var(--notif-width));
+  max-width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+/* ---------------- 通知栏（左侧） ---------------- */
+
+#notifications {
+  width: var(--notif-width);
+  padding-top: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+#notificationsList {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+#notifications .notification {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+#notifications .notification .px-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+#notifications .px-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+#notifyGradient {
+  height: 30px;
+  flex-shrink: 0;
+  background: linear-gradient(rgba(255, 255, 255, 0), var(--bg));
+}
+
+body.noMask #notifyGradient {
+  background: linear-gradient(rgba(0, 0, 0, 0), #000);
+}
+
+/* ---------------- 主区域（右侧） ---------------- */
+
+#main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+}
+
+#header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-bottom: 20px;
+  height: 20px;
+}
+
+div.headerButton {
+  font-size: 18px;
+  cursor: pointer;
+  border-left: 1px solid var(--border);
+  margin-left: 10px;
+  padding-left: 10px;
+}
+
+div.headerButton:hover {
+  text-decoration: underline;
+}
+
+div.headerButton.selected,
+div.headerButton.selected:hover {
+  cursor: default;
+  text-decoration: underline;
+}
+
+#content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* ---------------- 面板通用 ---------------- */
+
+div.location {
+  position: relative;
+  width: var(--panel-width);
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 行（商店/库存/工人列表通用） */
+div.row_key {
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+div.row_val {
+  white-space: nowrap;
+}
+
+div.storeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+div.storeRow .px-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ---------------- 库存面板（共享展示组件） ---------------- */
+
+div#stores,
+div#weapons {
+  position: relative;
+  border: 1px solid var(--border);
+  cursor: default;
+  padding: 10px 10px 5px;
+  width: 200px;
+}
+
+div#stores {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+div#weapons {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+div#stores:before,
+div#weapons:before {
+  position: absolute;
+  background: var(--bg);
+  content: attr(data-title);
+  left: 8px;
+  top: -10px;
+  border: solid 1px var(--border);
+  padding: 0 5px;
+  font-size: 12px;
+}
+
+/* ---------------- 按钮 ---------------- */
+
+div.button {
+  position: relative;
+  text-align: center;
+  border: 1px solid var(--border);
+  width: 100px;
+  margin-bottom: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+div.button:hover {
+  text-decoration: underline;
+}
+
+div.button.disabled,
+div.button.disabled:hover {
+  cursor: default;
+  border-color: var(--disabled);
+  color: var(--disabled);
+  text-decoration: none;
+}
+
+div.button div.cooldown {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  z-index: -1;
+  height: 100%;
+  background-color: var(--cooldown);
+}
+
+div.button .px-icon {
+  flex-shrink: 0;
+}
+
+div.button .px-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ---------------- 工具提示 ---------------- */
+
+div.tooltip {
+  display: none;
+  padding: 2px 5px;
+  border: 1px solid var(--border);
+  position: absolute;
+  box-shadow: -1px 3px 2px #666;
+  background: var(--bg);
+  z-index: 999;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.tooltip.bottom {
+  top: 100%;
+  margin-top: 5px;
+}
+
+.tooltip.right {
+  left: -2px;
+}
+
+.tooltip.left {
+  right: 0px;
+}
+
+.tooltip.top {
+  bottom: 20px;
+}
+
+*:hover > div.tooltip {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.tooltip .storeRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.tooltip .px-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.disabled:hover > div.tooltip {
+  display: none;
+}
+
+/* ---------------- Room 面板 ---------------- */
+
+#roomPanel {
+  min-height: 100%;
+}
+
+#roomTop {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+#roomActions {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
+
+#roomBtnColumns {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btnColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+.btnColumn:before {
+  content: attr(data-title);
+  position: relative;
+  top: -2px;
+}
+
+/* ---------------- Outside 面板 ---------------- */
+
+#outsidePanel {
+  min-height: 100%;
+}
+
+#outsideTop {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+#village {
+  border: 1px solid var(--border);
+  cursor: default;
+  padding: 10px 10px 5px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+#village:before {
+  position: absolute;
+  background: var(--bg);
+  content: attr(data-title);
+  left: 8px;
+  top: -10px;
+  border: solid 1px var(--border);
+  padding: 0 5px;
+  font-size: 12px;
+}
+
+#village {
+  position: relative;
+}
+
+#workers {
+  border: 1px solid var(--border);
+  padding: 10px 10px 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 420px;
+}
+
+.workerRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.workerRow .row_key {
+  flex: 1;
+}
+
+.workerRow .row_val {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2px;
+  position: relative;
+}
+
+.workerRow .row_val > span {
+  min-width: 24px;
+  text-align: right;
+}
+
+.workerBtn {
+  width: 20px;
+  height: 18px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  text-align: center;
+  line-height: 16px;
+  user-select: none;
+  font-size: 12px;
+}
+
+.workerBtn.disabled {
+  cursor: default;
+  color: var(--disabled);
+  border-color: var(--disabled);
+}
+
+#outsideBottom {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* ---------------- 菜单（右下角固定） ---------------- */
+
+.menu {
+  position: fixed;
+  right: 10px;
+  bottom: 10px;
+  color: var(--accent);
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  z-index: 50;
+}
+
+.menu span {
+  cursor: pointer;
+}
+
+.menu span:hover {
+  text-decoration: underline;
+}
+
+.menu .customSelect {
+  height: 20px;
+  position: relative;
+}
+
+.menu .customSelectOptions ul {
+  max-height: 20px;
+  width: 80px;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  list-style: none;
+  transition: max-height 1s;
+}
+
+.menu .customSelectOptions ul:hover {
+  max-height: 400px;
+}
+
+.menu .customSelectOptions ul li {
+  height: 20px;
+  padding: 0 0 3px 0;
+}
+
+.menu .customSelectOptions ul li:hover {
+  text-decoration: underline;
+}
+
+/* 语言菜单：当前语言高亮 */
+.menu .customSelectOptions ul li.selected {
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+.menu .customSelectOptions ul li.selected::before {
+  content: '\2713 ';
+  color: var(--accent);
+}
+
+/* ---------------- 事件弹窗 ---------------- */
+
+#eventOverlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
+
+#eventOverlay:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  opacity: 0.6;
+}
+
+.eventPanel {
+  background: var(--bg);
+  border: 2px solid var(--border);
+  box-shadow: 5px 5px 5px #666;
+  padding: 20px;
+  width: 380px;
+  max-width: 90%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.eventTitle {
+  display: inline-block;
+  font-weight: bold;
+  border: solid 2px #b6a685;
+  border-radius: 5px;
+  padding: 0 5px;
+  font-size: 14px;
+  align-self: flex-start;
+  margin-top: -32px;
+  background: var(--bg);
+}
+
+#description {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 100px;
+}
+
+#description textarea {
+  width: 100%;
+  height: 225px;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+#buttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 5px 15px;
+}
+
+#buttons .button {
+  margin: 0;
+}
+
+#eventOverlay .button.disabled:hover > div.tooltip {
+  display: block;
+}
+
+/* ---------------- 保存提示 ---------------- */
+
+#saveNotify {
+  position: fixed;
+  top: 23px;
+  right: 10px;
+  background: var(--bg);
+  opacity: 0;
+  z-index: 60;
+  transition: opacity 0.2s;
+}
+
+/* ---------------- 杂项 ---------------- */
+
+.clear {
+  clear: both;
+}
+
+.px-icon {
+  display: inline-block;
+  line-height: 0;
+}
+
+.px-svg {
+  display: block;
+}
+
+/* ---------------- World 面板 ---------------- */
+
+#worldPanel {
+  min-height: 100%;
+}
+
+#worldOuter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#bagspace-world {
+  border: 1px solid var(--border);
+  padding: 5px 8px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  margin-top: 13px;
+}
+
+#bagspace-world:before {
+  content: attr(data-title);
+  position: absolute;
+  background: var(--bg);
+  left: 8px;
+  top: -10px;
+  border: solid 1px var(--border);
+  padding: 0 5px;
+  font-size: 12px;
+}
+
+#backpackTitle,
+#backpackSpace,
+#healthCounter {
+  font-size: 14px;
+}
+
+#supplies {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px;
+  border: 1px solid var(--border);
+  padding: 5px 8px;
+  min-height: 26px;
+}
+
+div.supplyItem {
+  border: 1px solid var(--border);
+  padding: 0 5px;
+  cursor: default;
+}
+
+#mapRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+#mapControls {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+#map {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 0;
+  letter-spacing: 0;
+  background: #2a241c;
+  border: 1px solid var(--border);
+  cursor: crosshair;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#map .px-row {
+  display: flex;
+}
+
+#map .px-tile {
+  flex: none;
+  position: relative;
+  width: 11.4px;
+  height: 11.4px;
+  box-sizing: border-box;
+}
+
+#map .px-unknown {
+  background: #16120d;
+}
+
+#map .px-player {
+  background: #54483a;
+  box-shadow: inset 0 0 0 1px #8a7448;
+}
+
+#map .px-tile-player {
+  width: 100%;
+  height: 100%;
+  background: #c0392b;
+}
+
+#map .px-landmark {
+  background: #241c12;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+}
+
+#map .px-visited::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  right: 0;
+  width: 4px;
+  height: 7px;
+  border: solid #58c02a;
+  border-width: 0 2px 2px 0;
+  transform: rotate(40deg);
+  z-index: 3;
+  pointer-events: none;
+}
+
+#map .px-tile .px-svg {
+  width: 11px;
+  height: 11px;
+}
+
+#map .terr-forest  { background: #3f6b2c; }
+#map .terr-field   { background: #7c9a48; }
+#map .terr-barrens { background: #a8925f; }
+#map .terr-road    { background: #d8c184; }
+#map .terr-swamp   { background: #4e8880; }
+
+/* ---------------- Ship 面板 ---------------- */
+
+div#hullRow,
+div#engineRow {
+  width: 70px;
+}
+
+div#engineRow {
+  margin-bottom: 20px;
+}
+
+/* ---------------- Fabricator 面板 ---------------- */
+
+#fabricatorPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#fabricateButtons,
+#blueprints {
+  border: 1px solid var(--border);
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  margin-top: 6px;
+}
+
+#fabricateButtons:before,
+#blueprints:before {
+  content: attr(data-legend);
+  position: absolute;
+  background: var(--bg);
+  left: 8px;
+  top: -10px;
+  border: solid 1px var(--border);
+  padding: 0 5px;
+  font-size: 12px;
+}
+
+.blueprintRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 0;
+}
+
+/* ---------------- Space 面板 ---------------- */
+
+#spacePanel {
+  position: relative;
+  width: 700px;
+  height: 1000px;
+  background: #000;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  flex: none;
+}
+
+#spaceField {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.starfield {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(1px 1px at 20px 30px, #eee, transparent),
+    radial-gradient(1px 1px at 90px 140px, #cfd8ff, transparent),
+    radial-gradient(1px 1px at 160px 60px, #fff, transparent),
+    radial-gradient(1px 1px at 240px 180px, #9fb4ff, transparent),
+    radial-gradient(1px 1px at 330px 100px, #fff, transparent),
+    radial-gradient(1px 1px at 420px 240px, #eee, transparent),
+    radial-gradient(1px 1px at 520px 70px, #cfd8ff, transparent),
+    radial-gradient(1px 1px at 600px 200px, #fff, transparent);
+  background-size: 640px 320px;
+  animation: starScroll 12s linear infinite;
+  opacity: 0.7;
+}
+
+@keyframes starScroll {
+  from { background-position: 0 0; }
+  to   { background-position: 0 640px; }
+}
+
+#hullRemaining {
+  width: 70px;
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 5;
+}
+
+#altitudeDisplay {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  z-index: 5;
+  text-align: right;
+}
+
+@keyframes asteroidSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+#spacePanel .asteroid {
+  position: absolute;
+  animation: asteroidSpin 1s linear infinite;
+  line-height: 0;
+}
+
+#spacePanel .asteroid .px-svg {
+  width: 36px;
+  height: 36px;
+  filter: drop-shadow(1px 2px 0 rgba(0, 0, 0, 0.4));
+}
+
+#ship {
+  position: absolute;
+  margin-top: -21px;
+  margin-left: -18px;
+  z-index: 4;
+  line-height: 0;
+}
+
+#ship .px-svg {
+  width: 36px;
+  height: 42px;
+  filter: drop-shadow(0 0 6px rgba(120, 180, 255, 0.35));
+}
+
+#spaceEnd {
+  position: absolute;
+  top: 45%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+  z-index: 6;
+  padding: 20px;
+}
+
+#spaceEnd .restart {
+  margin-top: 20px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+#spaceEnd .restart:hover {
+  text-decoration: underline;
+}
+
+/* ---------------- 事件战斗/战利品（EventModal） ---------------- */
+
+#eventOverlay .eventPanel.event-fight {
+  width: 520px;
+}
+
+#eventOverlay .eventPanel.event-result {
+  width: 440px;
+}
+
+#descriptionText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* 战斗台：双方对峙 */
+.arena {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 6px 10px 30px;
+  min-height: 150px;
+  border: 1px solid var(--border);
+}
+
+/* —— 战士 —— */
+.fighter {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.fighter .hp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 120px;
+  text-align: center;
+}
+
+.fighter .hpBar {
+  position: relative;
+  width: 100%;
+  height: 9px;
+  border: 1px solid var(--border);
+}
+
+.fighter .hpFill {
+  height: 100%;
+  background: #a33;
+  transition: width 0.25s ease;
+}
+
+.fighter .hpText {
+  font-size: 12px;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.fighter .fig {
+  line-height: 0;
+}
+
+.fighter .fig .px-svg {
+  image-rendering: pixelated;
+  filter: drop-shadow(2px 3px 0 rgba(0, 0, 0, 0.35));
+}
+
+.fighter .fig .chara {
+  font-size: 40px;
+  line-height: 1;
+  font-weight: bold;
+  display: inline-block;
+}
+
+/* 战士名标签 */
+.fighter .label {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 12px;
+  text-align: center;
+  white-space: nowrap;
+  text-shadow: 1px 1px 0 var(--bg);
+  position: relative;
+}
+
+/* —— 状态标签装饰（保持旧版语义） —— */
+.fighter.shield > .label::before {
+  content: '(';
+  position: absolute;
+  left: -10px;
+}
+
+.fighter.shield > .label::after {
+  content: ')';
+  position: absolute;
+  right: -10px;
+}
+
+.fighter.energised > .label {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.fighter.meditation > .label {
+  font-size: 17px;
+  opacity: 0.3;
+}
+
+.fighter.exploding > .label {
+  animation: explodeBlink 200ms linear infinite;
+}
+
+.fighter.venomous > .label {
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.fighter.enraged > .label {
+  font-size: 17px;
+  font-style: italic;
+}
+
+.fighter.boost > .label {
+  font-style: italic;
+}
+
+.fighter.stunned .fig {
+  opacity: 0.5;
+}
+
+@keyframes explodeBlink {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+/* —— 攻击/治疗按钮区 —— */
+.fightControls {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  justify-content: center;
+}
+
+#attackButtons,
+#healButtons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  justify-content: center;
+}
+
+#attackButtons .button,
+#healButtons .button {
+  width: auto;
+  min-width: 96px;
+}
+
+/* —— 伤害/状态浮字（覆盖在战斗台内） —— */
+.floatLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+}
+
+.floatText {
+  position: absolute;
+  top: 30%;
+  font-weight: bold;
+  font-size: 16px;
+  font-family: "Courier New", Courier, monospace;
+  color: #c33;
+  text-shadow: 1px 1px 0 var(--bg);
+  animation: floatUp 1.2s ease-out forwards;
+  white-space: nowrap;
+}
+
+.floatText.player {
+  left: 18%;
+}
+
+.floatText.enemy {
+  right: 18%;
+}
+
+@keyframes floatUp {
+  from { transform: translateY(10px); opacity: 1; }
+  to   { transform: translateY(-26px); opacity: 0; }
+}
+
+/* —— 战利品 —— */
+#lootButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 1px solid var(--border);
+  padding-top: 6px;
+  margin-top: 6px;
+}
+
+#lootButtons:before {
+  content: "take:";
+  display: block;
+  font-size: 12px;
+}
+
+#lootButtons .lootRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+#lootButtons .lootRow .row_key {
+  flex: 1;
+}
+
+#lootButtons .lootRow .row_val {
+  min-width: 40px;
+  text-align: right;
+}
+
+#lootButtons .lootRow .row_val .lootTotal {
+  color: var(--disabled);
+}
+
+#lootButtons .lootRow .button {
+  width: auto;
+  min-width: 60px;
+  margin: 0;
+}
+
+#lootButtons .lootRow .px-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* —— 丢弃菜单（背包放不下战利品时） —— */
+#dropMenu {
+  position: absolute;
+  right: 12px;
+  bottom: 90px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  box-shadow: -1px 3px 2px #666;
+  z-index: 120;
+  padding: 4px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  cursor: default;
+}
+
+#dropMenu:before {
+  content: "drop:";
+  display: block;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+  padding-bottom: 2px;
+}
+
+#dropMenu > div {
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+#dropMenu > div:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,1 @@
+import{n as e}from"./rolldown-runtime-hePW80VL.js";var t=e({bindModule:()=>r,requireModule:()=>i}),n={};function r(e,t){n[e]=t}function i(e){return n[e]}export{i as n,t};
