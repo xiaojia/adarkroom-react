@@ -224,15 +224,11 @@ export const Path = {
 
   embark() {
     const World = requireModule('world');
+    // 把携带的物品从基地库存中扣除（与旧版一致），Path.outfit 保留键值供旅途消耗
     for (const k in Path.outfit) {
-      $SM.set('outfit[' + k + ']', 0, true);
       $SM.add('stores["' + k + '"]', -Path.outfit[k]);
     }
-    const outfit = $SM.get('outfit');
-    for (const k in outfit) delete outfit[k];
     $SM.remove('outfit');
-    // 出发前把出装快照同步到 $SM（供 World 使用）
-    $SM.set('game.outfit', Path.outfit);
     World.onArrival();
     Engine.travelTo('world');
   },

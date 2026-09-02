@@ -59,18 +59,21 @@ export default function WorldPanel() {
   return (
     <div id="worldPanel" className="location">
       <div id="worldOuter">
-        <div id="bagspace-world" className="outfitRow">
-          <div className="row_key" id="backpackTitle">{st.bag.title}</div>
-          <div className="row_val" id="bagspace">
-            {_('free {0}/{1}', Math.floor(Path.getFreeSpace()), Path.getCapacity())}
+        <div id="bagspace-world" data-title={st.bag.title}>
+          <div id="supplies">
+            {st.bag.items.map((it) => (
+              <span className="supplyItem" key={it.key}>{_('{0}:{1}', it.name, it.num)}</span>
+            ))}
           </div>
         </div>
-        <div id="supplies">
-          {st.bag.items.map((it) => (
-            <span className="supplyItem" key={it.key}>{_('{0}:{1}', it.name, it.num)}</span>
-          ))}
+        <div id="shortRow">
+          <div className="row_val" id="backpackSpace">
+            {_('free {0}/{1}', Math.floor(Path.getFreeSpace()), Path.getCapacity())}
+          </div>
+          <div className="row_val" id="healthCounter">
+            {_('hp: {0}/{1}', st.health, st.maxHealth)}
+          </div>
         </div>
-        <div id="healthCounter">{_('hp: {0}/{1}', st.health, st.maxHealth)}</div>
       </div>
 
       <div id="mapControls">

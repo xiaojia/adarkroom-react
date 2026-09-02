@@ -35,28 +35,30 @@ export default function FabricatorPanel() {
 
   return (
     <div id="fabricatorPanel" className="location">
-      <Slot name="stores" />
-      {fabricateBtns.length > 0 && (
-        <div id="fabricateButtons" data-legend={_('fabricate:')}>
-          {fabricateBtns.map((it) => (
-            <FabricatorButton key={it.key} item={it} />
-          ))}
-        </div>
-      )}
-      {blueprints.length > 0 && (
-        <div id="blueprints" data-legend={_('blueprints')}>
-          {blueprints.map((k) => (
-            <div id={'blueprint_' + k.replace(/ /g, '-')} className="blueprintRow" key={k}>
-              <div className="row_key">
-                <span className="px-icon">
-                  <span dangerouslySetInnerHTML={{ __html: Pixel.svg(Pixel.buildingSprite(k) || Pixel.resourceSprite(k), { pixel: 2 }) }} />
-                </span>
-                {_(k)}
+      <div id="fabricatorBody">
+        {fabricateBtns.length > 0 && (
+          <div id="fabricateButtons" data-legend={_('fabricate:')}>
+            {fabricateBtns.map((it) => (
+              <FabricatorButton key={it.key} item={it} />
+            ))}
+          </div>
+        )}
+        {blueprints.length > 0 && (
+          <div id="blueprints" data-legend={_('blueprints')}>
+            {blueprints.map((k) => (
+              <div id={'blueprint_' + k.replace(/ /g, '-')} className="blueprintRow" key={k}>
+                <div className="row_key">
+                  <span className="px-icon">
+                    <span dangerouslySetInnerHTML={{ __html: Pixel.svg(Pixel.buildingSprite(k) || Pixel.resourceSprite(k), { pixel: 2 }) }} />
+                  </span>
+                  {_(k)}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+        <Slot name="stores" />
+      </div>
     </div>
   );
 }

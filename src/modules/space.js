@@ -29,6 +29,9 @@ export const useSpace = create(() => ({
   started: false,
   done: false,
   crash: false,
+  // 游戏场实际尺寸（由面板组件测量后写回，用于自适应高度/宽度）
+  panelW: 700,
+  panelH: 1000,
 }));
 
 export const Space = {
@@ -60,6 +63,14 @@ export const Space = {
   init(options) {
     Space.options = { ...Space.options, ...options };
     Dispatch('stateUpdate').subscribe(Space.handleStateUpdates);
+  },
+
+  /** 由面板组件测量游戏场实际尺寸后写回，供移动/生成逻辑自适应 */
+  setPanelSize(w, h) {
+    useSpace.setState({
+      panelW: Math.max(w || 700, 100),
+      panelH: Math.max(h || 1000, 100),
+    });
   },
 
   onArrival() {
@@ -145,7 +156,7 @@ export const Space = {
     const asteroid = {
       id: Space._asteroidId++,
       sprite,
-      x: Math.floor(Math.random() * 660),
+      x: Math.floor(Math.random() * Math.max((s.panelW || 700) - 40, 100)),
       top: -height,
       height,
       speed: Space.BASE_ASTEROID_SPEED - Math.floor(Math.random() * (Space.BASE_ASTEROID_SPEED * 0.65)),
@@ -168,6 +179,9 @@ export const Space = {
   moveShip() {
     const s = useSpace.getState();
     if (s.done) return;
+
+    const W = s.panelW || 700;
+    const H = s.panelH || 1000;
 
     let x = s.shipX;
     let y = s.shipY;
@@ -193,9 +207,9 @@ export const Space = {
     x += dx;
     y += dy;
     if (x < 18) x = 18;
-    else if (x > 682) x = 682;
+    else if (x > W - 18) x = W - 18;
     if (y < 21) y = 21;
-    else if (y > 979) y = 979;
+    else if (y > H - 21) y = H - 21;
 
     Space._lastMove = Date.now();
 
@@ -205,7 +219,7 @@ export const Space = {
     let crashed = false;
     for (const a of s.asteroids) {
       // 每帧下落量 = 面板高度 / (速度时间 / 帧间隔)
-      a.top += Math.max(8, 1040 / (a.speed / Space.FRAME_DELAY));
+      a.top += Math.max(8, H / (a.speed / Space.FRAME_DELAY));
       const aY = a.top;
       const xMin = a.x;
       const xMax = a.x + asteroidWidth(a);
@@ -215,7 +229,7 @@ export const Space = {
         if (hull === 0) crashed = true;
         continue; // 移除该小行星
       }
-      if (aY < 1040) movedAsteroids.push(a);
+      if (aY < H) movedAsteroids.push(a);
     }
 
     useSpace.setState({ shipX: x, shipY: y, hull, asteroids: movedAsteroids });

@@ -328,11 +328,19 @@ div.tooltip {
   min-height: 100%;
 }
 
-#roomTop {
+#roomBody {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
   align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+#roomMain {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
 }
 
 #roomActions {
@@ -344,8 +352,8 @@ div.tooltip {
 #roomBtnColumns {
   display: flex;
   flex-direction: row;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 28px;
+  align-items: flex-start;
 }
 
 .btnColumn {
@@ -365,14 +373,36 @@ div.tooltip {
   min-height: 100%;
 }
 
-#outsideTop {
+#outsideBody {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
   align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+#outsideMain {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+#outsideActions {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
+
+#outsideRight {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 #village {
+  position: relative;
   border: 1px solid var(--border);
   cursor: default;
   padding: 10px 10px 5px;
@@ -393,17 +423,13 @@ div.tooltip {
   font-size: 12px;
 }
 
-#village {
-  position: relative;
-}
-
 #workers {
   border: 1px solid var(--border);
   padding: 10px 10px 5px;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  max-width: 420px;
+  align-self: flex-start;
 }
 
 .workerRow {
@@ -448,19 +474,162 @@ div.tooltip {
   border-color: var(--disabled);
 }
 
-#outsideBottom {
+/* ---------------- Path 面板 ---------------- */
+
+#pathPanel {
+  min-height: 100%;
+}
+
+#pathBody {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+#pathMain {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: 8px;
-  margin-top: 8px;
+  min-width: 0;
+}
+
+#outfitting {
+  position: relative;
+  border: 1px solid var(--border);
+  width: 200px;
+  margin-bottom: 5px;
+  padding: 5px 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+#outfittingHeader {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+#outfittingTitle {
+  font-size: 12px;
+}
+
+#bagspace {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+div.outfitRow {
+  position: relative;
+  cursor: default;
+  margin: 6px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+div.outfitRow > .row_val {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+div.outfitRow .tooltip {
+  width: 150px;
+}
+
+#equipList {
+  position: relative;
+  border: 2px solid var(--border);
+  border-radius: 7px;
+  cursor: default;
+  padding: 10px 10px 5px;
+  width: 200px;
+  margin-top: 6px;
+}
+
+#equipList:before {
+  content: attr(data-title);
+  position: absolute;
+  left: 8px;
+  top: -10px;
+  padding: 0 5px;
+  font-size: 12px;
+  background: var(--bg);
+  border: solid 1px var(--border);
+}
+
+div.equipRow {
+  margin: 6px 0;
+}
+
+div.equipRow .row_val {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  gap: 8px;
+}
+
+div.equipBtn {
+  display: inline-block;
+  cursor: pointer;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  padding: 0 6px;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+div.equipBtn:hover {
+  background-color: var(--cooldown);
+}
+
+#pathSidebar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-self: flex-start;
+}
+
+div#perks {
+  position: relative;
+  border: 1px solid var(--border);
+  cursor: default;
+  padding: 10px 10px 5px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+div#perks:before {
+  content: attr(data-title);
+  position: absolute;
+  left: 8px;
+  top: -10px;
+  padding: 0 5px;
+  font-size: 12px;
+  background: var(--bg);
+  border: solid 1px var(--border);
+}
+
+div.perkRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 /* ---------------- 菜单（右下角固定） ---------------- */
 
 .menu {
   position: fixed;
-  right: 10px;
+  left: 10px;
   bottom: 10px;
   color: var(--accent);
   display: flex;
@@ -628,18 +797,17 @@ div.tooltip {
 #worldOuter {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 #bagspace-world {
-  border: 1px solid var(--border);
-  padding: 5px 8px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
   position: relative;
-  margin-top: 13px;
+  border: 1px solid var(--border);
+  padding: 6px 6px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-self: stretch;
 }
 
 #bagspace-world:before {
@@ -653,19 +821,11 @@ div.tooltip {
   font-size: 12px;
 }
 
-#backpackTitle,
-#backpackSpace,
-#healthCounter {
-  font-size: 14px;
-}
-
 #supplies {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   gap: 4px;
-  border: 1px solid var(--border);
-  padding: 5px 8px;
   min-height: 26px;
 }
 
@@ -673,6 +833,19 @@ div.supplyItem {
   border: 1px solid var(--border);
   padding: 0 5px;
   cursor: default;
+}
+
+#shortRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+}
+
+#backpackSpace,
+#healthCounter {
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 #mapRow {
@@ -772,20 +945,37 @@ div#engineRow {
 /* ---------------- Fabricator 面板 ---------------- */
 
 #fabricatorPanel {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  min-height: 100%;
 }
 
-#fabricateButtons,
-#blueprints {
-  border: 1px solid var(--border);
-  padding: 6px 8px;
+#fabricatorBody {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+#fabricateButtons {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  position: relative;
+  align-items: flex-start;
   margin-top: 6px;
+}
+
+#blueprints {
+  position: relative;
+  border: 1px solid var(--border);
+  padding: 10px 10px 5px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+#fabricatorBody #storesContainer {
+  margin-left: auto;
 }
 
 #fabricateButtons:before,
@@ -813,11 +1003,68 @@ div#engineRow {
 #spacePanel {
   position: relative;
   width: 700px;
-  height: 1000px;
-  background: #000;
+  height: calc(100vh - 60px);
+  min-height: 400px;
+  background: transparent;
   overflow: hidden;
   border: 1px solid var(--border);
   flex: none;
+  z-index: 1;
+}
+
+/* 飞行时整屏浮现的黑色背景 + 星空层（固定铺满视口） */
+#spaceBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  background: #000;
+  overflow: hidden;
+  pointer-events: none;
+  transition: opacity 0.4s linear;
+}
+
+@keyframes starScrollDown {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-3000px); }
+}
+
+.starLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3000px;
+  height: 3000px;
+  display: flex;
+  flex-direction: column;
+  animation-name: starScrollDown;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.starLayer.back {
+  opacity: 0.5;
+}
+
+.starStrip {
+  position: relative;
+  height: 3000px;
+  width: 3000px;
+}
+
+.starStrip + .starStrip {
+  position: absolute;
+  top: 100%;
+  left: 0;
+}
+
+.star {
+  position: absolute;
+  color: #fff;
+  font-size: 10px;
+  line-height: 10px;
 }
 
 #spaceField {
@@ -826,31 +1073,7 @@ div#engineRow {
   left: 0;
   right: 0;
   bottom: 0;
-}
-
-.starfield {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image:
-    radial-gradient(1px 1px at 20px 30px, #eee, transparent),
-    radial-gradient(1px 1px at 90px 140px, #cfd8ff, transparent),
-    radial-gradient(1px 1px at 160px 60px, #fff, transparent),
-    radial-gradient(1px 1px at 240px 180px, #9fb4ff, transparent),
-    radial-gradient(1px 1px at 330px 100px, #fff, transparent),
-    radial-gradient(1px 1px at 420px 240px, #eee, transparent),
-    radial-gradient(1px 1px at 520px 70px, #cfd8ff, transparent),
-    radial-gradient(1px 1px at 600px 200px, #fff, transparent);
-  background-size: 640px 320px;
-  animation: starScroll 12s linear infinite;
-  opacity: 0.7;
-}
-
-@keyframes starScroll {
-  from { background-position: 0 0; }
-  to   { background-position: 0 640px; }
+  z-index: 2;
 }
 
 #hullRemaining {

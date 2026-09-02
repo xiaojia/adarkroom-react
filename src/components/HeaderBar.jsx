@@ -59,23 +59,6 @@ export default function HeaderBar() {
       )}
 
       <div className="menu">
-        <span className="customSelect menuBtn">
-          <span className="customSelectOptions">
-            <ul>
-              <li>{_('language.')}</li>
-              {SUPPORTED_LANGS.map((l) => (
-                <li
-                  key={l.code}
-                  data-language={l.code}
-                  className={curLang === l.code ? 'selected' : ''}
-                  onClick={() => Engine.switchLanguage(l.code)}
-                >
-                  {l.name}
-                </li>
-              ))}
-            </ul>
-          </span>
-        </span>
         <span
           className="lightsOff menuBtn"
           onClick={() => Engine.turnLightsOff()}
@@ -93,6 +76,23 @@ export default function HeaderBar() {
         </span>
         <span className="menuBtn" onClick={() => Engine.exportImport()}>
           {_('save.')}
+        </span>
+        <span className="customSelect menuBtn">
+          <span className="customSelectOptions">
+            <ul>
+              <li>{_('language.')}</li>
+              {SUPPORTED_LANGS.map((l) => (
+                <li
+                  key={l.code}
+                  data-language={l.code}
+                  className={curLang === l.code ? 'selected' : ''}
+                  onClick={() => Engine.switchLanguage(l.code)}
+                >
+                  {l.name}
+                </li>
+              ))}
+            </ul>
+          </span>
         </span>
       </div>
     </>

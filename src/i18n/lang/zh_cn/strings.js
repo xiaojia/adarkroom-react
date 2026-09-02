@@ -267,4 +267,5 @@ _.setTranslation({"water tank": "\u6c34\u7f50", "use meds": "\u670d\u836f", "the
 "fly again.": "再次起飞。",
 "time to get out of this place. won’t be coming back.": "是时候离开这里了，不会再回来了。",
 "The Village": "村庄",
+"perks": "能力",
 });

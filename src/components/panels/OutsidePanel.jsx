@@ -58,53 +58,57 @@ export default function OutsidePanel() {
 
   return (
     <div id="outsidePanel" className="location">
-      <div id="outsideTop">
-        <div id="outsideActions">
-          <GameButton
-            id="gatherButton"
-            text={_('gather wood')}
-            icon="res_wood"
-            width="80px"
-            cooldown={Outside._GATHER_DELAY}
-            onClick={() => Outside.gatherWood()}
-          />
-          {Outside.trapButtonVisible() && (
+      <div id="outsideBody">
+        <div id="outsideMain">
+          <div id="outsideActions">
             <GameButton
-              id="trapsButton"
-              text={_('check traps')}
-              icon="bld_trap"
+              id="gatherButton"
+              text={_('gather wood')}
+              icon="res_wood"
               width="80px"
-              cooldown={Outside._TRAPS_DELAY}
-              onClick={() => Outside.checkTraps()}
+              cooldown={Outside._GATHER_DELAY}
+              onClick={() => Outside.gatherWood()}
             />
+            {Outside.trapButtonVisible() && (
+              <GameButton
+                id="trapsButton"
+                text={_('check traps')}
+                icon="bld_trap"
+                width="80px"
+                cooldown={Outside._TRAPS_DELAY}
+                onClick={() => Outside.checkTraps()}
+              />
+            )}
+          </div>
+
+          {workers.length > 0 && (
+            <div id="workers">
+              {workers.map((w) => (
+                <WorkerRow key={w.key} worker={w} />
+              ))}
+            </div>
           )}
         </div>
 
-        <div id="village" data-title={hasHuts ? _('village') : _('forest')}>
-          <div className="storeRow">
-            <div className="row_key">{_('pop ') + population + '/' + maxPop}</div>
-          </div>
-          {buildings.map((b) => (
-            <div className="storeRow" key={b.key}>
-              <div className="row_key">
-                <PixelIcon name={Pixel.buildingSprite(b.key)} pixel={2} />
-                {b.name}
-              </div>
-              <div className="row_val">{b.count}</div>
+        <div id="outsideRight">
+          <div id="village" data-title={hasHuts ? _('village') : _('forest')}>
+            <div className="storeRow">
+              <div className="row_key">{_('pop ') + population + '/' + maxPop}</div>
             </div>
-          ))}
+            {buildings.map((b) => (
+              <div className="storeRow" key={b.key}>
+                <div className="row_key">
+                  <PixelIcon name={Pixel.buildingSprite(b.key)} pixel={2} />
+                  {b.name}
+                </div>
+                <div className="row_val">{b.count}</div>
+              </div>
+            ))}
+          </div>
+
+          <Slot name="stores" />
         </div>
       </div>
-
-      <Slot name="stores" />
-
-      {workers.length > 0 && (
-        <div id="workers">
-          {workers.map((w) => (
-            <WorkerRow key={w.key} worker={w} />
-          ))}
-        </div>
-      )}
     </div>
   );
 }
