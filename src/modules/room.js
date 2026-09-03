@@ -250,7 +250,8 @@ export const Room = {
     }
     if ($SM.get('game.builder.level') === 3) {
       $SM.add('game.builder.level', 1);
-      $SM.setIncome('builder', { delay: 10, stores: { wood: 2 } });
+      // 不再给「陌生人/建造者」被动的 +2 木头：自动木头只由村庄人口（采集者）提供，
+      // 没有村民就没有被动收入，避免无村民时仍显示 +2/10秒
       Notifications.notify(Room, _('the stranger is standing by the fire. she says she can help. says she builds things.'));
     }
   },
