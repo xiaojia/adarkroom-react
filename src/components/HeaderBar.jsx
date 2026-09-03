@@ -7,7 +7,7 @@
 import { _ } from '../i18n';
 import { SUPPORTED_LANGS } from '../i18n';
 import { useEngine, ModuleRegistry, Engine } from '../engine/Engine';
-import { useTick } from '../store/stateManager';
+import { useTick, $SM } from '../store/stateManager';
 import { Room } from '../modules/room';
 import { Outside } from '../modules/outside';
 import { Path } from '../modules/path';
@@ -38,6 +38,9 @@ export default function HeaderBar() {
   const view = useEngine((s) => s.view);
   const options = useEngine((s) => s.options);
 
+  // 熄灯按钮：默认熄灯(夜)，但按钮仅在第一次火势到达最高(roaring)后解锁展示
+  const lightsOffUnlocked = !!$SM.get('game.lightsOffUnlocked');
+
   const mods = ModuleRegistry.available();
   const curLang = String(location.search.match(/[?|&]lang=([^&;]+?)(&|#|;|$)/)?.[1] || localStorage.lang || 'en').toLowerCase();
 
@@ -59,12 +62,14 @@ export default function HeaderBar() {
       )}
 
       <div className="menu">
-        <span
-          className="lightsOff menuBtn"
-          onClick={() => Engine.turnLightsOff()}
-        >
-          {options.lightsOff ? _('lights on.') : _('lights off.')}
-        </span>
+        {lightsOffUnlocked && (
+          <span
+            className="lightsOff menuBtn"
+            onClick={() => Engine.turnLightsOff()}
+          >
+            {options.lightsOff ? _('lights on.') : _('lights off.')}
+          </span>
+        )}
         <span className="menuBtn" onClick={() => Engine.toggleDoubleTime()}>
           {options.doubleTime ? _('classic.') : _('hyper.')}
         </span>

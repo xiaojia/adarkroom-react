@@ -227,6 +227,7 @@ export const Room = {
       $SM.set('stores.wood', wood - 5);
     }
     $SM.set('game.fire', Room.FireEnum.Burning);
+    $SM.set('game.fireLit', true); // 首次点火标记：驱动 RoomScene 的黑遮罩渐隐 + dark1 开场
     Room.onFireChange();
   },
 
@@ -250,6 +251,10 @@ export const Room = {
       Room.changed = true;
     }
     Notifications.notify(Room, _('the fire is {0}', Room.FireEnum.fromInt($SM.get('game.fire.value')).text), true);
+    // 首次火势达到最高（roaring=4）后，解锁「熄灯/开灯」按钮并持久化
+    if ($SM.get('game.fire.value') >= Room.FireEnum.Roaring.value && !$SM.get('game.lightsOffUnlocked')) {
+      $SM.set('game.lightsOffUnlocked', true);
+    }
     if ($SM.get('game.fire.value') > 1 && $SM.get('game.builder.level') < 0) {
       $SM.set('game.builder.level', 0);
       Notifications.notify(Room, _('the light from the fire spills from the windows, out into the dark'));

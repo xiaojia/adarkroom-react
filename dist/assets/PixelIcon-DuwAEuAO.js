@@ -1,1 +1,0 @@
-import{n as e}from"./index-MtPeQz8B.js";import{t}from"./pixel-oz1k_0Yy.js";var n=e();function r({name:e,pixel:r,className:i}){if(!e||!t.sprites[e])return null;let a=t.svg(e,{pixel:r});return(0,n.jsx)(`span`,{className:`px-icon `+(i||``),dangerouslySetInnerHTML:{__html:a}})}export{r as t};

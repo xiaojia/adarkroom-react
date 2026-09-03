@@ -23,7 +23,6 @@
 !/vite.config.js
 
 # ------- 白名单：目录（当前已纳入 git 的全部内容） -------
-!/dist/**
 !/public/**
 !/session/**
 !/src/**

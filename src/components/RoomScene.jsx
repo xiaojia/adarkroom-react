@@ -1,67 +1,88 @@
 /**
- * RoomScene — 生火间场景（本地背景图 + 逐帧火焰）
+ * RoomScene — 生火间场景（8 张火势背景图 + 黑遮罩渐隐）
  * -------------------------------------------------------
- * 叠层（自上而下）：
- *   1. room-bg.png        居中铺满的木屋内景背景
- *   2. room-vignette      四周黑色渐晕，让背景边缘平滑渐变到黑
- *   3. room-fire          透明的逐帧篝火，按 game.fire.value（0-4 添柴状态）
- *                         决定是否点燃及火焰大小，帧与帧之间慢速渐隐渐出。
+ * 叠层（画布层，DOM 顺序即 z 序，后者盖住前者）：
+ *   3. room-mask     首次点火前的全黑遮罩；点火时渐隐，透出底层画面
+ *   2. room-img cur  当前/新背景图（新图压住旧图并渐显，实现 cross-fade）
+ *   1. room-img prev 上一帧背景图（垫底，被新图覆盖）
  *
- * 熄灯（lightsOff）时：背景压暗、火焰仍保持亮起，避免被整体压暗吞没。
+ * 背景图按 (熄灯/开灯) x 火势选择：
+ *   - 熄灯（lightsOff，夜/暗）→ drak{0-3}
+ *   - 开灯（lights on，昼/亮）→ light{0-3}
+ *   火势 0-4（dead/smoldering/flickering/burning/roaring）
+ *   → 图下标 min(fire,3)，即 roaring(4) 与 burning(3) 共用最大图 3。
+ *
+ * 首次点火：黑遮罩渐隐，铁定展示 dark1（入夜渐亮的电影感开场），
+ * 停留 INTRO_MS 后再按 min(fire,3) 正常展示。
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useEngine } from '../engine/Engine';
 import { $SM, useTick } from '../store/stateManager';
 
-const FIRE_FRAMES = [0, 1, 2, 3, 4, 5].map((i) => `/bg/room/fire/frame${i}.png`);
-const FRAME_COUNT = FIRE_FRAMES.length;
+// fire 0-4 -> 图下标 0-3（roaring 与 burning 共用图 3）
+const LEVEL = [0, 1, 2, 3, 3];
+const IMG = (mode, i) => `/bg/room/${mode}${i}.png`;
 
-// fire.value 0-4（dead/smoldering/flickering/burning/roaring）→ 火焰大小 & 亮度
-// 0 级（熄火）也保留一点暗红余烬，避免火炉位置完全空白
-const SCALE_BY_LEVEL = [0.5, 0.62, 0.76, 0.9, 1.06];
-const OPACITY_BY_LEVEL = [0.24, 0.78, 0.88, 0.96, 1];
+// 全部 8 张背景图：配合黑遮罩预加载，避免首次点亮/切换时卡顿
+const ALL_IMGS = ['drak', 'light'].flatMap((m) => [0, 1, 2, 3].map((i) => IMG(m, i)));
 
-const FIRE_MS = 2600; // 每帧停留时长，配合渐隐渐出形成缓慢的“慢生活”烟火
-const XFADE_MS = 1600; // 帧与帧之间的渐隐渐出时长
+const INTRO_MS = 4200; // 首光 dark1 停留时长（遮罩渐隐后再多留一会儿再切到实际火势）
 
 export default function RoomScene() {
   useTick();
   const lightsOff = useEngine((s) => s.options.lightsOff);
 
   const fireValue = $SM.get('game.fire.value', true);
-  const level = Math.max(0, Math.min(4, Number(fireValue) || 0));
+  const firstLit = !!$SM.get('game.fireLit');
 
-  const [frame, setFrame] = useState(0);
+  const level = LEVEL[Math.max(0, Math.min(4, Number(fireValue) || 0))];
+  const mode = lightsOff ? 'drak' : 'light';
+  const targetSrc = IMG(mode, level);
 
-  // 逐帧缓慢轮播（熄火时也保留余烬微微闪动）
+  /* —— 预加载全部 8 张背景图 —— */
   useEffect(() => {
-    const id = window.setInterval(() => setFrame((f) => (f + 1) % FRAME_COUNT), FIRE_MS);
-    return () => window.clearInterval(id);
+    ALL_IMGS.forEach((src) => {
+      const im = new Image();
+      im.src = src;
+    });
   }, []);
 
-  return (
-    <div className={`room-scene${lightsOff ? ' off' : ''}`}>
-      <img className="room-bg" src="/bg/room/room-bg.png" alt="" draggable="false" />
-      <div className="room-vignette" />
+  /* —— 首次点火 intro：遮罩渐隐的同时铁定展示 dark1 ——
+     introDone 初始取 firstLit：已推进（已点亮）的存档直接跳过 intro，
+     否则 new game 时其为 false，firstLit 一旦翻转便在当帧切到 dark1，
+     从而不会闪现一帧当前火势图。 */
+  const [introDone, setIntroDone] = useState(firstLit);
+  const prevFirstLit = useRef(firstLit);
+  useEffect(() => {
+    const was = prevFirstLit.current;
+    prevFirstLit.current = firstLit;
+    if (!was && firstLit) {
+      setIntroDone(false);
+      const t = setTimeout(() => setIntroDone(true), INTRO_MS);
+      return () => clearTimeout(t);
+    }
+  }, [firstLit]);
 
-      <div
-        className="room-fire"
-        style={{
-          opacity: OPACITY_BY_LEVEL[level],
-          transform: `scale(${SCALE_BY_LEVEL[level]})`,
-        }}
-      >
-        {FIRE_FRAMES.map((src, i) => (
-          <img
-            key={src}
-            className="room-fire-frame"
-            src={src}
-            alt=""
-            draggable="false"
-            style={{ opacity: i === frame ? 1 : 0 }}
-          />
-        ))}
-      </div>
+  const desiredSrc = firstLit && !introDone ? IMG('drak', 1) : targetSrc;
+
+  /* —— 交叉渐显：新图（cur）压住旧图（prev）并渐显 —— */
+  const [prevSrc, setPrevSrc] = useState(null);
+  const [curSrc, setCurSrc] = useState(desiredSrc);
+  const settledSrc = useRef(desiredSrc);
+  useEffect(() => {
+    if (desiredSrc === settledSrc.current) return;
+    setPrevSrc(settledSrc.current);
+    setCurSrc(desiredSrc);
+    settledSrc.current = desiredSrc;
+  }, [desiredSrc]);
+
+  return (
+    <div className={`room-scene${firstLit ? ' revealed' : ''}`}>
+      {prevSrc && (
+        <img className="room-img prev" src={prevSrc} alt="" draggable="false" />
+      )}
+      <img key={curSrc} className="room-img cur" src={curSrc} alt="" draggable="false" />
+      <div className="room-mask" />
     </div>
   );
 }

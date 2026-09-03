@@ -17,7 +17,7 @@ import { State, $SM, Dispatch, bindEngine, initStateManager, commit } from '../s
 export const useEngine = create(() => ({
   activeModule: null, // 当前模块 id
   view: 'locations', // 'locations' | 'world' | 'space'
-  options: { debug: false, doubleTime: false, state: null },
+  options: { debug: false, doubleTime: false, state: null, lightsOff: true },
   GAME_OVER: false,
 }));
 
@@ -72,7 +72,7 @@ export const Engine = {
   keyLock: false,
   tabNavigation: true,
 
-  options: { debug: false, doubleTime: false },
+  options: { debug: false, doubleTime: false, lightsOff: true },
 
   get activeModuleId() {
     return useEngine.getState().activeModule;

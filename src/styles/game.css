@@ -11,7 +11,7 @@
   --disabled: #b2b2b2;
   --cooldown: #ddd;
   --panel-width: 700px;
-  --notif-width: 200px;
+  --notif-width: 220px;
 }
 
 body.noMask {
@@ -55,6 +55,7 @@ select.menuBtn {
 #game {
   height: 100%;
   display: flex;
+  padding: 0 10px;
   justify-content: center;
 }
 
@@ -70,7 +71,7 @@ select.menuBtn {
 
 #notifications {
   width: var(--notif-width);
-  padding-top: 20px;
+  padding: 20px 10px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -332,6 +333,7 @@ div.tooltip {
 }
 
 #roomBody {
+  padding: 10px 0;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
