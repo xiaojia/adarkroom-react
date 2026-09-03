@@ -256,9 +256,12 @@ div.button div.cooldown {
   position: absolute;
   top: 0px;
   left: 0px;
-  z-index: -1;
+  z-index: 1;
   height: 100%;
   background-color: var(--cooldown);
+  border-radius: inherit;
+  transition: width 0.5s linear;
+  pointer-events: none;
 }
 
 div.button .px-icon {

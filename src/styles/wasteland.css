@@ -56,7 +56,7 @@
 
 /* ---------------- 场景背景资源（真·废土像素画，text_to_image 生成） ---------------- */
 :root {
---scene-room: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=8-bit%20pixel%20art%20background%2C%20dark%20post-apocalyptic%20cabin%20interior%2C%20glowing%20orange%20campfire%2C%20wooden%20furniture%20in%20shadow%2C%20blocky%20chunky%20pixels%2C%20limited%20retro%20palette%2C%20no%20anti-aliasing%2C%20moody%20pixel%20art%20wasteland%20survival%20game&image_size=landscape_16_9");
+--scene-room: url("/bg/room/room-bg.png");
 --scene-village: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=8-bit%20pixel%20art%20background%2C%20dusty%20silent%20forest%20village%2C%20wooden%20shacks%2C%20dirt%20path%2C%20warm%20evening%20tones%2C%20blocky%20chunky%20pixels%2C%20limited%20retro%20palette%2C%20no%20anti-aliasing%2C%20pixel%20art%20wasteland%20survival%20game&image_size=landscape_16_9");
 --scene-equip: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=16-bit%20pixel%20art%20background%2C%20long%20dusty%20road%20across%20barren%20wasteland%2C%20cracked%20earth%2C%20scattered%20debris%2C%20distant%20broken%20ruins%2C%20blocky%20chunky%20pixels%2C%20limited%20retro%20palette%2C%20no%20anti-aliasing%2C%20pixel%20art%20wasteland&image_size=landscape_16_9");
 --scene-desert: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=16-bit%20pixel%20art%20background%2C%20barren%20wasteland%20desert%2C%20sand%20dunes%2C%20ruined%20structures%2C%20pale%20orange%20sky%2C%20blocky%20chunky%20pixels%2C%20limited%20retro%20palette%2C%20no%20anti-aliasing%2C%20pixel%20art%20wasteland&image_size=landscape_16_9");
@@ -96,10 +96,70 @@ body {
 }
 #scene-backdrop .scene.active { opacity: 1; }
 
+/* ============================================================
+ * 生火间（room）：本地背景图 + 四周黑色渐晕 + 逐帧火焰
+ * 背景图居中铺满，四边向内渐隐为黑，边缘自然过渡到场景外。
+ * ============================================================ */
+#scene-backdrop .scene[data-scene="room"] {
+  background-color: var(--bg);
+  background-image: none;
+}
+.room-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.room-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: filter 1.8s ease;
+}
+/* 四周渐晕：中心保持亮，四边/四角渐成纯黑 */
+.room-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at center,
+      rgba(0, 0, 0, 0) 38%,
+      rgba(0, 0, 0, 0.55) 74%,
+      rgba(0, 0, 0, 0.92) 94%,
+      rgba(0, 0, 0, 1) 100%);
+  pointer-events: none;
+}
+/* 篝火：对准背景图火炉炉膛（约 76% 宽 / 下缘 13% 处），从炉底向上生长；
+   随添柴等级变大变亮；帧宽按炉膛口径缩小，让火焰像在炉膛内燃烧 */
+.room-fire {
+  position: absolute;
+  left: 76%;
+  bottom: 13%;
+  width: 12.5%;
+  margin-left: -6.25%;
+  transform-origin: bottom center;
+  transition: opacity 1.6s ease, transform 1.8s ease;
+  filter: drop-shadow(0 0 26px rgba(242, 150, 40, 0.36));
+}
+.room-fire-frame {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: auto;
+  opacity: 0;
+  transition: opacity 1.6s ease;
+  will-change: opacity;
+}
+
 #layout { position: relative; z-index: 1; }
 
-/* 关灯：整体压暗降饱和 */
-body.noMask #scene-backdrop .scene.active { filter: brightness(0.34) saturate(0.7); }
+/* 关灯：整体压暗降饱和（生火间单独处理，见下方 .room-scene.off） */
+body.noMask #scene-backdrop .scene.active:not([data-scene="room"]) { filter: brightness(0.34) saturate(0.7); }
+/* 生火间熄灯：背景压暗、火焰仍亮起 */
+body.noMask .room-scene.off .room-bg { filter: brightness(0.4) saturate(0.72); }
+body.noMask .room-scene.off .room-fire { filter: brightness(1.08) saturate(1.06); }
 body.noMask {
   --bg: #0d0a06;
   --fg: #d9c39a;
@@ -309,8 +369,9 @@ div.button.disabled:hover {
   text-decoration: none;
 }
 div.button div.cooldown {
-  background-color: var(--cooldown);
-  mix-blend-mode: multiply;
+  /* 冷却中：暗色半透明遮罩盖住「未就绪」部分，宽度随冷却从 100% → 0% 收缩。
+     被盖住的部分变暗，露出的部分恢复正常亮度，减到 0 即再次可点击。 */
+  background-color: rgba(20, 10, 3, 0.55);
 }
 
 /* 主按钮 / 大按钮（橙色强调，参考图1的高亮主按钮） */
