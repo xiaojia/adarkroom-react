@@ -18,7 +18,8 @@ export function setFormatter(newFormatter) {
 }
 
 export function setTranslation(newTranslation) {
-  translation = newTranslation;
+  // 合并而非覆盖：允许语言包在文件末尾追加一段 _.setTranslation({...})
+  translation = { ...(translation || {}), ...newTranslation };
 }
 
 function lookup(target) {

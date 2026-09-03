@@ -19,7 +19,6 @@ export default function NotificationBar() {
           </div>
         ))}
       </div>
-      <div id="notifyGradient" />
     </div>
   );
 }

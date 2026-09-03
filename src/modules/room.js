@@ -12,7 +12,10 @@ import { requireModule } from '../engine/moduleLoader';
 
 export const Room = {
   // 时间常量
-  _FIRE_COOL_DELAY: 5 * 60 * 1000,
+  _FIRE_COOL_DELAY: 5 * 60 * 1000, // 正式阶段：火 5 分钟降一级
+  _START_COOL_DELAY: 20 * 1000, // 开始阶段：火 20 秒降一级
+  _START_WARN_DELAY: 15 * 1000, // 开始阶段：15 秒没续柴就提示
+  _TRIAL_DELAY: 5 * 1000, // 试火：第一次生火 5 秒后自动熄灭
   _ROOM_WARM_DELAY: 30 * 1000,
   _BUILDER_STATE_DELAY: 0.5 * 60 * 1000,
   _STOKE_COOLDOWN: 10,
@@ -158,6 +161,10 @@ export const Room = {
   _fireTimer: null,
   _tempTimer: null,
   _builderTimer: null,
+  _warnTimer: null,
+  _trialTimer: null,
+  _deathTimer: null,
+  _chapterTimers: [],
 
   init(options) {
     if (Engine.options.debug) {
@@ -166,6 +173,18 @@ export const Room = {
       Room._STOKE_COOLDOWN = 0;
       Room._NEED_WOOD_DELAY = 5000;
     }
+
+    // 死亡状态存档不可恢复：若在死亡结局中刷新/重进，直接清档从头开始
+    if ($SM.get('game.deathMask')) {
+      Engine.deleteSave();
+      return;
+    }
+
+    // 全新开局判定：没有存档（无木头、无火、从未点过火）
+    const isFreshGame =
+      typeof $SM.get('stores.wood') === 'undefined' &&
+      typeof $SM.get('game.fire.value') === 'undefined' &&
+      typeof $SM.get('game.fireLit') === 'undefined';
 
     if (typeof $SM.get('features.location.room') === 'undefined') {
       $SM.set('features.location.room', true);
@@ -176,23 +195,50 @@ export const Room = {
     $SM.set('game.temperature', $SM.get('game.temperature.value') === undefined ? Room.TempEnum.Freezing : $SM.get('game.temperature'));
     $SM.set('game.fire', $SM.get('game.fire.value') === undefined ? Room.FireEnum.Dead : $SM.get('game.fire'));
 
+    // 初章标记：
+    //  - 全新开局 → 进入「开始阶段」（chapterDone=false），默认发 15 根木柴
+    //  - 旧存档（本章节系统出现前创建）→ 一律视为已过初章，走正式阶段
+    if (isFreshGame) {
+      $SM.set('game.chapterDone', false);
+      $SM.set('stores.wood', 15);
+    } else if (typeof $SM.get('game.chapterDone') === 'undefined') {
+      $SM.set('game.chapterDone', true);
+      // 旧规则：身上有木头即代表静谧森林已解锁 → 补记解锁标记
+      if (typeof $SM.get('stores.wood') !== 'undefined' && !$SM.get('features.location.outside')) {
+        const Outside = requireModule('outside');
+        if (Outside && Outside.init) Outside.init();
+      }
+    }
+
+    // 若加载发生在初章结尾动画中途：直接收尾（不再重放动画），保证状态一致
+    if ($SM.get('game.chapterAnim')) {
+      if ($SM.get('game.fire.value', true) > 0) $SM.set('game.fire', Room.FireEnum.Dead);
+      $SM.set('game.chapterDone', true);
+      $SM.set('game.chapterAnim', false);
+      $SM.set('game.chapterMask', false);
+      if (Engine.isLightsOff()) Engine.turnLightsOff();
+      Room.openForest();
+    }
+
     Room.migrateEquip();
 
     // 定时器
     clearTimeout(Room._fireTimer);
     clearTimeout(Room._tempTimer);
-    Room._fireTimer = Engine.setTimeout(Room.coolFire, Room._FIRE_COOL_DELAY);
+    clearTimeout(Room._warnTimer);
+    clearTimeout(Room._trialTimer);
+    Room._resetFireTimers();
     Room._tempTimer = Engine.setTimeout(Room.adjustTemp, Room._ROOM_WARM_DELAY);
 
     if ($SM.get('game.builder.level') >= 0 && $SM.get('game.builder.level') < 3) {
       Room._builderTimer = Engine.setTimeout(Room.updateBuilderState, Room._BUILDER_STATE_DELAY);
     }
-    if ($SM.get('game.builder.level') === 1 && $SM.get('stores.wood', true) < 0) {
-      Engine.setTimeout(Room.unlockForest, Room._NEED_WOOD_DELAY);
-    }
 
     Notifications.notify(Room, _('the room is {0}', Room.TempEnum.fromInt($SM.get('game.temperature.value')).text));
     Notifications.notify(Room, _('the fire is {0}', Room.FireEnum.fromInt($SM.get('game.fire.value')).text));
+    if (isFreshGame) {
+      Notifications.notify(Room, _('there are some logs beside you, you can light a fire'));
+    }
   },
 
   onArrival() {
@@ -217,36 +263,116 @@ export const Room = {
     return $SM.get('game.fire.value') < 2 ? _('A Dark Room') : _('A Firelit Room');
   },
 
+  /* --------------------------- 初章 / 火势控制 --------------------------- */
+
+  /** 是否处于「开始阶段」（初章尚未完成，火还没烧到过 4 级） */
+  inStartPhase() {
+    return !$SM.get('game.chapterDone');
+  },
+
+  /** 初章结尾动画是否进行中（期间禁止玩家操作火） */
+  isChapterAnimating() {
+    return !!$SM.get('game.chapterAnim');
+  },
+
   lightFire() {
-    const wood = $SM.get('stores.wood');
+    if (Room.isChapterAnimating() || $SM.get('game.deathMask')) return false;
+    const wood = $SM.get('stores.wood', true);
     if (wood < 5) {
       Notifications.notify(Room, _('not enough wood to get the fire going'));
+      if (Room.inStartPhase()) {
+        // 开始阶段没有其他木头来源：直接按“是否还过得去初章”判定
+        Room.checkDoomed();
+      } else {
+        Notifications.notify(Room, _('not enough wood, you should go outside and look around'));
+      }
       return false;
     }
-    if (wood > 4) {
-      $SM.set('stores.wood', wood - 5);
+    $SM.set('stores.wood', wood - 5);
+
+    if (Room.inStartPhase()) {
+      // 开始阶段：生火只点起小火（1 级），之后要反复添柴升温
+      const firstEver = !$SM.get('game.fireLit');
+      $SM.set('game.fire', Room.FireEnum.Smoldering);
+      $SM.set('game.fireLit', true); // 首次点火标记：驱动 RoomScene 黑遮罩开场
+      if (firstEver) {
+        // 第一次点火是「试火」：展示 dark1 开场，5 秒后自动熄灭
+        $SM.set('game.trialActive', true);
+        clearTimeout(Room._trialTimer);
+        Room._trialTimer = Engine.setTimeout(Room.endTrial, Room._TRIAL_DELAY, true);
+      } else {
+        Room.armStartCool();
+        Room.armStartWarn();
+      }
+      Room.setTitle();
+      Room.checkDoomed();
+      return true;
     }
+
+    // 正式阶段：与旧版一致，直接烧旺（3 级）
     $SM.set('game.fire', Room.FireEnum.Burning);
-    $SM.set('game.fireLit', true); // 首次点火标记：驱动 RoomScene 的黑遮罩渐隐 + dark1 开场
+    $SM.set('game.fireLit', true);
     Room.onFireChange();
+    return true;
+  },
+
+  /** 试火结束：5 秒后自动把火熄灭，回到 dark0 并提示 */
+  endTrial() {
+    $SM.set('game.trialActive', false);
+    clearTimeout(Room._fireTimer);
+    clearTimeout(Room._warnTimer);
+    if (!Room.inStartPhase()) return;
+    if ($SM.get('game.fire.value', true) > 0) {
+      $SM.set('game.fire', Room.FireEnum.Dead);
+      Notifications.notify(Room, _('the fire went out. it is cold'));
+      Room.setTitle();
+    }
+    Room.checkDoomed();
   },
 
   stokeFire() {
-    const wood = $SM.get('stores.wood');
+    if (Room.isChapterAnimating() || $SM.get('game.deathMask')) return false;
+    if ($SM.get('game.trialActive')) return false; // 试火阶段：只能看，不能添
+    const wood = $SM.get('stores.wood', true);
     if (wood === 0) {
       Notifications.notify(Room, _('the wood has run out'));
       return false;
     }
-    if (wood > 0) {
-      $SM.set('stores.wood', wood - 1);
+    const cur = $SM.get('game.fire.value', true);
+    if (cur <= 0) return false; // 火已灭，需先点生火
+    if (cur >= Room.FireEnum.Roaring.value) {
+      // 已到最高（熊熊）：添柴无效，给明确反馈，避免点击无反应
+      Notifications.notify(Room, _('the fire is {0}', Room.FireEnum.Roaring.text));
+      return false;
     }
-    if ($SM.get('game.fire.value') < 4) {
-      $SM.set('game.fire', Room.FireEnum.fromInt($SM.get('game.fire.value') + 1));
+
+    $SM.set('stores.wood', wood - 1);
+    const nv = cur + 1;
+    $SM.set('game.fire', Room.FireEnum.fromInt(nv));
+
+    if (Room.inStartPhase()) {
+      if (nv >= Room.FireEnum.Roaring.value) {
+        // 烧到 4 级（熊熊）：提示房间更暖，再进入初章结尾
+        Notifications.notify(Room, _('the room is {0}', Room.TempEnum.Hot.text));
+        Room.beginChapterEnd(); // 进入初章结尾（过完初章才解锁外面）
+      } else {
+        if (nv === Room.FireEnum.Burning.value) {
+          // 烧到 3 级（燃烧）：房间暖和了
+          Notifications.notify(Room, _('the room is {0}', Room.TempEnum.Warm.text));
+        }
+        Room.armStartCool();
+        Room.armStartWarn();
+        Room.setTitle();
+      }
+      Room.checkDoomed();
+      return true;
     }
     Room.onFireChange();
+    return true;
   },
 
   onFireChange() {
+    if (Room.inStartPhase()) return; // 开始阶段的火势变化走独立流程，不走这里
     if (Engine.activeModuleId !== 'room') {
       Room.changed = true;
     }
@@ -265,10 +391,58 @@ export const Room = {
     Room.setTitle();
   },
 
+  /** 统一重启火势相关定时器（进入/加载房间时） */
+  _resetFireTimers() {
+    clearTimeout(Room._fireTimer);
+    clearTimeout(Room._warnTimer);
+    clearTimeout(Room._trialTimer);
+    const v = $SM.get('game.fire.value', true);
+    if (v <= 0 || !$SM.get('game.fireLit')) return;
+    if (Room.inStartPhase()) {
+      if ($SM.get('game.trialActive')) {
+        // 试火途中重载：补一个 5 秒熄灭定时
+        Room._trialTimer = Engine.setTimeout(Room.endTrial, Room._TRIAL_DELAY, true);
+        return;
+      }
+      if (!$SM.get('game.chapterAnim')) {
+        Room.armStartCool();
+        Room.armStartWarn();
+      }
+    } else {
+      Room._fireTimer = Engine.setTimeout(Room.coolFire, Room._FIRE_COOL_DELAY);
+    }
+  },
+
+  /** 开始阶段：20 秒后降一级 */
+  armStartCool() {
+    clearTimeout(Room._fireTimer);
+    Room._fireTimer = Engine.setTimeout(Room.coolFire, Room._START_COOL_DELAY);
+  },
+
+  /** 开始阶段：15 秒没续柴就提醒「火堆快熄灭了」 */
+  armStartWarn() {
+    clearTimeout(Room._warnTimer);
+    if ($SM.get('game.trialActive')) return;
+    if (!$SM.get('game.fireLit')) return;
+    if ($SM.get('game.fire.value', true) <= 0) return;
+    if (!Room.inStartPhase()) return;
+    Room._warnTimer = Engine.setTimeout(() => {
+      if ($SM.get('game.trialActive')) return;
+      if ($SM.get('game.fire.value', true) <= 0) return;
+      if (Room.isChapterAnimating()) return;
+      Notifications.notify(Room, _('the fire is almost out. it is cold'));
+    }, Room._START_WARN_DELAY);
+  },
+
   coolFire() {
-    const wood = $SM.get('stores.wood');
+    if (Room.inStartPhase()) {
+      Room.coolStartPhase();
+      return;
+    }
+    // ===== 正式阶段（旧版逻辑：5 分钟降一级）=====
+    const wood = $SM.get('stores.wood', true);
     if ($SM.get('game.fire.value') <= Room.FireEnum.Flickering.value &&
-      $SM.get('game.builder.level') > 3 && wood > 0) {
+      $SM.get('game.builder.level', true) > 3 && wood > 0) {
       Notifications.notify(Room, _('builder stokes the fire'), true);
       $SM.set('stores.wood', wood - 1);
       $SM.set('game.fire', Room.FireEnum.fromInt($SM.get('game.fire.value') + 1));
@@ -280,15 +454,129 @@ export const Room = {
     }
   },
 
+  /** 开始阶段降温：20 秒降一级；降完后若“算总账过不了初章”则直接死亡 */
+  coolStartPhase() {
+    clearTimeout(Room._warnTimer);
+    const cur = $SM.get('game.fire.value', true);
+    if (cur <= 0 || Room.isChapterAnimating() || $SM.get('game.trialActive')) return;
+    const nv = cur - 1;
+    $SM.set('game.fire', Room.FireEnum.fromInt(nv));
+    Room.setTitle();
+    Room.checkDoomed();
+    if (!$SM.get('game.deathMask')) {
+      if (nv > 0) {
+        Room.armStartCool();
+        Room.armStartWarn();
+      }
+    }
+  },
+
+  /**
+   * 初章死亡判定：只在开始阶段触发。
+   * 火还没到 4 级时，先“算总账”——从现在升到 4 级还差几次生火/添柴，
+   * 需要的柴数一旦超过手上木柴，就说明初章已经过不去了 → 直接展示死亡结局，
+   * 不再等火焰一级一级自然熄灭。
+   */
+  checkDoomed() {
+    if (!Room.inStartPhase()) return;
+    if ($SM.get('game.chapterAnim') || $SM.get('game.deathMask')) return;
+    const f = $SM.get('game.fire.value', true);
+    const wood = $SM.get('stores.wood', true);
+    if (f >= Room.FireEnum.Roaring.value) return; // 已在 4 级（正进入初章结尾）
+    // 0 级需重新生火(5 根)再添 3 次柴(共 8)；1-3 级只需添 (4-f) 次柴
+    const need = f > 0 ? Room.FireEnum.Roaring.value - f : 5 + (Room.FireEnum.Roaring.value - 1);
+    if (wood >= need) return; // 柴还够走到 4 级，继续
+    Room.dieCold();
+  },
+
+  /** 死亡结局：黑屏遮罩 5 秒合拢 + 提示，全黑后再弹重启窗（复用菜单的重开功能） */
+  dieCold() {
+    if ($SM.get('game.deathMask')) return;
+    clearTimeout(Room._fireTimer);
+    clearTimeout(Room._warnTimer);
+    clearTimeout(Room._trialTimer);
+    clearTimeout(Room._tempTimer);
+    $SM.set('game.chapterMask', false);
+    $SM.set('game.deathMask', true); // RoomScene：摘掉 revealed → 黑屏 5 秒
+    Notifications.notify(Room, _('the stranger falls asleep in the freezing room, and never wakes up'));
+    Room.scheduleDeathModal();
+  },
+
+  scheduleDeathModal() {
+    clearTimeout(Room._deathTimer);
+    Room._deathTimer = Engine.setTimeout(() => Engine.confirmDelete(), 5000, true);
+  },
+
+  /** 火势烧到 4 级：进入初章结尾动画（入睡 → 黑屏 → 天亮）；过完初章才解锁静谧森林 */
+  beginChapterEnd() {
+    clearTimeout(Room._fireTimer);
+    clearTimeout(Room._warnTimer);
+    clearTimeout(Room._trialTimer);
+    Room._chapterTimers.forEach(clearTimeout);
+    Room._chapterTimers = [];
+
+    // 此时仍在初章内（chapterDone 保持 false），只是进入了结尾动画
+    $SM.set('game.chapterAnim', true);
+    $SM.set('game.chapterMask', false);
+    $SM.set('game.trialActive', false);
+    Room.setTitle();
+
+    const at = (ms, fn) => {
+      const t = Engine.setTimeout(fn, ms, true); // 章节动画按真实秒数走，不受 hyper 影响
+      Room._chapterTimers.push(t);
+    };
+
+    // 1) +5s：提示入睡；黑色遮罩开始 5 秒合拢（RoomScene 依 chapterMask 过渡）
+    at(5000, () => {
+      Notifications.notify(Room, _('the stranger falls asleep in the warm room'));
+      $SM.set('game.chapterMask', true);
+    });
+    // 2) +10s：黑屏期间火熄灭（切 dark0，玩家看不到）
+    at(10000, () => {
+      if ($SM.get('game.fire.value', true) > 0) {
+        $SM.set('game.fire', Room.FireEnum.Dead);
+        Room.setTitle();
+      }
+    });
+    // 3) +15s：天亮 → 提示 + 切到开灯（白天）模式；遮罩开始 5 秒打开
+    at(15000, () => {
+      Notifications.notify(Room, _('the light of dawn is growing, and the fire has gone out'));
+      if (Engine.isLightsOff()) Engine.turnLightsOff();
+      $SM.set('game.chapterMask', false);
+    });
+    // 4) +20s：动画结束 = 初章结束 → 解锁静谧森林与开灯按钮，恢复玩家操作
+    at(20000, () => {
+      Room._chapterTimers = [];
+      $SM.set('game.chapterDone', true);
+      $SM.set('game.chapterAnim', false);
+      Room.openForest();
+    });
+  },
+
+  /** 解锁静谧森林与开灯按钮（过完初章才开放） */
+  openForest() {
+    if (!$SM.get('features.location.outside')) {
+      const Outside = requireModule('outside');
+      if (Outside && Outside.init) Outside.init();
+    }
+    $SM.set('game.lightsOffUnlocked', true);
+  },
+
   adjustTemp() {
     const old = $SM.get('game.temperature.value');
+    // 初章阶段：温度自动升降只改数值、不弹提示，避免周期性冒出「房间很冷/暖和」等噪音
+    const silent = Room.inStartPhase();
     if ($SM.get('game.temperature.value') > 0 && $SM.get('game.temperature.value') > $SM.get('game.fire.value')) {
       $SM.set('game.temperature', Room.TempEnum.fromInt($SM.get('game.temperature.value') - 1));
-      Notifications.notify(Room, _('the room is {0}', Room.TempEnum.fromInt($SM.get('game.temperature.value')).text), true);
+      if (!silent) {
+        Notifications.notify(Room, _('the room is {0}', Room.TempEnum.fromInt($SM.get('game.temperature.value')).text), true);
+      }
     }
     if ($SM.get('game.temperature.value') < 4 && $SM.get('game.temperature.value') < $SM.get('game.fire.value')) {
       $SM.set('game.temperature', Room.TempEnum.fromInt($SM.get('game.temperature.value') + 1));
-      Notifications.notify(Room, _('the room is {0}', Room.TempEnum.fromInt($SM.get('game.temperature.value')).text), true);
+      if (!silent) {
+        Notifications.notify(Room, _('the room is {0}', Room.TempEnum.fromInt($SM.get('game.temperature.value')).text), true);
+      }
     }
     if ($SM.get('game.temperature.value') !== old) {
       Room.changed = true;
@@ -298,9 +586,11 @@ export const Room = {
   },
 
   unlockForest() {
+    // 改版后静谧森林改由「火达 4 级」（初章结束）解锁；此方法仅兜底旧存档流程
+    if ($SM.get('features.location.outside')) return;
     $SM.set('stores.wood', 4);
     const Outside = requireModule('outside');
-    Outside.init();
+    if (Outside && Outside.init) Outside.init();
     Notifications.notify(Room, _('the wind howls outside'));
     Notifications.notify(Room, _('the wood is running out'));
     Engine.event('progress', 'outside');

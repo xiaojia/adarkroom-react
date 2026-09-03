@@ -31,10 +31,13 @@ export default function RoomPanel() {
   useTick();
 
   const fireValue = $SM.get('game.fire.value', true);
+  const trialActive = !!$SM.get('game.trialActive'); // 试火期间只能看、不能添
+  const chapterAnim = !!$SM.get('game.chapterAnim'); // 初章结尾动画期间锁定
+  const deathMask = !!$SM.get('game.deathMask'); // 死亡结局黑屏期间锁定
 
   const fireDead = fireValue <= Room.FireEnum.Dead.value;
-  // 与原版一致：点火按钮永不禁用（wood 为 undefined 时免费点火；wood < 5 时点击提示木头不足）
-  const stokeDisabled = $SM.get('stores.wood', true) <= 0;
+  // 与原版一致：点火按钮永不禁用（wood 不足时点击提示木头不足）；添柴在没柴/试火/章节动画时禁用
+  const stokeDisabled = $SM.get('stores.wood', true) <= 0 || trialActive || chapterAnim || deathMask;
 
   const buildBtns = Room.getBuildButtons();
   const craftBtns = Room.getCraftButtons();
@@ -53,6 +56,7 @@ export default function RoomPanel() {
                 width="80px"
                 cost={{ wood: 5 }}
                 cooldown={Room._STOKE_COOLDOWN}
+                disabled={chapterAnim || deathMask}
                 onClick={() => Room.lightFire()}
               />
             ) : (

@@ -17,6 +17,7 @@ import GameButton from './shared/GameButton';
 import PixelIcon from './shared/PixelIcon';
 import { Pixel } from '../modules/pixel';
 import { _ } from '../i18n';
+import { useEffect, useRef } from 'react';
 
 function Lines({ lines }) {
   if (!lines || lines.length === 0) return null;
@@ -116,9 +117,18 @@ function DropMenu({ rows }) {
 }
 
 function Textarea({ ta }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    // 默认把光标放进输入框；只读（导出代码）时自动全选，方便直接复制
+    if (!ref.current) return;
+    ref.current.focus();
+    if (ta.readonly) ref.current.select();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   if (!ta) return null;
   return (
     <textarea
+      ref={ref}
       readOnly={!!ta.readonly}
       value={ta.value}
       onChange={(e) => Events.setTextarea(e.target.value)}

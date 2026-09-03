@@ -94,6 +94,12 @@ export const Engine = {
 
     initStateManager();
 
+    // 恢复持久化的开关灯状态（默认熄灯=黑天；玩家切换过则记住）
+    if (typeof $SM.get('game.lightsOff') !== 'undefined') {
+      Engine.options = { ...Engine.options, lightsOff: !!$SM.get('game.lightsOff') };
+      useEngine.setState({ options: Engine.options });
+    }
+
     // 绑定 $SM 需要的引擎回调
     bindEngine({
       saveGame: () => Engine.saveGame(),
@@ -110,6 +116,10 @@ export const Engine = {
       if (m.isAvailable && !m.isAvailable(State)) continue;
       if (m.init) m.init(Engine.options);
     }
+
+    // 启动收入循环：collectIncome 内部会调度下一次（每 1s 结算一格）
+    clearTimeout(Engine._incomeTimeout);
+    Engine._incomeTimeout = setTimeout(() => $SM.collectIncome(), 1000);
 
     Engine.saveLanguage();
     Engine.travelTo('room');
@@ -280,8 +290,12 @@ export const Engine = {
           buttons: {
             export: {
               text: _('export'),
-              nextScene: 'end',
-              onChoose: () => Engine.export64(),
+              nextScene: 'export',
+              onChoose: () => {
+                // 把存档文本写入事件 textarea（只读、自动全选，方便用户复制）
+                const ev = Events.activeEvent();
+                if (ev) ev._textareaValue = Engine.export64();
+              },
             },
             import: {
               text: _('import'),
@@ -289,6 +303,17 @@ export const Engine = {
             },
             cancel: {
               text: _('cancel'),
+              nextScene: 'end',
+            },
+          },
+        },
+        export: {
+          text: [_('save code:'), _('select it and copy it somewhere safe')],
+          textarea: '',
+          readonly: true,
+          buttons: {
+            close: {
+              text: _('close'),
               nextScene: 'end',
             },
           },
@@ -367,9 +392,13 @@ export const Engine = {
   },
 
   turnLightsOff() {
+    const v = !Engine.options.lightsOff;
+    Engine.options = { ...Engine.options, lightsOff: v };
     useEngine.setState((s) => ({
-      options: { ...s.options, lightsOff: !s.options.lightsOff },
+      options: { ...s.options, lightsOff: v },
     }));
+    // 持久化开关灯状态到存档（刷新/重进后保留）
+    try { $SM.set('game.lightsOff', v); } catch (e) {}
   },
 
   toggleDoubleTime() {

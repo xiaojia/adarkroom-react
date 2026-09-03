@@ -96,10 +96,10 @@ body {
 #scene-backdrop .scene.active { opacity: 1; }
 
 /* ============================================================
- * 生火间（room）：8 张火势背景图（夜/昼 × 火势 0-3）+ 黑遮罩渐隐
- * RoomScene 渲染 3 层（DOM 顺序即 z 序）：
- *   cur（新图，渐显盖住旧图） →  prev（旧图，垫底）  →  最上 room-mask 黑遮罩
- * 熄灯（夜）→ drakN；开灯（昼）→ lightN。
+ * 生火间（room）：8 张火势背景图（夜/昼 × 火势 0-3）常驻 DOM + 黑遮罩
+ * 平时只有一张可见（.base）；切图时新图加 .top 在其上渐显（无缝衔接）。
+ * 熄灯（夜）→ drakN；开灯（昼）→ lightN；fire3/fire4 共用最大图 3。
+ * 遮罩在最上层（z-index 大于图片），负责进场全黑/开场/章节黑屏。
  * ============================================================ */
 #scene-backdrop .scene[data-scene="room"] {
   background-color: #000;
@@ -117,28 +117,46 @@ body {
   height: 100%;
   object-fit: cover;
   object-position: center;
+  opacity: 0; /* 8 张图常驻 DOM（同时完成预加载），只点亮需要的那张 */
+  z-index: 0;
 }
-/* 旧图垫底（已完全可见），新图在其上渐显，实现无缝交叉过渡 */
-.room-img.prev { opacity: 1; }
-.room-img.cur {
+.room-img.base {
   opacity: 1;
+  z-index: 1;
+}
+/* 新目标图：压住旧图（base）渐显；动画结束由 React 把它降为 base */
+.room-img.top {
+  opacity: 1;
+  z-index: 2;
   animation: room-img-in 1.4s ease;
 }
 @keyframes room-img-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-/* 黑遮罩：首次点亮前全黑（用于预加载背景图、避免首帧卡顿）；
-   首次点亮后渐隐，透出 dark1 开场画面 */
+/* 黑遮罩：进场前全黑；最上层盖住所有背景图。
+   三种受控动画：
+   - .spark（首次点火）：闪开约 0.3s → 合拢 → 5s 渐隐，露出 dark1 开场；
+   - .revealed 摘除/恢复（初章结尾 / 死亡结局）：遮罩 5s 合拢黑屏 / 5s 打开天亮。
+   用 linear 保证「天亮」的亮度是均匀、完整地铺满 5 秒（ease 会前半段过快）。 */
 .room-mask {
   position: absolute;
   inset: 0;
   background: #000;
   opacity: 1;
   pointer-events: none;
-  transition: opacity 3s ease;
+  z-index: 3;
+  transition: opacity 5s linear;
 }
 .room-scene.revealed .room-mask { opacity: 0; }
+.room-scene.spark .room-mask { animation: room-mask-spark 5.4s linear forwards; }
+@keyframes room-mask-spark {
+  0% { opacity: 1; }
+  1% { opacity: 0; }  /* 瞬间闪开 */
+  7% { opacity: 0; }  /* 保持透明约 0.3s */
+  8% { opacity: 1; }  /* 遮罩合拢 */
+  100% { opacity: 0; } /* 剩余约 5s 渐渐露出背景 */
+}
 
 #layout { position: relative; z-index: 1; }
 

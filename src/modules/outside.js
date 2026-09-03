@@ -80,6 +80,7 @@ export const Outside = {
   ],
 
   _popTimeout: null,
+  _bound: false,
 
   init(options) {
     if (Engine.options.debug) {
@@ -87,8 +88,11 @@ export const Outside = {
       Outside._TRAPS_DELAY = 0;
     }
 
-    // subscribe to stateUpdates
-    Dispatch('stateUpdate').subscribe(Outside.handleStateUpdates);
+    // subscribe to stateUpdates（只绑一次，避免章节解锁 + 引擎重复 init 造成多次订阅）
+    if (!Outside._bound) {
+      Dispatch('stateUpdate').subscribe(Outside.handleStateUpdates);
+      Outside._bound = true;
+    }
 
     if (typeof $SM.get('features.location.outside') === 'undefined') {
       $SM.set('features.location.outside', true);

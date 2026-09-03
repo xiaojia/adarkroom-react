@@ -83,7 +83,8 @@ async function boot() {
     Component: OutsidePanel,
     init: Outside.init,
     onArrival: Outside.onArrival,
-    isAvailable: (st) => typeof st.stores?.wood !== 'undefined',
+    // 静谧森林解锁重构：由「有木头即可见」改为「火达 4 级（初章结束）才展示」
+    isAvailable: (st) => !!st.features?.location?.outside,
   });
   ModuleRegistry.register({
     id: 'path',

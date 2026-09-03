@@ -89,6 +89,12 @@ select.menuBtn {
   align-items: flex-start;
   gap: 4px;
   margin-bottom: 10px;
+  animation: notify-in 0.5s ease; /* 新消息渐显 */
+}
+
+@keyframes notify-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 #notifications .notification .px-icon {
@@ -99,16 +105,6 @@ select.menuBtn {
 #notifications .px-icon svg {
   width: 20px;
   height: 20px;
-}
-
-#notifyGradient {
-  height: 30px;
-  flex-shrink: 0;
-  background: linear-gradient(rgba(255, 255, 255, 0), var(--bg));
-}
-
-body.noMask #notifyGradient {
-  background: linear-gradient(rgba(0, 0, 0, 0), #000);
 }
 
 /* ---------------- 主区域（右侧） ---------------- */
@@ -151,6 +147,7 @@ div.headerButton.selected:hover {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
+  padding: 10px 0;
 }
 
 /* ---------------- 面板通用 ---------------- */
@@ -333,7 +330,6 @@ div.tooltip {
 }
 
 #roomBody {
-  padding: 10px 0;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
@@ -784,6 +780,7 @@ div.perkRow {
   opacity: 0;
   z-index: 60;
   transition: opacity 0.2s;
+  pointer-events: none;
 }
 
 /* ---------------- 杂项 ---------------- */
