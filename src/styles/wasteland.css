@@ -75,6 +75,7 @@ body {
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
+  filter: blur(3px);
 }
 #scene-backdrop .scene {
   position: absolute;
@@ -115,10 +116,16 @@ body {
   overflow: hidden;
   /* 建立独立层叠上下文，隔离内部图片的 z-index，确保永远垫底在 .scene 之下 */
   z-index: 0;
+  /* 固定位移 / 模糊用场景类名（scene-room / scene-path）控制；
+     JS 只注入动态视差变量 --px/--py。默认：居中、不模糊。 */
+  --shift: 0vw;
+  --blur: none;
 }
-/* 生火间：窗外朝右侧看森林 → 森林正常左移 50%（不扩图）。
-   实际左移与视差位移由组件内联 transform 计算；窗户透出的部分不多，
-   右侧露空会被生火间房间图盖住，无需拓宽图片。 */
+/* 生火间：窗外朝右侧看森林 → 森林左移 50%（不扩图）＋高斯模糊。
+   窗户透出的部分不多，右侧露空会被生火间房间图盖住，无需拓宽图片。 */
+.outside-scene.scene-room { --shift: -50vw; --blur: blur(2.5px); }
+/* 漫漫尘途：窗外森林右移 10%（背景图已左右镜像）＋高斯模糊 */
+.outside-scene.scene-path { --shift: 10vw; --blur: blur(2.5px); }
 /* 生火间窗外：在森林上方加一层白色半透明遮罩（透过窗户的蒙雾感） */
 .outside-veil {
   position: absolute;
@@ -142,6 +149,10 @@ body {
   object-position: center;
   opacity: 0; /* 8 张图常驻 DOM（同时完成预加载），只点亮需要的那张 */
   z-index: 0;
+  /* 固定位移(--shift)与模糊(--blur)由容器场景类名决定；--px/--py 为组件注入的动态视差。
+     缩放 1.01 与 OutsideScene.jsx 的 ZOOM 常量对应（留出视差余量）。 */
+  transform: translate(calc(var(--px, 0px) + var(--shift, 0vw)), var(--py, 0px)) scale(1.01);
+  filter: var(--blur, none);
 }
 /* prev：上一张图，作为底层始终保持 opacity 1（切换瞬间不露底） */
 .outside-img.prev {
@@ -428,7 +439,7 @@ div.btnColumn, div.btnColumn * {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin: -4px -6px 8px;
+  margin: -12px -6px 8px;
   padding: 5px 12px 6px;
   border-radius: 3px;
   background: #3a2716;
@@ -475,8 +486,8 @@ div.button.disabled:hover {
   text-decoration: none;
 }
 div.button div.cooldown {
-  /* 冷却中：暗色半透明遮罩盖住「未就绪」部分，宽度随冷却从 100% → 0% 收缩 */
-  background-color: rgba(20, 12, 5, 0.5);
+  /* 冷却中：醒目的暖橙遮罩盖住「未就绪」部分，宽度随冷却从 100% → 0% 收缩 */
+  background-color: rgba(224, 134, 52, 0.3);
 }
 
 /* 主按钮 / 大按钮（琥珀强调） */

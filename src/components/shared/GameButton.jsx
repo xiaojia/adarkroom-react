@@ -33,18 +33,14 @@ export function GameButton({
 
   const handleClick = () => {
     if (isDisabled) return;
-    let started = false;
+    // 点击即生效冷却：无论处理是否成功，都从本次点击开始冷却。
+    // 这样火到最高级（添柴返回 false）时不会因「取消冷却」而被无限点击。
+    // 冷却由 CooldownTicker 按真实秒数递减，按钮在冷却期间禁用。
     if (cooldown > 0 && id) {
       $SM.set('cooldown.' + id, cooldown, true);
       commit();
-      started = true;
     }
-    // 若处理器返回 false（如资源不足），取消本次冷却（对应旧版 Button.clearCooldown）
-    const res = onClick ? onClick() : undefined;
-    if (started && res === false && id) {
-      $SM.remove('cooldown.' + id, true);
-      commit();
-    }
+    if (onClick) onClick();
   };
 
   return (

@@ -95,19 +95,21 @@ export default function OutsideScene() {
     };
   }, []);
 
-  const tx = mouse.x * MAX_OFF * viewport.w; // 视差：±5% 视口宽
-  const ty = mouse.y * MAX_OFF * viewport.h;
-  // 窗外朝右看森林 → 整体平移视口宽的一半，再叠加视差。
-  // 漫漫尘途背景图已左右镜像、且不再依赖森林位移，故只有生火间左移 50%。
-  const shiftX = activeModule === 'room' ? viewport.w * 0.5 : 0;
-  // 生火间 / 漫漫尘途窗外加很小的高斯模糊（透过窗户的景深感）；静谧森林 tab 保持清晰
-  const blur = (activeModule === 'room' || activeModule === 'path') ? 2.5 : 0;
+  // 固定位移 / 缩放 / 模糊全部由 CSS 场景类名（scene-room / scene-path）控制，
+  // JS 只负责：挂类名 + 注入动态鼠标视差变量 --px/--py（漫漫尘途固定、不视差）。
+  const scene =
+    activeModule === 'room' ? 'scene-room'
+    : activeModule === 'path' ? 'scene-path'
+    : '';
+  const parallax = activeModule !== 'path';
+  const tx = parallax ? mouse.x * MAX_OFF * viewport.w : 0; // 视差：±5% 视口宽
+  const ty = parallax ? mouse.y * MAX_OFF * viewport.h : 0;
 
   // 过完初章后才显示森林远景——不，改：初章期间森林背景照常渲染（完成预加载），
   // 只是静谧森林 tab 由 room.openForest 在初章结束时才解锁展示。
   // 初章期间窗外被生火间黑遮罩覆盖，森林不露画面，但常驻 DOM 不会闪白。
   return (
-    <div className={`outside-scene${activeModule === 'room' ? ' shift-left' : ''}`}>
+    <div className={`outside-scene ${scene}`}>
       {IMAGES.map((src, i) => {
         let cls = 'outside-img';
         if (i === prev) cls += ' prev';
@@ -119,10 +121,7 @@ export default function OutsideScene() {
             src={src}
             alt=""
             draggable="false"
-            style={{
-              transform: `translate(${tx - shiftX}px, ${ty}px) scale(${ZOOM})`,
-              filter: blur ? `blur(${blur}px)` : 'none',
-            }}
+            style={{ '--px': `${tx}px`, '--py': `${ty}px` }}
           />
         );
       })}

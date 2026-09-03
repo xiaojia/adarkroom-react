@@ -35,7 +35,8 @@ export default function RoomPanel() {
   const deathMask = !!$SM.get('game.deathMask'); // 死亡结局黑屏期间锁定
 
   const fireDead = fireValue <= Room.FireEnum.Dead.value;
-  // 与原版一致：点火按钮永不禁用（wood 不足时点击提示木头不足）；添柴在没柴/试火/章节动画时禁用
+  // 点火按钮永不禁用（wood 不足时点击提示木头不足）；添柴在没柴/试火/章节动画时禁用。
+  // 火到最高级（熊熊）不禁用：点了会提示「火已是最高」，但冷却仍生效，避免无限点击。
   const stokeDisabled = $SM.get('stores.wood', true) <= 0 || trialActive || chapterAnim || deathMask;
 
   const buildBtns = Room.getBuildButtons();
