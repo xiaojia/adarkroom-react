@@ -12,6 +12,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles/game.css';
+import './styles/wasteland.css';
 
 async function boot() {
   // --- 1. i18n ---

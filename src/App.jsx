@@ -12,6 +12,7 @@ import { $SM } from './store/stateManager';
 import HeaderBar from './components/HeaderBar';
 import NotificationBar from './components/NotificationBar';
 import EventModal from './components/EventModal';
+import SceneBackdrop from './components/SceneBackdrop';
 
 /** 冷却计时器：每 500ms 递减 $SM 中所有 cooldown.<id> */
 function CooldownTicker() {
@@ -84,6 +85,7 @@ function App() {
 
   return (
     <div id="game">
+      <SceneBackdrop />
       <div id="layout">
         <NotificationBar />
         <div id="main">

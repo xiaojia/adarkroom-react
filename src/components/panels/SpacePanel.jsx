@@ -76,9 +76,11 @@ export default function SpacePanel() {
 
   // 黑色背景 + 星空随飞行距离慢慢淡入
   const fade = Math.min(altitude / 60, 1);
+  // 深空背景足够暗时，把舱体/高度文字切为白色避免看不清
+  const deepSpace = fade > 0.6;
 
   return (
-    <div id="spacePanel" className="location">
+    <div id="spacePanel" className={'location' + (deepSpace ? ' space-dark' : '')}>
       <div
         id="spaceBackdrop"
         style={{ opacity: fade }}

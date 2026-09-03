@@ -17,7 +17,7 @@ function MapTile({ t }) {
   let inner = '';
   if (t.isPlayer) {
     cls += ' px-player';
-    inner = '<div class="px-tile-player"></div>';
+    inner = Pixel.svg('player', { pixel: 1 });
   } else if (t.visible) {
     if (t.landmark) {
       cls += ' px-landmark' + (t.visited ? ' px-visited' : '');

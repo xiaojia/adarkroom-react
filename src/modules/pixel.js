@@ -90,7 +90,7 @@ Pixel.define('player', {
 	palette: {
 		'o': '#1a120a', 'H': '#e8b98a', 'h': '#5a3a1f',
 		'B': '#4a7a2e', 'b': '#2e551d', 'S': '#cdd3d6', 's': '#98a0a5',
-		'L': '#3a3a3a', 'F': '#6a4a2a'
+		'L': '#3a3a3a', 'F': '#6a4a2a', 'A': '#d9ad7d'
 	},
 	grid: [
 		'............',

@@ -1,0 +1,453 @@
+/* ============================================================
+ * 废土像素风主题（WASTELAND PIXEL THEME）v5
+ * ------------------------------------------------------------
+ * 在 game.css 之后加载。
+ * 重点：像素（pixel art）——所有背景、面板材质、按钮均以块状
+ * 像素色块构成。禁用平滑渐变/光滑金属，改用硬边浮雕
+ * （亮边 + 暗边的 2px 像素倒角），并避免任何平铺接缝
+ * （噪点纹理一律取消，改为无缝整数抖动块）。
+ *
+ *  v5 相比 v4：
+ *  1. 7 个场景改为 64x36 像素画（抽象氛围色场，按 tab 切换）。
+ *  2. 面板/按钮改为像素倒角（硬边 2px 高亮/阴影），去掉金属渐变。
+ *  3. 去掉平铺噪点（--tex-brush），改用无缝抖动块 --tex-dither。
+ *  4. 保留 #scene-backdrop 多子层 cross-fade 渐隐渐出。
+ * ============================================================ */
+
+/* ---------------- 调色板（像素块） ---------------- */
+:root {
+  --bg: #0f0b07;
+  --fg: #d9c39a;
+  --accent: #c1913f;
+  --border: #4a3722;
+  --disabled: #8f7d5b;
+  --cooldown: rgba(180, 130, 60, 0.34);
+
+  --panel-bg: #2a1e13;
+  --panel-bg2: #211712;
+  --metal: #3a2c1a;
+  --panel-fg: #e0c9a0;
+  --panel-fg-dim: #ab8f60;
+  --panel-fg-glow: #f2ce7e;
+  --panel-border: #6b5230;
+  --panel-rim: #0c0703;
+  --rust: #a8502a;
+  --rust-deep: #6a2f17;
+  --amber: #d79a2b;
+  --amber-hi: #f2c14e;
+  --hazard: #c9a227;
+
+  /* 像素倒角：亮边 / 暗边（硬边，不平滑） */
+  --bevel-hi: #6b5230;
+  --bevel-mid: #5f4a2c;
+  --bevel-lo: #1a1108;
+
+  /* 无缝抖动块（整数尺寸，无接缝） */
+  --tex-dither: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%228%22%3E%3Crect%20width%3D%228%22%20height%3D%228%22%20fill%3D%22%232a1e13%22%2F%3E%3Crect%20x%3D%224%22%20width%3D%224%22%20height%3D%224%22%20fill%3D%22%23261b11%22%2F%3E%3Crect%20y%3D%224%22%20width%3D%224%22%20height%3D%224%22%20fill%3D%22%23261b11%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%224%22%20height%3D%224%22%20fill%3D%22%232a1e13%22%2F%3E%3C%2Fsvg%3E");
+  /* 像素方铆钉 */
+  --tex-bolt: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2214%22%20height%3D%2214%22%3E%3Crect%20width%3D%2214%22%20height%3D%2214%22%20fill%3D%22%23150d06%22%2F%3E%3Crect%20x%3D%221%22%20y%3D%221%22%20width%3D%2212%22%20height%3D%2212%22%20fill%3D%22%233d2e1a%22%2F%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%2210%22%20height%3D%2210%22%20fill%3D%22%234e3b25%22%2F%3E%3Crect%20x%3D%223%22%20y%3D%223%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%238a7448%22%2F%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%23120a05%22%2F%3E%3C%2Fsvg%3E");
+}
+
+/* ---------------- 面板/按钮像素画贴图（text_to_image 生成，可平铺） ---------------- */
+:root {
+  --tex-panel: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=dark%20weathered%20rusty%20metal%20panel%20texture%20background%2C%20pixel%20art%2C%20blocky%20chunky%20pixels%2C%20dither%20checkerboard%20pattern%2C%20dark%20brown%20rust%20and%20charcoal%20tones%2C%20low%20contrast%2C%20worn%20industrial%20plating%2C%208-bit%20retro%20game%20UI%20panel%2C%20no%20anti-aliasing%2C%20tileable%20seamless%20texture&image_size=square");
+  --tex-button: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=dark%20rusty%20metal%20pixel%20button%20face%20texture%2C%208-bit%20retro%20game%20UI%2C%20blocky%20chunky%20pixels%2C%20coarse%20dither%2C%20dark%20brown%20rust%20tones%2C%20low%20contrast%2C%20no%20anti-aliasing%2C%20tileable%20seamless&image_size=square");
+}
+
+/* ---------------- 场景背景资源（真·废土像素画，text_to_image 生成） ---------------- */
+:root {
+--scene-room: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=8-bit%20pixel%20art%20background%2C%20dark%20post-apocalyptic%20cabin%20interior%2C%20glowing%20orange%20campfire%2C%20wooden%20furniture%20in%20shadow%2C%20blocky%20chunky%20pixels%2C%20limited%20retro%20palette%2C%20no%20anti-aliasing%2C%20moody%20pixel%20art%20wasteland%20survival%20game&image_size=landscape_16_9");
+--scene-village: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=8-bit%20pixel%20art%20background%2C%20dusty%20silent%20forest%20village%2C%20wooden%20shacks%2C%20dirt%20path%2C%20warm%20evening%20tones%2C%20blocky%20chunky%20pixels%2C%20limited%20retro%20palette%2C%20no%20anti-aliasing%2C%20pixel%20art%20wasteland%20survival%20game&image_size=landscape_16_9");
+--scene-equip: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=16-bit%20pixel%20art%20background%2C%20long%20dusty%20road%20across%20barren%20wasteland%2C%20cracked%20earth%2C%20scattered%20debris%2C%20distant%20broken%20ruins%2C%20blocky%20chunky%20pixels%2C%20limited%20retro%20palette%2C%20no%20anti-aliasing%2C%20pixel%20art%20wasteland&image_size=landscape_16_9");
+--scene-desert: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=16-bit%20pixel%20art%20background%2C%20barren%20wasteland%20desert%2C%20sand%20dunes%2C%20ruined%20structures%2C%20pale%20orange%20sky%2C%20blocky%20chunky%20pixels%2C%20limited%20retro%20palette%2C%20no%20anti-aliasing%2C%20pixel%20art%20wasteland&image_size=landscape_16_9");
+--scene-fabricator: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=16-bit%20pixel%20art%20background%2C%20dim%20industrial%20fabricator%20workshop%2C%20heavy%20metal%20machinery%2C%20gears%2C%20glowing%20forge%20embers%2C%20blocky%20chunky%20pixels%2C%20limited%20retro%20palette%2C%20no%20anti-aliasing%2C%20pixel%20art%20wasteland&image_size=landscape_16_9");
+--scene-ship: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=16-bit%20pixel%20art%20background%2C%20old%20derelict%20starship%20interior%2C%20riveted%20metal%20walls%2C%20dim%20lit%20control%20panels%2C%20blocky%20chunky%20pixels%2C%20limited%20retro%20palette%2C%20no%20anti-aliasing%2C%20pixel%20art%20wasteland&image_size=landscape_16_9");
+--scene-space: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=16-bit%20pixel%20art%20background%2C%20deep%20space%2C%20pixel%20starfield%2C%20small%20pixel%20planet%2C%20dark%20void%2C%20blocky%20chunky%20pixels%2C%20limited%20retro%20palette%2C%20no%20anti-aliasing%2C%20retro%20pixel%20art&image_size=landscape_16_9");
+}
+
+/* ============================================================
+ * 页面底层 & 场景切换层
+ * ============================================================ */
+html,
+body {
+  background: var(--bg);
+  color: var(--fg);
+  background-attachment: fixed;
+}
+#game { position: relative; background: transparent; }
+
+#scene-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+#scene-backdrop .scene {
+  position: absolute;
+  inset: -40px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  background-color: var(--bg);
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  will-change: opacity;
+}
+#scene-backdrop .scene.active { opacity: 1; }
+
+#layout { position: relative; z-index: 1; }
+
+/* 关灯：整体压暗降饱和 */
+body.noMask #scene-backdrop .scene.active { filter: brightness(0.34) saturate(0.7); }
+body.noMask {
+  --bg: #0d0a06;
+  --fg: #d9c39a;
+  --panel-bg: #1c140b;
+  --panel-bg2: #120c06;
+  --metal: #2c2115;
+  --panel-fg: #d6c098;
+  --panel-fg-dim: #947b56;
+  --panel-border: #4f3c24;
+  --panel-rim: #050301;
+  --rust: #b0562a;
+  --bevel-hi: #4a3a26;
+  --bevel-mid: #423322;
+  --tex-dither: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%228%22%3E%3Crect%20width%3D%228%22%20height%3D%228%22%20fill%3D%22%232a1e13%22%2F%3E%3Crect%20x%3D%224%22%20width%3D%224%22%20height%3D%224%22%20fill%3D%22%23261b11%22%2F%3E%3Crect%20y%3D%224%22%20width%3D%224%22%20height%3D%224%22%20fill%3D%22%23261b11%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%224%22%20height%3D%224%22%20fill%3D%22%232a1e13%22%2F%3E%3C%2Fsvg%3E");
+}
+
+/* 像素化滚动条 */
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: #221710; box-shadow: inset 0 0 0 1px #0e0a05; }
+::-webkit-scrollbar-thumb {
+  background: #3a2c1a;
+  border: 2px solid #0e0a05;
+  box-shadow: inset 2px 2px 0 #5f4a2c, inset -2px -2px 0 #1a1108;
+}
+::-webkit-scrollbar-thumb:hover { background: #4a3826; }
+
+::selection { background: rgba(216, 154, 43, 0.35); color: #fff; }
+
+/* ============================================================
+ * 顶栏：像素军牌标签
+ * ============================================================ */
+#header { height: auto; min-height: 20px; padding-bottom: 16px; align-items: flex-end; }
+
+#header .headerButton {
+  position: relative;
+  font-size: 13px;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: var(--panel-fg-dim);
+  margin-left: 9px;
+  margin-right: 0;
+  margin-bottom: 0;
+  padding: 6px 16px 6px 16px;
+  align-self: center;
+  cursor: pointer;
+  border-radius: 2px;
+  border: 2px solid var(--panel-rim);
+  background-color: #3a2c1a;
+  box-shadow: inset 2px 2px 0 var(--bevel-mid), inset -2px -2px 0 #1a1108;
+  text-shadow: 1px 1px 0 #000;
+}
+#header .headerButton::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  margin-top: -2px;
+  background: #8a7448;
+  box-shadow: 1px 1px 0 #120b06;
+}
+#header .headerButton:hover { color: #efd198; background-color: #4a3826; }
+#header .headerButton.selected,
+#header .headerButton.selected:hover {
+  background-color: #a85f18;
+  color: #fff0d0;
+  border-color: #180f08;
+  box-shadow: inset 2px 2px 0 #d79a2b, inset -2px -2px 0 #6a3c10, 0 0 10px rgba(216, 154, 43, 0.4);
+  text-shadow: 1px 1px 0 rgba(0,0,0,.45), 0 0 6px rgba(255,208,120,.6);
+  cursor: default;
+  text-decoration: none;
+}
+
+/* ============================================================
+ * 面板通用：像素金属板 + 角位方铆钉 + 硬边倒角
+ * 纹理仅用无缝抖动块（无平铺接缝）。
+ * ============================================================ */
+div#stores,
+div#weapons,
+div#perks,
+div#village,
+div#workers,
+div#outfitting,
+div#equipList,
+div#bagspace-world,
+div.btnColumn,
+#fabricateButtons,
+#blueprints {
+  position: relative;
+  color: var(--panel-fg);
+  border-radius: 2px;
+  background-image:
+    var(--tex-bolt), var(--tex-bolt), var(--tex-bolt), var(--tex-bolt),
+    var(--tex-panel), var(--tex-dither);
+  background-position:
+    5px 5px, calc(100% - 5px) 5px, 5px calc(100% - 5px), calc(100% - 5px) calc(100% - 5px),
+    0 0, 0 0;
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat, repeat;
+  background-size: 14px 14px, 14px 14px, 14px 14px, 14px 14px, 96px 96px, auto;
+  background-color: var(--panel-bg);
+  border: 2px solid var(--panel-rim);
+  box-shadow: inset 2px 2px 0 var(--bevel-mid), inset -2px -2px 0 var(--bevel-lo);
+  image-rendering: pixelated;
+  padding: 12px 14px 14px;
+}
+div#weapons { padding-top: 12px; }
+div.btnColumn, #fabricateButtons, #blueprints { padding: 10px 12px 12px; }
+
+/* 面板文字统一皮革纸色 */
+div#stores .row_key, div#stores .row_val,
+div#weapons .row_key, div#weapons .row_val,
+div#perks .row_key,
+div#village .row_key, div#village .row_val,
+div#workers .row_key, div#workers .row_val,
+div#outfitting .row_key, div#outfitting .row_val,
+div#equipList .row_key, div#equipList .row_val,
+div#blueprints .row_key,
+div#bagspace-world .row_key, div#bagspace-world .row_val { color: var(--panel-fg); }
+div#stores .row_val, div#weapons .row_val, div#village .row_val, div#workers .row_val,
+div#outfitting .row_val, div#bagspace-world .row_val {
+  color: var(--panel-fg-glow);
+  text-shadow: 0 0 4px rgba(216, 154, 43, 0.18);
+}
+
+/* ---------------- 标题铭牌（数据板） ---------------- */
+#stores:before,
+#weapons:before,
+#perks:before,
+#village:before,
+#equipList:before,
+#bagspace-world:before,
+.btnColumn:before,
+#fabricateButtons:before,
+#blueprints:before {
+  content: attr(data-title) attr(data-legend);
+  display: block;
+  position: absolute;
+  left: 20px;
+  top: -12px;
+  z-index: 2;
+  padding: 2px 9px 2px 11px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  line-height: 1.4;
+  color: #fff0d0;
+  border-radius: 2px;
+  background-color: #a85f18;
+  border: 2px solid #180f08;
+  box-shadow: inset 2px 2px 0 #d79a2b, inset -2px -2px 0 #6a3c10;
+  text-shadow: 1px 1px 0 rgba(0,0,0,.45), 0 0 8px rgba(255,208,120,.4);
+}
+#equipList { border-radius: 3px; }
+
+/* ---------------- 出装标题（#outfitting 内部） ---------------- */
+#outfittingHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: -4px -6px 8px;
+  padding: 6px 12px;
+  border-radius: 2px;
+  background-color: #3a2c1a;
+  border: 2px solid var(--panel-rim);
+  box-shadow: inset 2px 2px 0 var(--bevel-mid), inset -2px -2px 0 #1a1108;
+}
+#outfittingTitle {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--amber-hi);
+  text-shadow: 1px 1px 0 #000;
+}
+#bagspace { font-size: 12px; color: var(--panel-fg-dim); }
+#bagspace .row_val { color: var(--panel-fg-glow); }
+
+/* ============================================================
+ * 按钮：像素倒角按键（按下时倒角反转）
+ * ============================================================ */
+div.button {
+  background-color: #4a3a24;
+  background-image: var(--tex-button);
+  background-repeat: repeat;
+  background-size: 64px 64px;
+  image-rendering: pixelated;
+  color: var(--panel-fg);
+  border: 2px solid var(--panel-rim);
+  border-radius: 2px;
+  box-shadow: inset 2px 2px 0 var(--bevel-mid), inset -2px -2px 0 var(--bevel-lo);
+  text-shadow: 1px 1px 0 #000;
+}
+div.button:hover { background-color: #5a4630; color: #f4dca6; text-decoration: none; }
+div.button:active {
+  box-shadow: inset 2px 2px 0 var(--bevel-lo), inset -2px -2px 0 var(--bevel-mid);
+  transform: translateY(2px);
+}
+div.button.disabled,
+div.button.disabled:hover {
+  background-color: #30251a;
+  color: #7c6c4c;
+  border-color: #3c3122;
+  box-shadow: inset 2px 2px 0 #241c11, inset -2px -2px 0 #241c11;
+  transform: none;
+  text-decoration: none;
+}
+div.button div.cooldown {
+  background-color: var(--cooldown);
+  mix-blend-mode: multiply;
+}
+
+/* 主按钮 / 大按钮（橙色强调，参考图1的高亮主按钮） */
+#pathPanel div.button.large,
+div.button.large {
+  background-color: #a85f18;
+  border-color: #180f08;
+  color: #fff0d0;
+  font-weight: 700;
+  box-shadow: inset 2px 2px 0 #d79a2b, inset -2px -2px 0 #6a3c10, 0 0 10px rgba(216, 154, 43, 0.35);
+  text-shadow: 1px 1px 0 #000, 0 0 6px rgba(255, 208, 120, 0.55);
+}
+#pathPanel div.button.large:hover,
+div.button.large:hover { background-color: #b96d1e; color: #fff6dd; }
+
+/* 出装/工人/增减 小按钮 */
+div.equipBtn, .workerBtn {
+  background-color: #4a3a24;
+  color: var(--panel-fg);
+  border: 2px solid var(--panel-rim);
+  border-radius: 2px;
+  box-shadow: inset 2px 2px 0 var(--bevel-mid), inset -2px -2px 0 var(--bevel-lo);
+}
+div.equipBtn:hover { background-color: #5a4630; color: #f2c14e; }
+.workerBtn:hover { filter: brightness(1.2); }
+.workerBtn.disabled, .upBtn.disabled, .upManyBtn.disabled,
+.dnBtn.disabled, .dnManyBtn.disabled {
+  background-color: #281f13;
+  color: var(--disabled);
+  border-color: #3c3122;
+  filter: none;
+}
+.upBtn, .upManyBtn, .dnBtn, .dnManyBtn {
+  background-color: #4a3a24;
+  color: var(--panel-fg);
+  border: 2px solid var(--panel-rim);
+  border-radius: 2px;
+  box-shadow: inset 2px 2px 0 var(--bevel-mid), inset -2px -2px 0 var(--bevel-lo);
+}
+.upBtn:hover, .upManyBtn:hover, .dnBtn:hover, .dnManyBtn:hover { background-color: var(--rust); color: #fff2d0; }
+
+/* ---------------- 工具提示：暗锈浮层 ---------------- */
+div.tooltip {
+  background-color: #33271a;
+  color: var(--panel-fg);
+  border: 2px solid var(--panel-rim);
+  border-radius: 2px;
+  box-shadow: inset 2px 2px 0 #4a3826, -2px 2px 2px rgba(0,0,0,.6);
+}
+
+/* ---------------- 右下角菜单 ---------------- */
+.menu { color: var(--amber); text-shadow: 0 0 4px rgba(216, 154, 43, 0.4); }
+.menu > span, .menu .menuBtn { cursor: pointer; padding: 2px 5px; border-radius: 2px; }
+.menu span:hover, .menu .menuBtn:hover { color: var(--amber-hi); text-decoration: none; text-shadow: 0 0 8px rgba(242,193,78,.7); }
+
+.menu .customSelectOptions ul {
+  background-color: #33271a;
+  border: 2px solid var(--panel-rim);
+  box-shadow: inset 2px 2px 0 #4a3826, 0 4px 8px rgba(0, 0, 0, 0.55);
+  padding: 2px 8px 4px;
+  color: var(--panel-fg);
+}
+.menu .customSelectOptions ul li:hover { color: var(--amber-hi); }
+.menu .customSelectOptions ul li.selected { color: var(--amber-hi); }
+.menu .customSelectOptions ul li.selected::before { color: var(--amber); }
+
+/* ---------------- 事件弹窗 ---------------- */
+#eventOverlay:before { background: radial-gradient(ellipse at center, rgba(0,0,0,.35), rgba(0,0,0,.74)); opacity: 0.84; }
+.eventPanel {
+  background-color: var(--panel-bg);
+  color: var(--panel-fg);
+  border: 2px solid var(--panel-border);
+  border-radius: 2px;
+  box-shadow: inset 2px 2px 0 var(--bevel-mid), inset -2px -2px 0 var(--bevel-lo), 6px 6px 12px rgba(0,0,0,.6);
+}
+.eventTitle {
+  background-color: #3a2c1a;
+  color: var(--amber-hi);
+  border: 2px solid var(--rust);
+  border-radius: 2px;
+  padding: 1px 8px 2px;
+  letter-spacing: 0.5px;
+  box-shadow: inset 2px 2px 0 var(--bevel-mid), 0 2px 3px rgba(0,0,0,.5);
+  text-shadow: 1px 1px 0 #000;
+}
+#description textarea {
+  background-color: #1d140b;
+  color: var(--panel-fg);
+  border: 2px solid var(--panel-rim);
+  box-shadow: inset 2px 2px 3px rgba(0,0,0,.6);
+}
+
+/* ---------------- 通知栏 ---------------- */
+#notifications .notification {
+  color: var(--fg);
+  text-shadow: 0 1px 0 rgba(255,226,170,.4), 1px 1px 0 rgba(0,0,0,.25);
+}
+#notifyGradient { background: linear-gradient(rgba(15,11,7,0), var(--bg)); }
+body.noMask #notifyGradient { background: linear-gradient(rgba(13,10,6,0), #0d0a06); }
+
+/* ---------------- 大地图 ---------------- */
+#map {
+  background-color: #21170d;
+  border: 2px solid var(--panel-rim);
+  box-shadow: inset 2px 2px 0 #3a2c1a, 2px 4px 8px rgba(0,0,0,.5);
+}
+#map .px-player { background: #2e2315; box-shadow: inset 0 0 0 1px #8a7448, 0 0 8px rgba(216,154,43,.4); }
+.mapPlug { position: absolute; }
+
+/* ---------------- Space 面板边框 & 深空白字 ---------------- */
+#spacePanel { border-color: var(--panel-border); box-shadow: inset 2px 2px 0 var(--bevel-mid), inset -2px -2px 0 var(--bevel-lo); }
+#spacePanel.space-dark #hullRemaining,
+#spacePanel.space-dark #hullRemaining .row_key,
+#spacePanel.space-dark #hullRemaining .row_val,
+#spacePanel.space-dark #altitudeDisplay { color: #fff; }
+
+/* ---------------- 战斗台 ---------------- */
+.arena {
+  background-color: #33281a;
+  border-color: var(--panel-border);
+  color: var(--panel-fg);
+}
+.fighter .hpBar { border-color: var(--panel-rim); background: #1c1208; box-shadow: inset 2px 2px 2px rgba(0,0,0,.6); }
+.fighter .label { text-shadow: 1px 1px 0 #000; }
+
+/* ---------------- 杂项浮层 / 星舰 ---------------- */
+#dropMenu {
+  background-color: #33271a;
+  color: var(--panel-fg);
+  border: 2px solid var(--panel-rim);
+  box-shadow: inset 2px 2px 0 #4a3826, -2px 3px 2px rgba(0,0,0,.6);
+}
+#dropMenu > div:hover { color: var(--amber-hi); }
+#saveNotify {
+  background-color: #33271a;
+  color: var(--panel-fg);
+  border: 2px solid var(--panel-rim);
+  padding: 2px 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,.4);
+}

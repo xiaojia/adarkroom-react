@@ -649,6 +649,13 @@ div.perkRow {
 .menu .customSelect {
   height: 20px;
   position: relative;
+  width: 80px;
+}
+
+.menu .customSelectOptions {
+  display: block;
+  width: 80px;
+  height: 20px;
 }
 
 .menu .customSelectOptions ul {
@@ -658,7 +665,8 @@ div.perkRow {
   padding: 0;
   margin: 0;
   position: absolute;
-  right: 0;
+  left: 0;
+  right: auto;
   bottom: 0;
   list-style: none;
   transition: max-height 1s;
@@ -895,12 +903,6 @@ div.supplyItem {
   box-shadow: inset 0 0 0 1px #8a7448;
 }
 
-#map .px-tile-player {
-  width: 100%;
-  height: 100%;
-  background: #c0392b;
-}
-
 #map .px-landmark {
   background: #241c12;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3);
@@ -1090,6 +1092,14 @@ div#engineRow {
   right: 8px;
   z-index: 5;
   text-align: right;
+}
+
+/* 深空背景浮现后，舱体/高度文字切白避免看不清 */
+#spacePanel.space-dark #hullRemaining,
+#spacePanel.space-dark #hullRemaining .row_key,
+#spacePanel.space-dark #hullRemaining .row_val,
+#spacePanel.space-dark #altitudeDisplay {
+  color: #fff;
 }
 
 @keyframes asteroidSpin {
