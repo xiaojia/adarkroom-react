@@ -149,12 +149,12 @@ body {
   transition: opacity 5s linear;
 }
 .room-scene.revealed .room-mask { opacity: 0; }
-.room-scene.spark .room-mask { animation: room-mask-spark 5.4s linear forwards; }
+.room-scene.spark .room-mask { animation: room-mask-spark 6.2s linear forwards; }
 @keyframes room-mask-spark {
-  0% { opacity: 1; }
-  1% { opacity: 0; }  /* 瞬间闪开 */
-  7% { opacity: 0; }  /* 保持透明约 0.3s */
-  8% { opacity: 1; }  /* 遮罩合拢 */
+  0% { opacity: 1; animation-timing-function: steps(1, end); }  /* 瞬间闪开（保留半透） */
+  1% { opacity: 0.5; animation-timing-function: steps(1, end); }  /* 保持半透约 0.1s 后瞬间合拢 */
+  2.9% { opacity: 1; }  /* 合拢回全黑 */
+  19% { opacity: 1; }   /* 等待约 1s 保持全黑 */
   100% { opacity: 0; } /* 剩余约 5s 渐渐露出背景 */
 }
 
