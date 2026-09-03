@@ -53,10 +53,22 @@ function OutfitRow({ r }) {
       </div>
       <div className="row_val">
         <span>{r.num}</span>
-        <span className={'dnManyBtn' + (r.canDnMany ? '' : ' disabled')} onClick={() => r.canDnMany && Path.decreaseSupply(r.key, 10)}>--</span>
-        <span className={'dnBtn' + (r.canDn ? '' : ' disabled')} onClick={() => r.canDn && Path.decreaseSupply(r.key, 1)}>-</span>
-        <span className={'upBtn' + (r.canUp ? '' : ' disabled')} onClick={() => r.canUp && Path.increaseSupply(r.key, 1)}>+</span>
-        <span className={'upManyBtn' + (r.canUpMany ? '' : ' disabled')} onClick={() => r.canUpMany && Path.increaseSupply(r.key, 10)}>++</span>
+        <span className={'workerStepper'}>
+          <span className={'workerBtn icon' + (r.canUpMany ? '' : ' disabled')} title="+10" onClick={() => r.canUpMany && Path.increaseSupply(r.key, 10)}>
+            <PixelIcon name="arrow" pixel={2} />
+          </span>
+          <span className={'workerBtn icon down' + (r.canDnMany ? '' : ' disabled')} title="-10" onClick={() => r.canDnMany && Path.decreaseSupply(r.key, 10)}>
+            <PixelIcon name="arrow" pixel={2} />
+          </span>
+        </span>
+        <span className={'workerStepper'}>
+          <span className={'workerBtn icon' + (r.canUp ? '' : ' disabled')} title="+1" onClick={() => r.canUp && Path.increaseSupply(r.key, 1)}>
+            <PixelIcon name="arrow" pixel={2} />
+          </span>
+          <span className={'workerBtn icon down' + (r.canDn ? '' : ' disabled')} title="-1" onClick={() => r.canDn && Path.decreaseSupply(r.key, 1)}>
+            <PixelIcon name="arrow" pixel={2} />
+          </span>
+        </span>
       </div>
       <div className="tooltip bottom right">
         <div className="storeRow">

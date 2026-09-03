@@ -23,10 +23,38 @@ function WorkerRow({ worker }) {
         <span>{count}</span>
         {key !== 'gatherer' ? (
           <>
-            <span className={'workerBtn' + (canUp ? '' : ' disabled')} onClick={() => canUp && Outside.increaseWorker(key, 10)}>+10</span>
-            <span className={'workerBtn' + (canUp ? '' : ' disabled')} onClick={() => canUp && Outside.increaseWorker(key, 1)}>+1</span>
-            <span className={'workerBtn' + (canDn ? '' : ' disabled')} onClick={() => canDn && Outside.decreaseWorker(key, 1)}>-1</span>
-            <span className={'workerBtn' + (canDn ? '' : ' disabled')} onClick={() => canDn && Outside.decreaseWorker(key, 10)}>-10</span>
+            <span className={'workerStepper'}>
+              <span
+                className={'workerBtn icon' + (canUp ? '' : ' disabled')}
+                title="+10"
+                onClick={() => canUp && Outside.increaseWorker(key, 10)}
+              >
+                <PixelIcon name="arrow" pixel={2} />
+              </span>
+              <span
+                className={'workerBtn icon down' + (canDn ? '' : ' disabled')}
+                title="-10"
+                onClick={() => canDn && Outside.decreaseWorker(key, 10)}
+              >
+                <PixelIcon name="arrow" pixel={2} />
+              </span>
+            </span>
+            <span className={'workerStepper'}>
+              <span
+                className={'workerBtn icon' + (canUp ? '' : ' disabled')}
+                title="+1"
+                onClick={() => canUp && Outside.increaseWorker(key, 1)}
+              >
+                <PixelIcon name="arrow" pixel={2} />
+              </span>
+              <span
+                className={'workerBtn icon down' + (canDn ? '' : ' disabled')}
+                title="-1"
+                onClick={() => canDn && Outside.decreaseWorker(key, 1)}
+              >
+                <PixelIcon name="arrow" pixel={2} />
+              </span>
+            </span>
           </>
         ) : null}
       </div>

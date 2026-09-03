@@ -122,7 +122,9 @@ export const Engine = {
     Engine._incomeTimeout = setTimeout(() => $SM.collectIncome(), 1000);
 
     Engine.saveLanguage();
-    Engine.travelTo('room');
+    // 首页启动：URL 指定的模块合法（tab 栏页面且已解锁）则直接进入；否则进默认生火间。
+    // _setUrlModule 会把不合法/缺失的 URL 同步为默认 tab（room）。
+    Engine.travelTo(Engine.getUrlModule() || 'room');
   },
 
   /* ------------------------------- 存档 ------------------------------- */
@@ -409,6 +411,40 @@ export const Engine = {
 
   /* ------------------------------- 模块切换 ------------------------------- */
 
+  // URL 中持久化 tab 状态用的参数名（只记录 tab 栏模块，不记录 fullscreen 界面）
+  URL_MODULE_KEY: 'm',
+
+  /** 模块是否可作为 tab 栏页面出现在 URL：
+   *  - 必须在注册表中且存在
+   *  - 不能是 fullscreen 全屏界面（world/space 等）
+   *  - 当前游戏进度需已解锁（isAvailable） */
+  _isUrlEligible(moduleId) {
+    const mod = ModuleRegistry.get(moduleId);
+    if (!mod) return false;
+    if (mod.fullscreen) return false;
+    if (mod.isAvailable && !mod.isAvailable(State)) return false;
+    return true;
+  },
+
+  /** 写入 URL：目标不是合法 tab 栏模块时回退为默认 tab（生火间 room），保证 URL 始终可还原 */
+  _setUrlModule(moduleId) {
+    const target = Engine._isUrlEligible(moduleId) ? moduleId : 'room';
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set(Engine.URL_MODULE_KEY, target);
+      window.history.replaceState({}, '', url);
+    } catch (e) {} // eslint-disable-line no-empty
+  },
+
+  /** 从 URL 读取模块；不合法（不存在/未解锁/fullscreen）时返回 null */
+  getUrlModule() {
+    try {
+      const m = new URLSearchParams(window.location.search).get(Engine.URL_MODULE_KEY);
+      if (m && Engine._isUrlEligible(m)) return m;
+    } catch (e) {}
+    return null;
+  },
+
   travelTo(moduleId) {
     const mod = ModuleRegistry.get(moduleId);
     if (!mod) return;
@@ -417,6 +453,7 @@ export const Engine = {
       return;
     }
     useEngine.setState({ activeModule: moduleId, view: mod.fullscreen ? moduleId : 'locations' });
+    Engine._setUrlModule(moduleId);
     if (mod.onArrival) mod.onArrival(1);
     // 打印该模块积压的通知
     const { Notifications } = requireNotifications();

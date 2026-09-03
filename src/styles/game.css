@@ -216,14 +216,8 @@ div#weapons {
 
 div#stores:before,
 div#weapons:before {
-  position: absolute;
-  background: var(--bg);
+  /* 标题标签样式统一由 wasteland.css 共享段接管，避免各处重复定义不一致 */
   content: attr(data-title);
-  left: 8px;
-  top: -10px;
-  border: solid 1px var(--border);
-  padding: 0 5px;
-  font-size: 12px;
 }
 
 /* ---------------- 按钮 ---------------- */
@@ -368,9 +362,8 @@ div.tooltip {
 }
 
 .btnColumn:before {
+  /* 标题标签样式统一由 wasteland.css 共享段接管 */
   content: attr(data-title);
-  position: relative;
-  top: -2px;
 }
 
 /* ---------------- Outside 面板 ---------------- */
@@ -419,14 +412,8 @@ div.tooltip {
 }
 
 #village:before {
-  position: absolute;
-  background: var(--bg);
+  /* 标题标签样式统一由 wasteland.css 共享段接管 */
   content: attr(data-title);
-  left: 8px;
-  top: -10px;
-  border: solid 1px var(--border);
-  padding: 0 5px;
-  font-size: 12px;
 }
 
 #workers {
@@ -436,6 +423,7 @@ div.tooltip {
   flex-direction: column;
   gap: 6px;
   align-self: flex-start;
+  min-width: 230px;
 }
 
 .workerRow {
@@ -459,7 +447,6 @@ div.tooltip {
 }
 
 .workerRow .row_val > span {
-  min-width: 24px;
   text-align: right;
 }
 
@@ -490,6 +477,7 @@ div.tooltip {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
+  justify-content: space-between;
   gap: 16px;
 }
 
@@ -558,14 +546,8 @@ div.outfitRow .tooltip {
 }
 
 #equipList:before {
+  /* 标题标签样式统一由 wasteland.css 共享段接管 */
   content: attr(data-title);
-  position: absolute;
-  left: 8px;
-  top: -10px;
-  padding: 0 5px;
-  font-size: 12px;
-  background: var(--bg);
-  border: solid 1px var(--border);
 }
 
 div.equipRow {
@@ -613,14 +595,8 @@ div#perks {
 }
 
 div#perks:before {
+  /* 标题标签样式统一由 wasteland.css 共享段接管 */
   content: attr(data-title);
-  position: absolute;
-  left: 8px;
-  top: -10px;
-  padding: 0 5px;
-  font-size: 12px;
-  background: var(--bg);
-  border: solid 1px var(--border);
 }
 
 div.perkRow {
@@ -826,14 +802,8 @@ div.perkRow {
 }
 
 #bagspace-world:before {
+  /* 标题标签样式统一由 wasteland.css 共享段接管 */
   content: attr(data-title);
-  position: absolute;
-  background: var(--bg);
-  left: 8px;
-  top: -10px;
-  border: solid 1px var(--border);
-  padding: 0 5px;
-  font-size: 12px;
 }
 
 #supplies {
@@ -989,14 +959,8 @@ div#engineRow {
 
 #fabricateButtons:before,
 #blueprints:before {
+  /* 标题标签样式统一由 wasteland.css 共享段接管 */
   content: attr(data-legend);
-  position: absolute;
-  background: var(--bg);
-  left: 8px;
-  top: -10px;
-  border: solid 1px var(--border);
-  padding: 0 5px;
-  font-size: 12px;
 }
 
 .blueprintRow {

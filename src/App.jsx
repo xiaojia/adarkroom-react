@@ -14,15 +14,22 @@ import NotificationBar from './components/NotificationBar';
 import EventModal from './components/EventModal';
 import SceneBackdrop from './components/SceneBackdrop';
 
-/** 冷却计时器：每 500ms 递减 $SM 中所有 cooldown.<id> */
+/** 冷却计时器：按真实流逝时间递减 $SM 中所有 cooldown.<id>
+ *  基于 Date.now() 时间差计算递减量，而非固定步长，
+ *  这样浏览器切到后台导致 setInterval 被节流时，恢复后仍能按真实时长补齐，
+ *  冷却进度与后台机制数据保持一致（remaining 单位为秒）。 */
 function CooldownTicker() {
   useEffect(() => {
+    let last = Date.now();
     const iv = setInterval(() => {
+      const now = Date.now();
+      const dt = (now - last) / 1000; // 自上次 tick 的真实秒数
+      last = now;
       const cd = $SM.get('cooldown');
       if (!cd) return;
       let changed = false;
       for (const k in cd) {
-        cd[k] = (cd[k] || 0) - 0.5;
+        cd[k] = (cd[k] || 0) - dt;
         if (cd[k] <= 0) delete cd[k];
         changed = true;
       }

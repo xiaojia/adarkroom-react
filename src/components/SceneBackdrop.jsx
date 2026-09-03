@@ -13,8 +13,9 @@
 import { useEngine } from '../engine/Engine';
 import RoomScene from './RoomScene';
 import OutsideScene from './OutsideScene';
+import PathScene from './PathScene';
 
-const SCENES = ['room', 'village', 'equip', 'desert', 'fabricator', 'ship', 'space'];
+const SCENES = ['room', 'path', 'village', 'equip', 'desert', 'fabricator', 'ship', 'space'];
 
 /** 把模块 id 映射到背景场景 id */
 function sceneFor(moduleId) {
@@ -22,7 +23,7 @@ function sceneFor(moduleId) {
     case 'outside':
       return 'outside'; // 静谧森林（由常驻底层呈现）
     case 'path':
-      return 'equip'; // 漫漫尘途 = 装备室
+      return 'path'; // 漫漫尘途 = 独立场景（dark0/light0），镂空透出森林
     case 'world':
       return 'desert'; // 出发后 = 沙漠
     case 'fabricator':
@@ -48,6 +49,7 @@ export default function SceneBackdrop() {
       {SCENES.map((s) => (
         <div key={s} className={`scene${s === current ? ' active' : ''}`} data-scene={s}>
           {s === 'room' && <RoomScene />}
+          {s === 'path' && <PathScene />}
         </div>
       ))}
     </div>

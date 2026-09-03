@@ -220,6 +220,12 @@ export const Room = {
       Room.openForest();
     }
 
+    // 兼容：旧存档一旦处于「已过初章」的正式阶段，就解锁熄灯/开灯按钮并持久化，
+    // 避免此类存档因火势从未达到最高而看不到熄灯按钮。
+    if (!$SM.get('game.lightsOffUnlocked') && !Room.inStartPhase()) {
+      $SM.set('game.lightsOffUnlocked', true);
+    }
+
     Room.migrateEquip();
 
     // 定时器
@@ -378,8 +384,9 @@ export const Room = {
       Room.changed = true;
     }
     Notifications.notify(Room, _('the fire is {0}', Room.FireEnum.fromInt($SM.get('game.fire.value')).text), true);
-    // 首次火势达到最高（roaring=4）后，解锁「熄灯/开灯」按钮并持久化
-    if ($SM.get('game.fire.value') >= Room.FireEnum.Roaring.value && !$SM.get('game.lightsOffUnlocked')) {
+    // 已过初章（正式阶段）即解锁「熄灯/开灯」按钮并持久化；
+    // 初章内火势未到最高时仍不展示，保证开场不被熄灯按钮打断。
+    if (!Room.inStartPhase() && !$SM.get('game.lightsOffUnlocked')) {
       $SM.set('game.lightsOffUnlocked', true);
     }
     if ($SM.get('game.fire.value') > 1 && $SM.get('game.builder.level') < 0) {

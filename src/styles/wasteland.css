@@ -14,54 +14,48 @@
  *  4. 保留 #scene-backdrop 多子层 cross-fade 渐隐渐出。
  * ============================================================ */
 
-/* ---------------- 调色板（像素块） ---------------- */
+/* ---------------- 调色板（暖木像素风，参考星露谷） ---------------- */
 :root {
-  --bg: #0f0b07;
-  --fg: #ffffff;
-  --accent: #c1913f;
-  --border: #4a3722;
-  --disabled: #8f7d5b;
-  --cooldown: rgba(180, 130, 60, 0.34);
+  --bg: rgba(24, 16, 8, 0.5);
+  --fg: #f3e5c8;
+  --accent: #e8c476;
+  --border: rgba(232, 196, 118, 0.45);
+  --disabled: rgba(190, 164, 118, 0.5);
+  --cooldown: rgba(20, 12, 5, 0.5);
 
-  --panel-bg: #2a1e13;
-  --panel-bg2: #211712;
-  --metal: #3a2c1a;
-  --panel-fg: #e0c9a0;
-  --panel-fg-dim: #ab8f60;
-  --panel-fg-glow: #f2ce7e;
-  --panel-border: #6b5230;
-  --panel-rim: #0c0703;
-  --rust: #a8502a;
-  --rust-deep: #6a2f17;
-  --amber: #d79a2b;
-  --amber-hi: #f2c14e;
+  /* 半透明暖木面板底色 */
+  --panel-bg: rgba(43, 28, 15, 0.74);
+  --panel-bg2: rgba(38, 25, 13, 0.8);
+  --panel-fg: #f0e0bd;
+  --panel-fg-dim: #b99a68;
+  --panel-fg-glow: #ffe6a3;
+  /* 像素面板边框：外侧深棕描边，内侧靠 bevel 高光/阴影 */
+  --panel-border: #2c1b0e;
+  --panel-rim: #1a0f06;
+  --rust: #b0692a;
+  --rust-deep: #7a3f16;
+  --amber: #d9a04a;
+  --amber-hi: #f2c45e;
   --hazard: #c9a227;
 
-  /* 像素倒角：亮边 / 暗边（硬边，不平滑） */
-  --bevel-hi: #6b5230;
-  --bevel-mid: #5f4a2c;
-  --bevel-lo: #1a1108;
+  /* 像素倒角：亮边 / 暗边（硬边色块，不平滑） */
+  --bevel-hi: #7a5326;
+  --bevel-mid: #4a2f18;
+  --bevel-lo: #20120a;
 
-  /* 无缝抖动块（整数尺寸，无接缝） */
-  --tex-dither: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%228%22%3E%3Crect%20width%3D%228%22%20height%3D%228%22%20fill%3D%22%232a1e13%22%2F%3E%3Crect%20x%3D%224%22%20width%3D%224%22%20height%3D%224%22%20fill%3D%22%23261b11%22%2F%3E%3Crect%20y%3D%224%22%20width%3D%224%22%20height%3D%224%22%20fill%3D%22%23261b11%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%224%22%20height%3D%224%22%20fill%3D%22%232a1e13%22%2F%3E%3C%2Fsvg%3E");
-  /* 像素方铆钉 */
-  --tex-bolt: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2214%22%20height%3D%2214%22%3E%3Crect%20width%3D%2214%22%20height%3D%2214%22%20fill%3D%22%23150d06%22%2F%3E%3Crect%20x%3D%221%22%20y%3D%221%22%20width%3D%2212%22%20height%3D%2212%22%20fill%3D%22%233d2e1a%22%2F%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%2210%22%20height%3D%2210%22%20fill%3D%22%234e3b25%22%2F%3E%3Crect%20x%3D%223%22%20y%3D%223%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%238a7448%22%2F%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%23120a05%22%2F%3E%3C%2Fsvg%3E");
+  /* 内嵌像素木纹（16x16 竖向板条 + 木节，可平铺、无网络请求、半透明） */
+  --tex-dither: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%3E%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%23422a16%22%2F%3E%3Crect%20y%3D%220%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%232c1a0c%22%2F%3E%3Crect%20y%3D%224%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%232c1a0c%22%2F%3E%3Crect%20y%3D%228%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%232c1a0c%22%2F%3E%3Crect%20y%3D%2212%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%232c1a0c%22%2F%3E%3Crect%20y%3D%221%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%235c3c1e%22%2F%3E%3Crect%20y%3D%225%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%235c3c1e%22%2F%3E%3Crect%20y%3D%229%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%235c3c1e%22%2F%3E%3Crect%20y%3D%2213%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%235c3c1e%22%2F%3E%3Crect%20x%3D%223%22%20y%3D%222%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%23301c0d%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%226%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%23301c0d%22%2F%3E%3Crect%20x%3D%226%22%20y%3D%2210%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%23563a1c%22%2F%3E%3C%2Fsvg%3E");
 }
 
-/* ---------------- 面板/按钮像素画贴图（text_to_image 生成，可平铺） ---------------- */
-:root {
-  --tex-panel: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=dark%20weathered%20rusty%20metal%20panel%20texture%20background%2C%20pixel%20art%2C%20blocky%20chunky%20pixels%2C%20dither%20checkerboard%20pattern%2C%20dark%20brown%20rust%20and%20charcoal%20tones%2C%20low%20contrast%2C%20worn%20industrial%20plating%2C%208-bit%20retro%20game%20UI%20panel%2C%20no%20anti-aliasing%2C%20tileable%20seamless%20texture&image_size=square");
-  --tex-button: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=dark%20rusty%20metal%20pixel%20button%20face%20texture%2C%208-bit%20retro%20game%20UI%2C%20blocky%20chunky%20pixels%2C%20coarse%20dither%2C%20dark%20brown%20rust%20tones%2C%20low%20contrast%2C%20no%20anti-aliasing%2C%20tileable%20seamless&image_size=square");
-}
 
-/* ---------------- 场景背景资源（真·废土像素画，text_to_image 生成） ---------------- */
+/* ---------------- 场景背景（氛围渐变，内嵌无外部请求） ---------------- */
 :root {
---scene-village: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=8-bit%20pixel%20art%20background%2C%20dusty%20silent%20forest%20village%2C%20wooden%20shacks%2C%20dirt%20path%2C%20warm%20evening%20tones%2C%20blocky%20chunky%20pixels%2C%20limited%20retro%20palette%2C%20no%20anti-aliasing%2C%20pixel%20art%20wasteland%20survival%20game&image_size=landscape_16_9");
---scene-equip: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=16-bit%20pixel%20art%20background%2C%20long%20dusty%20road%20across%20barren%20wasteland%2C%20cracked%20earth%2C%20scattered%20debris%2C%20distant%20broken%20ruins%2C%20blocky%20chunky%20pixels%2C%20limited%20retro%20palette%2C%20no%20anti-aliasing%2C%20pixel%20art%20wasteland&image_size=landscape_16_9");
---scene-desert: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=16-bit%20pixel%20art%20background%2C%20barren%20wasteland%20desert%2C%20sand%20dunes%2C%20ruined%20structures%2C%20pale%20orange%20sky%2C%20blocky%20chunky%20pixels%2C%20limited%20retro%20palette%2C%20no%20anti-aliasing%2C%20pixel%20art%20wasteland&image_size=landscape_16_9");
---scene-fabricator: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=16-bit%20pixel%20art%20background%2C%20dim%20industrial%20fabricator%20workshop%2C%20heavy%20metal%20machinery%2C%20gears%2C%20glowing%20forge%20embers%2C%20blocky%20chunky%20pixels%2C%20limited%20retro%20palette%2C%20no%20anti-aliasing%2C%20pixel%20art%20wasteland&image_size=landscape_16_9");
---scene-ship: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=16-bit%20pixel%20art%20background%2C%20old%20derelict%20starship%20interior%2C%20riveted%20metal%20walls%2C%20dim%20lit%20control%20panels%2C%20blocky%20chunky%20pixels%2C%20limited%20retro%20palette%2C%20no%20anti-aliasing%2C%20pixel%20art%20wasteland&image_size=landscape_16_9");
---scene-space: url("https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=16-bit%20pixel%20art%20background%2C%20deep%20space%2C%20pixel%20starfield%2C%20small%20pixel%20planet%2C%20dark%20void%2C%20blocky%20chunky%20pixels%2C%20limited%20retro%20palette%2C%20no%20anti-aliasing%2C%20retro%20pixel%20art&image_size=landscape_16_9");
+--scene-village: linear-gradient(180deg, #4a3b28 0%, #2e2417 60%, #1a140e 100%);
+--scene-equip: linear-gradient(180deg, #57452c 0%, #3a2d1b 55%, #1e150c 100%);
+--scene-desert: linear-gradient(180deg, #8a6a3a 0%, #5d4426 55%, #2a1d10 100%);
+--scene-fabricator: linear-gradient(180deg, #6b4a22 0%, #3c2a15 55%, #1b1006 100%);
+--scene-ship: linear-gradient(180deg, #4c4a44 0%, #2f2d28 55%, #171612 100%);
+--scene-space: linear-gradient(180deg, #1a2038 0%, #0e1220 55%, #05070c 100%);
 }
 
 /* ============================================================
@@ -88,7 +82,8 @@ body {
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
-  background-color: var(--bg);
+  /* 不透明深暖棕兜底：场景图加载慢时不透出半透明底色 */
+  background-color: #17100a;
   opacity: 0;
 }
 #scene-backdrop .scene.active { opacity: 1; }
@@ -101,6 +96,11 @@ body {
  * ============================================================ */
 #scene-backdrop .scene[data-scene="room"] {
   /* 透明背景：窗外是常驻底层的静谧森林，透过房间透明窗户可见 */
+  background-color: transparent;
+  background-image: none;
+}
+/* 漫漫尘途（path）：背景图有透明镂空区，可透到下方常驻的静谧森林远景层 */
+#scene-backdrop .scene[data-scene="path"] {
   background-color: transparent;
   background-image: none;
 }
@@ -188,6 +188,39 @@ body {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+/* 漫漫尘途：dark0/light0 两张图常驻 DOM（同时完成预加载），按熄灯/开灯切换 */
+.path-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.path-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0; /* 2 张图常驻 DOM（同时完成预加载），只点亮需要的那张 */
+  z-index: 0;
+}
+/* prev：上一张图，作为底层始终保持 opacity 1（切换瞬间不露底） */
+.path-img.prev {
+  opacity: 1;
+  z-index: 1;
+}
+/* top：新目标图，z-index 最高，animation 渐显并 forwards 停在最后一帧 */
+.path-img.top {
+  opacity: 1;
+  z-index: 2;
+  animation: path-img-in 1.4s ease forwards;
+}
+@keyframes path-img-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+/* 漫漫尘途背景图水平镜像：让镂空透出的森林朝指定方向，无需再移动森林层 */
+.path-img, .path-img.prev, .path-img.top { transform: scaleX(-1); }
 /* 黑遮罩：进场前全黑；最上层盖住所有背景图。
    三种受控动画：
    - .spark（首次点火）：闪开约 0.3s → 合拢 → 5s 渐隐，露出 dark1 开场；
@@ -215,32 +248,32 @@ body {
 #layout { position: relative; z-index: 1; }
 
 /* 关灯：其余场景整体压暗降饱和；生火间熄灯/开灯直接切换 drak/light 图，无需滤镜 */
-body.noMask #scene-backdrop .scene.active:not([data-scene="room"]) { filter: brightness(0.34) saturate(0.7); }
+body.noMask #scene-backdrop .scene.active:not([data-scene="room"]):not([data-scene="path"]) { filter: brightness(0.34) saturate(0.7); }
 body.noMask {
-  --bg: #0d0a06;
-  --fg: #d9c39a;
-  --panel-bg: #1c140b;
-  --panel-bg2: #120c06;
-  --metal: #2c2115;
-  --panel-fg: #d6c098;
-  --panel-fg-dim: #947b56;
-  --panel-border: #4f3c24;
-  --panel-rim: #050301;
-  --rust: #b0562a;
-  --bevel-hi: #4a3a26;
-  --bevel-mid: #423322;
-  --tex-dither: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%228%22%20height%3D%228%22%3E%3Crect%20width%3D%228%22%20height%3D%228%22%20fill%3D%22%232a1e13%22%2F%3E%3Crect%20x%3D%224%22%20width%3D%224%22%20height%3D%224%22%20fill%3D%22%23261b11%22%2F%3E%3Crect%20y%3D%224%22%20width%3D%224%22%20height%3D%224%22%20fill%3D%22%23261b11%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%224%22%20height%3D%224%22%20fill%3D%22%232a1e13%22%2F%3E%3C%2Fsvg%3E");
+  --bg: rgba(12, 8, 4, 0.55);
+  --fg: #d9c3a0;
+  --panel-bg: rgba(26, 17, 9, 0.8);
+  --panel-bg2: rgba(20, 13, 7, 0.86);
+  --panel-fg: #d8c298;
+  --panel-fg-dim: #94806a;
+  --panel-border: #1e1308;
+  --panel-rim: #0e0803;
+  --rust: #b05a2a;
+  --bevel-hi: #5c3d1c;
+  --bevel-mid: #36230f;
+  --bevel-lo: #150c05;
+  --tex-dither: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%3E%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%23301e0e%22%2F%3E%3Crect%20y%3D%220%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%231e1107%22%2F%3E%3Crect%20y%3D%224%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%231e1107%22%2F%3E%3Crect%20y%3D%228%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%231e1107%22%2F%3E%3Crect%20y%3D%2212%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%231e1107%22%2F%3E%3Crect%20y%3D%221%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%23422714%22%2F%3E%3Crect%20y%3D%225%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%23422714%22%2F%3E%3Crect%20y%3D%229%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%23422714%22%2F%3E%3Crect%20y%3D%2213%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%23422714%22%2F%3E%3Crect%20x%3D%223%22%20y%3D%222%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%23221409%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%226%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%23221409%22%2F%3E%3Crect%20x%3D%226%22%20y%3D%2210%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%23402a12%22%2F%3E%3C%2Fsvg%3E");
 }
 
 /* 像素化滚动条 */
 ::-webkit-scrollbar { width: 12px; height: 12px; }
 ::-webkit-scrollbar-track { background: #221710; box-shadow: inset 0 0 0 1px #0e0a05; }
 ::-webkit-scrollbar-thumb {
-  background: #3a2c1a;
+  background: #3a2715;
   border: 2px solid #0e0a05;
-  box-shadow: inset 2px 2px 0 #5f4a2c, inset -2px -2px 0 #1a1108;
+  box-shadow: inset 2px 2px 0 var(--bevel-mid), inset -2px -2px 0 var(--bevel-lo);
 }
-::-webkit-scrollbar-thumb:hover { background: #4a3826; }
+::-webkit-scrollbar-thumb:hover { background: #4a2f18; }
 
 ::selection { background: rgba(216, 154, 43, 0.35); color: #fff; }
 
@@ -258,13 +291,13 @@ body.noMask {
   margin-right: 9px;
   margin-left: 0;
   margin-bottom: 0;
-  padding: 6px 16px 6px 16px;
+  padding: 6px 10px 6px 16px;
   align-self: center;
   cursor: pointer;
-  border-radius: 2px;
+  border-radius: 3px;
   border: 2px solid var(--panel-rim);
-  background-color: #3a2c1a;
-  box-shadow: inset 2px 2px 0 var(--bevel-mid), inset -2px -2px 0 #1a1108;
+  background: #3b2715;
+  box-shadow: inset 2px 2px 0 var(--bevel-mid), inset -2px -2px 0 var(--bevel-lo);
   text-shadow: 1px 1px 0 #000;
 }
 #header .headerButton::before {
@@ -275,24 +308,24 @@ body.noMask {
   width: 4px;
   height: 4px;
   margin-top: -2px;
-  background: #8a7448;
+  background: var(--amber);
   box-shadow: 1px 1px 0 #120b06;
 }
-#header .headerButton:hover { color: #efd198; background-color: #4a3826; }
+#header .headerButton:hover { color: #efd198; background: #4a2f18; }
 #header .headerButton.selected,
 #header .headerButton.selected:hover {
-  background-color: #a85f18;
+  background: linear-gradient(180deg, #c0772b, #9a5a1d);
   color: #fff0d0;
-  border-color: #180f08;
-  box-shadow: inset 2px 2px 0 #d79a2b, inset -2px -2px 0 #6a3c10, 0 0 10px rgba(216, 154, 43, 0.4);
-  text-shadow: 1px 1px 0 rgba(0,0,0,.45), 0 0 6px rgba(255,208,120,.6);
+  border-color: #1a0f06;
+  box-shadow: inset 2px 2px 0 rgba(255, 220, 150, 0.55), inset -2px -2px 0 rgba(0, 0, 0, 0.3), 0 0 10px rgba(217, 160, 74, 0.4);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.45), 0 0 6px rgba(255, 208, 120, 0.6);
   cursor: default;
   text-decoration: none;
 }
 
 /* ============================================================
- * 面板通用：像素金属板 + 角位方铆钉 + 硬边倒角
- * 纹理仅用无缝抖动块（无平铺接缝）。
+ * 面板通用：暖木像素板 + 像素倒角 + 金色高光
+ * 纹理仅用内嵌像素木纹（无网络请求、无平铺接缝）。
  * ============================================================ */
 div#stores,
 div#weapons,
@@ -307,25 +340,23 @@ div.btnColumn,
 #blueprints {
   position: relative;
   color: var(--panel-fg);
-  border-radius: 2px;
-  background-image:
-    var(--tex-bolt), var(--tex-bolt), var(--tex-bolt), var(--tex-bolt),
-    var(--tex-panel), var(--tex-dither);
-  background-position:
-    5px 5px, calc(100% - 5px) 5px, 5px calc(100% - 5px), calc(100% - 5px) calc(100% - 5px),
-    0 0, 0 0;
-  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat, repeat;
-  background-size: 14px 14px, 14px 14px, 14px 14px, 14px 14px, 96px 96px, auto;
+  border-radius: 4px;
+  background-image: var(--tex-dither);
+  background-repeat: repeat;
+  background-size: 16px 16px;
   background-color: var(--panel-bg);
   border: 2px solid var(--panel-rim);
-  box-shadow: inset 2px 2px 0 var(--bevel-mid), inset -2px -2px 0 var(--bevel-lo);
+  box-shadow:
+    inset 2px 2px 0 var(--bevel-mid),
+    inset -2px -2px 0 var(--bevel-lo),
+    0 3px 8px rgba(0, 0, 0, 0.4);
   image-rendering: pixelated;
-  padding: 12px 14px 14px;
+  padding: 15px 10px 10px;
 }
-div#weapons { padding-top: 12px; }
-div.btnColumn, #fabricateButtons, #blueprints { padding: 10px 12px 12px; }
+div#weapons { padding-top: 13px; }
+div.btnColumn, #fabricateButtons, #blueprints { padding: 20px 13px 10px; }
 
-/* 面板文字统一皮革纸色 */
+/* 面板文字统一暖米色 */
 div#stores .row_key, div#stores .row_val,
 div#weapons .row_key, div#weapons .row_val,
 div#perks .row_key,
@@ -334,14 +365,36 @@ div#workers .row_key, div#workers .row_val,
 div#outfitting .row_key, div#outfitting .row_val,
 div#equipList .row_key, div#equipList .row_val,
 div#blueprints .row_key,
-div#bagspace-world .row_key, div#bagspace-world .row_val { color: var(--panel-fg); }
+div#bagspace-world .row_key, div#bagspace-world .row_val {
+  color: var(--panel-fg);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
+}
 div#stores .row_val, div#weapons .row_val, div#village .row_val, div#workers .row_val,
 div#outfitting .row_val, div#bagspace-world .row_val {
   color: var(--panel-fg-glow);
-  text-shadow: 0 0 4px rgba(216, 154, 43, 0.18);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6), 0 0 6px rgba(242, 196, 94, 0.2);
 }
 
-/* ---------------- 标题铭牌（数据板） ---------------- */
+/* 面板/顶栏文字禁用文本选择光标，统一为默认箭头（去除 I 形竖线光标） */
+#stores, #weapons, #perks, #village, #workers, #outfitting, #equipList, #bagspace-world,
+#fabricateButtons, #blueprints {
+  cursor: default;
+  user-select: none;
+}
+#stores .row_key, #stores .row_val, #weapons .row_key, #weapons .row_val,
+#perks .row_key, #village .row_key, #village .row_val,
+#outfitting .row_key, #outfitting .row_val, #equipList .row_key, #equipList .row_val,
+#bagspace-world .row_key, #bagspace-world .row_val,
+div.btnColumn, div.btnColumn * {
+  cursor: default;
+  user-select: none;
+}
+#header .headerButton, #header .headerButton * {
+  cursor: pointer;      /* tab 栏是可点按钮，保留手型提示 */
+  user-select: none;    /* 去除 I 形文本光标 */
+}
+
+/* ---------------- 标题铭牌（统一一段：像素木质小标签） ---------------- */
 #stores:before,
 #weapons:before,
 #perks:before,
@@ -354,23 +407,21 @@ div#outfitting .row_val, div#bagspace-world .row_val {
   content: attr(data-title) attr(data-legend);
   display: block;
   position: absolute;
-  left: 20px;
-  top: -12px;
+  left: 14px;
+  top: -11px;
   z-index: 2;
-  padding: 2px 9px 2px 11px;
+  padding: 2px 10px 3px 12px;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 1px;
-  text-transform: uppercase;
   line-height: 1.4;
   color: #fff0d0;
-  border-radius: 2px;
-  background-color: #a85f18;
-  border: 2px solid #180f08;
-  box-shadow: inset 2px 2px 0 #d79a2b, inset -2px -2px 0 #6a3c10;
-  text-shadow: 1px 1px 0 rgba(0,0,0,.45), 0 0 8px rgba(255,208,120,.4);
+  border-radius: 3px;
+  background: linear-gradient(180deg, #c0772b, #9a5a1d);
+  border: 2px solid var(--panel-rim);
+  box-shadow: inset 2px 2px 0 rgba(255, 220, 150, 0.5), inset -2px -2px 0 rgba(0, 0, 0, 0.3);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
 }
-#equipList { border-radius: 3px; }
 
 /* ---------------- 出装标题（#outfitting 内部） ---------------- */
 #outfittingHeader {
@@ -378,17 +429,16 @@ div#outfitting .row_val, div#bagspace-world .row_val {
   justify-content: space-between;
   align-items: baseline;
   margin: -4px -6px 8px;
-  padding: 6px 12px;
-  border-radius: 2px;
-  background-color: #3a2c1a;
+  padding: 5px 12px 6px;
+  border-radius: 3px;
+  background: #3a2716;
   border: 2px solid var(--panel-rim);
-  box-shadow: inset 2px 2px 0 var(--bevel-mid), inset -2px -2px 0 #1a1108;
+  box-shadow: inset 2px 2px 0 var(--bevel-mid), inset -2px -2px 0 var(--bevel-lo);
 }
 #outfittingTitle {
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 1px;
-  text-transform: uppercase;
   color: var(--amber-hi);
   text-shadow: 1px 1px 0 #000;
 }
@@ -399,94 +449,114 @@ div#outfitting .row_val, div#bagspace-world .row_val {
  * 按钮：像素倒角按键（按下时倒角反转）
  * ============================================================ */
 div.button {
-  background-color: #4a3a24;
-  background-image: var(--tex-button);
-  background-repeat: repeat;
-  background-size: 64px 64px;
-  image-rendering: pixelated;
+  background: linear-gradient(180deg, #4a2f18, #3b2715);
   color: var(--panel-fg);
   border: 2px solid var(--panel-rim);
-  border-radius: 2px;
+  border-radius: 3px;
   box-shadow: inset 2px 2px 0 var(--bevel-mid), inset -2px -2px 0 var(--bevel-lo);
   text-shadow: 1px 1px 0 #000;
 }
-div.button:hover { background-color: #5a4630; color: #f4dca6; text-decoration: none; }
+div.button:hover {
+  background: linear-gradient(180deg, #5c3c1e, #482f18);
+  color: #f4dca6;
+  text-decoration: none;
+}
 div.button:active {
   box-shadow: inset 2px 2px 0 var(--bevel-lo), inset -2px -2px 0 var(--bevel-mid);
   transform: translateY(2px);
 }
 div.button.disabled,
 div.button.disabled:hover {
-  background-color: #30251a;
-  color: #7c6c4c;
-  border-color: #3c3122;
-  box-shadow: inset 2px 2px 0 #241c11, inset -2px -2px 0 #241c11;
+  background: #2a1d11;
+  color: var(--disabled);
+  border-color: #170f07;
+  box-shadow: inset 2px 2px 0 #1a1108, inset -2px -2px 0 #1a1108;
   transform: none;
   text-decoration: none;
 }
 div.button div.cooldown {
-  /* 冷却中：暗色半透明遮罩盖住「未就绪」部分，宽度随冷却从 100% → 0% 收缩。
-     被盖住的部分变暗，露出的部分恢复正常亮度，减到 0 即再次可点击。 */
-  background-color: rgba(20, 10, 3, 0.55);
+  /* 冷却中：暗色半透明遮罩盖住「未就绪」部分，宽度随冷却从 100% → 0% 收缩 */
+  background-color: rgba(20, 12, 5, 0.5);
 }
 
-/* 主按钮 / 大按钮（橙色强调，参考图1的高亮主按钮） */
+/* 主按钮 / 大按钮（琥珀强调） */
 #pathPanel div.button.large,
 div.button.large {
-  background-color: #a85f18;
-  border-color: #180f08;
+  background: linear-gradient(180deg, #c0772b, #9a5a1d);
+  border-color: #1a0f06;
   color: #fff0d0;
   font-weight: 700;
-  box-shadow: inset 2px 2px 0 #d79a2b, inset -2px -2px 0 #6a3c10, 0 0 10px rgba(216, 154, 43, 0.35);
+  box-shadow: inset 2px 2px 0 rgba(255, 220, 150, 0.55), inset -2px -2px 0 rgba(0, 0, 0, 0.3), 0 0 10px rgba(217, 160, 74, 0.35);
   text-shadow: 1px 1px 0 #000, 0 0 6px rgba(255, 208, 120, 0.55);
 }
 #pathPanel div.button.large:hover,
-div.button.large:hover { background-color: #b96d1e; color: #fff6dd; }
+div.button.large:hover { background: linear-gradient(180deg, #d08832, #a86624); color: #fff6dd; }
 
 /* 出装/工人/增减 小按钮 */
 div.equipBtn, .workerBtn {
-  background-color: #4a3a24;
+  background: #3b2715;
   color: var(--panel-fg);
   border: 2px solid var(--panel-rim);
-  border-radius: 2px;
+  border-radius: 3px;
   box-shadow: inset 2px 2px 0 var(--bevel-mid), inset -2px -2px 0 var(--bevel-lo);
 }
-div.equipBtn:hover { background-color: #5a4630; color: #f2c14e; }
+div.equipBtn:hover { filter: brightness(1.2); color: var(--amber-hi); }
 .workerBtn:hover { filter: brightness(1.2); }
 .workerBtn.disabled, .upBtn.disabled, .upManyBtn.disabled,
 .dnBtn.disabled, .dnManyBtn.disabled {
-  background-color: #281f13;
+  background: #241a0f;
   color: var(--disabled);
-  border-color: #3c3122;
+  border-color: #150e07;
   filter: none;
+  cursor: default;
 }
+/* 工人增减：±1 / ±10 各上下排列，像素图标按钮 */
+.workerStepper {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  vertical-align: middle;
+}
+.workerStepper:nth-of-type(2) { margin-left: 5px; }
+.workerBtn.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 10px;
+  overflow: hidden;
+  padding: 0;
+  line-height: 1;
+}
+.workerBtn.icon .px-icon { display: block; line-height: 1; height: 10px; }
+.workerBtn.icon.down .px-icon { transform: rotate(180deg); }
 .upBtn, .upManyBtn, .dnBtn, .dnManyBtn {
-  background-color: #4a3a24;
+  background: #3b2715;
   color: var(--panel-fg);
   border: 2px solid var(--panel-rim);
-  border-radius: 2px;
+  border-radius: 3px;
   box-shadow: inset 2px 2px 0 var(--bevel-mid), inset -2px -2px 0 var(--bevel-lo);
 }
-.upBtn:hover, .upManyBtn:hover, .dnBtn:hover, .dnManyBtn:hover { background-color: var(--rust); color: #fff2d0; }
+.upBtn:hover, .upManyBtn:hover, .dnBtn:hover, .dnManyBtn:hover { background: var(--rust); color: #fff2d0; }
 
-/* ---------------- 工具提示：暗锈浮层 ---------------- */
+/* ---------------- 工具提示：暖木浮层 ---------------- */
 div.tooltip {
   background-color: #33271a;
   color: var(--panel-fg);
   border: 2px solid var(--panel-rim);
-  border-radius: 2px;
-  box-shadow: inset 2px 2px 0 #4a3826, -2px 2px 2px rgba(0,0,0,.6);
+  border-radius: 3px;
+  box-shadow: inset 2px 2px 0 var(--bevel-mid), -2px 3px 4px rgba(0, 0, 0, 0.6);
 }
 
 /* ---------------- 右下角菜单 ---------------- */
 .menu { color: var(--amber); text-shadow: 0 0 4px rgba(216, 154, 43, 0.4); }
-.menu > span, .menu .menuBtn { cursor: pointer; padding: 2px 5px; border-radius: 2px; }
-.menu span:hover, .menu .menuBtn:hover { color: var(--amber-hi); text-decoration: none; text-shadow: 0 0 8px rgba(242,193,78,.7); }
+.menu > span, .menu .menuBtn { cursor: pointer; padding: 2px 5px; border-radius: 3px; }
+.menu span:hover, .menu .menuBtn:hover { color: var(--amber-hi); text-decoration: none; text-shadow: 0 0 8px rgba(242, 193, 78, 0.7); }
 
 .menu .customSelectOptions ul {
   background-color: #33271a;
   border: 2px solid var(--panel-rim);
-  box-shadow: inset 2px 2px 0 #4a3826, 0 4px 8px rgba(0, 0, 0, 0.55);
+  box-shadow: inset 2px 2px 0 var(--bevel-mid), 0 4px 8px rgba(0, 0, 0, 0.55);
   padding: 2px 8px 4px;
   color: var(--panel-fg);
 }
@@ -495,46 +565,70 @@ div.tooltip {
 .menu .customSelectOptions ul li.selected::before { color: var(--amber); }
 
 /* ---------------- 事件弹窗 ---------------- */
-#eventOverlay:before { background: radial-gradient(ellipse at center, rgba(0,0,0,.35), rgba(0,0,0,.74)); opacity: 0.84; }
+#eventOverlay:before { background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.74)); opacity: 0.84; }
 .eventPanel {
   background-color: var(--panel-bg);
+  background-image: var(--tex-dither);
+  background-repeat: repeat;
+  background-size: 16px 16px;
   color: var(--panel-fg);
   border: 2px solid var(--panel-border);
-  border-radius: 2px;
-  box-shadow: inset 2px 2px 0 var(--bevel-mid), inset -2px -2px 0 var(--bevel-lo), 6px 6px 12px rgba(0,0,0,.6);
+  border-radius: 3px;
+  image-rendering: pixelated;
+  box-shadow: inset 2px 2px 0 var(--bevel-mid), inset -2px -2px 0 var(--bevel-lo), 6px 6px 12px rgba(0, 0, 0, 0.6);
 }
 .eventTitle {
-  background-color: #3a2c1a;
+  background: linear-gradient(180deg, #c0772b, #9a5a1d);
   color: var(--amber-hi);
   border: 2px solid var(--rust);
-  border-radius: 2px;
+  border-radius: 3px;
   padding: 1px 8px 2px;
   letter-spacing: 0.5px;
-  box-shadow: inset 2px 2px 0 var(--bevel-mid), 0 2px 3px rgba(0,0,0,.5);
+  box-shadow: inset 2px 2px 0 rgba(255, 220, 150, 0.5), 0 2px 3px rgba(0, 0, 0, 0.5);
   text-shadow: 1px 1px 0 #000;
 }
 #description textarea {
   background-color: #1d140b;
+  background-image: var(--tex-dither);
+  background-repeat: repeat;
+  background-size: 16px 16px;
   color: var(--panel-fg);
   border: 2px solid var(--panel-rim);
-  box-shadow: inset 2px 2px 3px rgba(0,0,0,.6);
+  border-radius: 3px;
+  image-rendering: pixelated;
+  box-shadow: inset 2px 2px 3px rgba(0, 0, 0, 0.6);
+}
+/* 事件弹窗内只读文本区（导出存档代码）：彻底隐藏闪烁光标，仍可全选复制 */
+#description textarea[readonly],
+.eventPanel textarea[readonly],
+#description textarea:read-only {
+  caret-color: transparent !important;
+  user-select: all;
+}
+.eventPanel textarea {
+  caret-color: var(--panel-fg);
+}
+.eventPanel textarea[readonly],
+.eventPanel textarea:read-only {
+  caret-color: transparent !important;
 }
 
 /* ---------------- 通知栏 ---------------- */
 #notifications .notification {
   color: var(--fg);
-  text-shadow: 0 1px 0 rgba(0,0,0,1), 1px 1px 0 rgba(0,0,0,1);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 1), 1px 1px 0 rgba(0, 0, 0, 1);
 }
-#notifyGradient { background: linear-gradient(rgba(15,11,7,0), var(--bg)); }
-body.noMask #notifyGradient { background: linear-gradient(rgba(13,10,6,0), #0d0a06); }
+#notifyGradient { background: linear-gradient(rgba(15, 11, 7, 0), var(--bg)); }
+body.noMask #notifyGradient { background: linear-gradient(rgba(12, 8, 4, 0), rgba(12, 8, 4, 0.55)); }
 
 /* ---------------- 大地图 ---------------- */
 #map {
   background-color: #21170d;
   border: 2px solid var(--panel-rim);
-  box-shadow: inset 2px 2px 0 #3a2c1a, 2px 4px 8px rgba(0,0,0,.5);
+  border-radius: 3px;
+  box-shadow: inset 2px 2px 0 var(--bevel-mid), 2px 4px 8px rgba(0, 0, 0, 0.5);
 }
-#map .px-player { background: #2e2315; box-shadow: inset 0 0 0 1px #8a7448, 0 0 8px rgba(216,154,43,.4); }
+#map .px-player { background: #2e2315; box-shadow: inset 0 0 0 1px #8a7448, 0 0 8px rgba(216, 154, 43, 0.4); }
 .mapPlug { position: absolute; }
 
 /* ---------------- Space 面板边框 & 深空白字 ---------------- */
@@ -547,10 +641,11 @@ body.noMask #notifyGradient { background: linear-gradient(rgba(13,10,6,0), #0d0a
 /* ---------------- 战斗台 ---------------- */
 .arena {
   background-color: #33281a;
-  border-color: var(--panel-border);
+  border: 2px solid var(--panel-border);
+  border-radius: 3px;
   color: var(--panel-fg);
 }
-.fighter .hpBar { border-color: var(--panel-rim); background: #1c1208; box-shadow: inset 2px 2px 2px rgba(0,0,0,.6); }
+.fighter .hpBar { border-color: var(--panel-rim); background: #1c1208; box-shadow: inset 2px 2px 2px rgba(0, 0, 0, 0.6); }
 .fighter .label { text-shadow: 1px 1px 0 #000; }
 
 /* ---------------- 杂项浮层 / 星舰 ---------------- */
@@ -558,13 +653,15 @@ body.noMask #notifyGradient { background: linear-gradient(rgba(13,10,6,0), #0d0a
   background-color: #33271a;
   color: var(--panel-fg);
   border: 2px solid var(--panel-rim);
-  box-shadow: inset 2px 2px 0 #4a3826, -2px 3px 2px rgba(0,0,0,.6);
+  border-radius: 3px;
+  box-shadow: inset 2px 2px 0 var(--bevel-mid), -2px 3px 4px rgba(0, 0, 0, 0.6);
 }
 #dropMenu > div:hover { color: var(--amber-hi); }
 #saveNotify {
   background-color: #33271a;
   color: var(--panel-fg);
   border: 2px solid var(--panel-rim);
+  border-radius: 3px;
   padding: 2px 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,.4);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }

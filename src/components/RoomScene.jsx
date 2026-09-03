@@ -35,8 +35,9 @@ export default function RoomScene() {
   useTick();
   const lightsOff = useEngine((s) => s.options.lightsOff);
 
-  const fireValue = $SM.get('game.fire.value', true);
-  const firstLit = !!$SM.get('game.fireLit');
+  const fireValue = Number($SM.get('game.fire.value', true)) || 0;
+  // 已点过火：fireLit 为真，或（兼容旧存档）火已在燃烧 fire.value>0
+  const firstLit = !!$SM.get('game.fireLit') || fireValue > 0;
   const chapterMask = !!$SM.get('game.chapterMask');
   const deathMask = !!$SM.get('game.deathMask');
 

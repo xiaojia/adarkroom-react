@@ -97,10 +97,11 @@ export default function OutsideScene() {
 
   const tx = mouse.x * MAX_OFF * viewport.w; // 视差：±5% 视口宽
   const ty = mouse.y * MAX_OFF * viewport.h;
-  // 生火间窗外朝右看森林：整体平移 -50% 视口宽，再叠加视差
-  const shiftX = activeModule === 'room' ? viewport.w / 2 : 0;
-  // 生火间窗外加很小的高斯模糊（透过窗户的景深感）；静谧森林 tab 保持清晰
-  const blur = activeModule === 'room' ? 2.5 : 0;
+  // 窗外朝右看森林 → 整体平移视口宽的一半，再叠加视差。
+  // 漫漫尘途背景图已左右镜像、且不再依赖森林位移，故只有生火间左移 50%。
+  const shiftX = activeModule === 'room' ? viewport.w * 0.5 : 0;
+  // 生火间 / 漫漫尘途窗外加很小的高斯模糊（透过窗户的景深感）；静谧森林 tab 保持清晰
+  const blur = (activeModule === 'room' || activeModule === 'path') ? 2.5 : 0;
 
   // 过完初章后才显示森林远景——不，改：初章期间森林背景照常渲染（完成预加载），
   // 只是静谧森林 tab 由 room.openForest 在初章结束时才解锁展示。
