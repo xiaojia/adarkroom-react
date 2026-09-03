@@ -20,7 +20,6 @@ function CraftButton({ item, onClick }) {
       text={def.name || _(key)}
       cost={cost}
       disabled={maxed}
-      width="80px"
       icon={Pixel.buildingSprite(key) || Pixel.resourceSprite(key)}
       onClick={() => onClick(key)}
     />
@@ -53,7 +52,6 @@ export default function RoomPanel() {
                 id="lightButton"
                 text={_('light fire')}
                 icon="fx_fire"
-                width="80px"
                 cost={{ wood: 5 }}
                 cooldown={Room._STOKE_COOLDOWN}
                 disabled={chapterAnim || deathMask}
@@ -64,7 +62,6 @@ export default function RoomPanel() {
                 id="stokeButton"
                 text={_('stoke fire')}
                 icon="fx_fire"
-                width="80px"
                 cost={{ wood: 1 }}
                 cooldown={Room._STOKE_COOLDOWN}
                 disabled={stokeDisabled}

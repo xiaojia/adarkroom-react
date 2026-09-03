@@ -17,7 +17,7 @@
 /* ---------------- 调色板（像素块） ---------------- */
 :root {
   --bg: #0f0b07;
-  --fg: #d9c39a;
+  --fg: #ffffff;
   --accent: #c1913f;
   --border: #4a3722;
   --disabled: #8f7d5b;
@@ -90,8 +90,6 @@ body {
   background-size: cover;
   background-color: var(--bg);
   opacity: 0;
-  transition: opacity 0.8s ease;
-  will-change: opacity;
 }
 #scene-backdrop .scene.active { opacity: 1; }
 
@@ -102,8 +100,63 @@ body {
  * 遮罩在最上层（z-index 大于图片），负责进场全黑/开场/章节黑屏。
  * ============================================================ */
 #scene-backdrop .scene[data-scene="room"] {
-  background-color: #000;
+  /* 透明背景：窗外是常驻底层的静谧森林，透过房间透明窗户可见 */
+  background-color: transparent;
   background-image: none;
+}
+/* ============================================================
+ * 静谧森林（outside）：8 张森林全景图（夜/昼 × 木屋数量 0-3）
+ * 作为常驻最底层渲染（DOM 最前），供生火间透明窗户透视 / 森林 tab 直接展示。
+ * 熄灯（夜）→ darkN；开灯（昼）→ lightN；木屋数 0/1/10/20 → 图 0/1/2/3。
+ * ============================================================ */
+.outside-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  /* 建立独立层叠上下文，隔离内部图片的 z-index，确保永远垫底在 .scene 之下 */
+  z-index: 0;
+}
+/* 生火间：窗外朝右侧看森林 → 森林正常左移 50%（不扩图）。
+   实际左移与视差位移由组件内联 transform 计算；窗户透出的部分不多，
+   右侧露空会被生火间房间图盖住，无需拓宽图片。 */
+/* 生火间窗外：在森林上方加一层白色半透明遮罩（透过窗户的蒙雾感） */
+.outside-veil {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0.2;
+  z-index: 3; /* 盖在森林图（base=1/top=2）之上，仍在层叠上下文内 */
+  pointer-events: none;
+  transition: opacity 0.8s ease; /* 切换熄灯/亮灯时透明度平滑过渡 */
+}
+/* 熄灯（夜）：遮罩透明度变淡 */
+.outside-veil.night {
+  opacity: 0.05;
+}
+.outside-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0; /* 8 张图常驻 DOM（同时完成预加载），只点亮需要的那张 */
+  z-index: 0;
+}
+/* prev：上一张图，作为底层始终保持 opacity 1（切换瞬间不露底） */
+.outside-img.prev {
+  opacity: 1;
+  z-index: 1;
+}
+/* top：新目标图，z-index 最高，animation 渐显并 forwards 停在最后一帧 */
+.outside-img.top {
+  opacity: 1;
+  z-index: 2;
+  animation: outside-img-in 1.4s ease forwards;
+}
+@keyframes outside-img-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 .room-scene {
   position: absolute;
@@ -120,15 +173,16 @@ body {
   opacity: 0; /* 8 张图常驻 DOM（同时完成预加载），只点亮需要的那张 */
   z-index: 0;
 }
-.room-img.base {
+/* prev：上一张图，作为底层始终保持 opacity 1（切换瞬间不露底） */
+.room-img.prev {
   opacity: 1;
   z-index: 1;
 }
-/* 新目标图：压住旧图（base）渐显；动画结束由 React 把它降为 base */
+/* top：新目标图，z-index 最高，animation 渐显并 forwards 停在最后一帧 */
 .room-img.top {
   opacity: 1;
   z-index: 2;
-  animation: room-img-in 1.4s ease;
+  animation: room-img-in 1.4s ease forwards;
 }
 @keyframes room-img-in {
   from { opacity: 0; }
@@ -469,7 +523,7 @@ div.tooltip {
 /* ---------------- 通知栏 ---------------- */
 #notifications .notification {
   color: var(--fg);
-  text-shadow: 0 1px 0 rgba(255,226,170,.4), 1px 1px 0 rgba(0,0,0,.25);
+  text-shadow: 0 1px 0 rgba(0,0,0,1), 1px 1px 0 rgba(0,0,0,1);
 }
 #notifyGradient { background: linear-gradient(rgba(15,11,7,0), var(--bg)); }
 body.noMask #notifyGradient { background: linear-gradient(rgba(13,10,6,0), #0d0a06); }

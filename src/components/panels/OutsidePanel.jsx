@@ -65,7 +65,6 @@ export default function OutsidePanel() {
               id="gatherButton"
               text={_('gather wood')}
               icon="res_wood"
-              width="80px"
               cooldown={Outside._GATHER_DELAY}
               onClick={() => Outside.gatherWood()}
             />
@@ -74,7 +73,6 @@ export default function OutsidePanel() {
                 id="trapsButton"
                 text={_('check traps')}
                 icon="bld_trap"
-                width="80px"
                 cooldown={Outside._TRAPS_DELAY}
                 onClick={() => Outside.checkTraps()}
               />

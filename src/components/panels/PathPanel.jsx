@@ -101,7 +101,6 @@ export default function PathPanel() {
           <GameButton
             id="embarkButton"
             text={_('embark')}
-            width="80px"
             disabled={!st.canEmbark}
             onClick={() => Path.embark()}
           />

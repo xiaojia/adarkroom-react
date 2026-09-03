@@ -5,9 +5,14 @@
  * 通过 opacity 过渡实现渐隐渐出的背景切换。
  * 背景全部为抽象、模糊的氛围色场（不作具体内容），由 wasteland.css
  * 中的 --scene-* SVG 数据 URI 控制。
+ *
+ * 静谧森林（OutsideScene）作为常驻最底层渲染：它是窗外远景，
+ * 生火间（room）的窗户透明可直接透过去看到它；静谧森林 tab
+ * 直接展示该层（无上层覆盖）。
  */
 import { useEngine } from '../engine/Engine';
 import RoomScene from './RoomScene';
+import OutsideScene from './OutsideScene';
 
 const SCENES = ['room', 'village', 'equip', 'desert', 'fabricator', 'ship', 'space'];
 
@@ -15,7 +20,7 @@ const SCENES = ['room', 'village', 'equip', 'desert', 'fabricator', 'ship', 'spa
 function sceneFor(moduleId) {
   switch (moduleId) {
     case 'outside':
-      return 'village'; // 喧嚣小镇
+      return 'outside'; // 静谧森林（由常驻底层呈现）
     case 'path':
       return 'equip'; // 漫漫尘途 = 装备室
     case 'world':
@@ -38,6 +43,8 @@ export default function SceneBackdrop() {
 
   return (
     <div id="scene-backdrop" aria-hidden="true">
+      {/* 常驻底层：静谧森林（窗外远景，过初章后一直显示） */}
+      <OutsideScene />
       {SCENES.map((s) => (
         <div key={s} className={`scene${s === current ? ' active' : ''}`} data-scene={s}>
           {s === 'room' && <RoomScene />}

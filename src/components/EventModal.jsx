@@ -201,7 +201,7 @@ export default function EventModal() {
           {snap.mode === 'story' && (
             <>
               <Lines lines={snap.lines} />
-              <Textarea ta={snap.textarea} />
+              {snap.textarea && <Textarea ta={snap.textarea} />}
               <Loot loot={snap.loot} />
             </>
           )}

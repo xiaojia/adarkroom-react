@@ -1040,4 +1040,6 @@ _.setTranslation({
 "the stranger falls asleep in the freezing room, and never wakes up": "陌生人在冰冷的房间中渐渐睡去，但是再也没有醒过来",
 "there are some logs beside you, you can light a fire": "旁边有一些柴，可以生火",
 "not enough wood, you should go outside and look around": "木柴不够了，去外面看看吧",
+"save code:": "存档代码:",
+"select it and copy it somewhere safe": "选中它并复制到安全的地方保存",
 });
