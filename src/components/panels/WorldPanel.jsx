@@ -55,7 +55,7 @@ export default function WorldPanel() {
   }, []);
   let tile = 11.4;
   if (rows > 0 && cols > 0) {
-    const availH = vp.h - 260; // 顶部面板/标题/菜单/边距预留
+    const availH = vp.h - 200; // 顶部面板/标题/菜单/边距预留
     const availW = vp.w - 26;
     tile = Math.max(4, Math.min(12, Math.floor(availW / cols), Math.floor(availH / rows)));
   }
