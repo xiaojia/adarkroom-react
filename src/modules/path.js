@@ -135,9 +135,9 @@ export const Path = {
       const have = $SM.get('stores["' + k + '"]', true);
       let num = Path.outfit[k];
       num = typeof num === 'number' ? num : 0;
-      if (have < num) num = have;
+      // 显示数量不应被钳到基地库存 have，否则已穿上的护甲/装备会被误剔除
       const numAvailable = $SM.get('stores["' + k + '"]', true);
-      if ((store.type === 'tool' || store.type === 'weapon') && have > 0) {
+      if ((store.type === 'tool' || store.type === 'weapon') && (have > 0 || num > 0)) {
         total += num * Path.getWeight(k);
         rows.push({
           key: k,

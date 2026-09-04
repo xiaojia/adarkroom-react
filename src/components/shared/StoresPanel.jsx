@@ -103,6 +103,12 @@ function StoreRow({ k }) {
   const net = getNetIncome(k);
   const netVal = Math.round(net * 10) / 10;
 
+  // 罗盘：悬停提示指向飞船的方向（世界地图生成时按飞船方位计算 World.dir）
+  const compassMsg = k === 'compass' ? (() => {
+    const World = requireModule('world');
+    return World && World.dir ? _('the compass points ' + World.dir) : null;
+  })() : null;
+
   return (
     <div className="storeRow">
       <div className="row_key">
@@ -115,7 +121,7 @@ function StoreRow({ k }) {
           <span className="incomeDiff">{' (' + (netVal > 0 ? '+' : '') + netVal + ')'}</span>
         )}
       </div>
-      {incomeRows.length > 0 && (
+      {(incomeRows.length > 0 || compassMsg) && (
         <div className="tooltip bottom right">
           {incomeRows.map((r, i) => (
             <div className="storeRow" key={i}>
@@ -123,6 +129,12 @@ function StoreRow({ k }) {
               <div className="row_val">{r.msg}</div>
             </div>
           ))}
+          {compassMsg && (
+            <div className="storeRow">
+              <div className="row_key">{_('compass')}</div>
+              <div className="row_val">{compassMsg}</div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -152,7 +164,8 @@ export default function StoresPanel() {
   const keys = Object.keys(stores).sort(compareStores);
   for (const k of keys) {
     const type = getResourceType(k);
-    if (type === 'upgrade') continue;
+    // upgrade 类型默认不显示（一次性建造升级件），但罗盘是买到手的推进类物品，玩家需要看到它
+    if (type === 'upgrade' && k !== 'compass') continue;
     if (type === 'weapon') weaponRows.push(k);
     else storeRows.push(k);
   }

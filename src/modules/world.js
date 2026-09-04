@@ -140,6 +140,9 @@ export const World = {
       $SM.set('features.executioner', true);
     }
 
+    // 罗盘方向：从存档恢复（首次生成地图时已按飞船方位写入 game.world.dir）
+    World.dir = $SM.get('game.world.dir') || 'north';
+
     Dispatch('stateUpdate').subscribe(World.handleStateUpdates);
   },
 
@@ -509,6 +512,8 @@ export const World = {
           if (Math.abs(dx) / 2 > Math.abs(dy)) World.dir = horz;
           else if (Math.abs(dy) / 2 > Math.abs(dx)) World.dir = vert;
           else World.dir = vert + horz;
+          // 罗盘指向飞船方向：持久化，避免刷新后 World.dir 回退成默认 "north"
+          $SM.set('game.world.dir', World.dir, true);
         }
       }
     }

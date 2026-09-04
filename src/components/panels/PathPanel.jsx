@@ -78,7 +78,7 @@ function OutfitRow({ r }) {
         </div>
         <div className="storeRow">
           <div className="row_key">{_('available')}</div>
-          <div className="row_val">{r.numAvailable - r.num}</div>
+          <div className="row_val">{Math.max(0, r.numAvailable - r.num)}</div>
         </div>
       </div>
     </div>
