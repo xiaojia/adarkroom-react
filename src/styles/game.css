@@ -57,6 +57,7 @@ select.menuBtn {
   display: flex;
   padding: 0 10px;
   justify-content: flex-start;
+  min-width: 900px;
 }
 
 #layout {
