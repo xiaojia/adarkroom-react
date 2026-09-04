@@ -16,7 +16,7 @@
  *     遮罩 5 秒合拢黑屏；再置 false → 重新 revealed，5 秒打开露出白天场景。
  *   - 死亡结局：deathMask 置 true → 同样摘掉 revealed，5 秒黑屏后弹重启窗。
  */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useEngine } from '../engine/Engine';
 import { $SM, useTick } from '../store/stateManager';
 
@@ -27,9 +27,34 @@ const IMAGES = ['drak', 'light'].flatMap((m) => [0, 1, 2, 3].map((i) => `/bg/roo
 // 熄灯(夜)→drak0-3；开灯(昼)→light0-3（下标偏移 4）
 const IMG_IDX = (mode, level) => (mode === 'drak' ? level : 4 + level);
 
+// 火堆（壁炉火焰）在图片内部的相对位置（0~1，按像素比例）：
+// 由 drak/light 房间图实测 —— 火焰中心约在 76% 宽度、顶部约 55% 高度处。
+// 位置以图片为基准，再换算成屏幕坐标，保证不同屏幕尺寸下都钉在火苗上。
+const FIRE_X = 0.76;
+const FIRE_Y = 0.80;
+
 const SPARK_MS = 6000; // 首次点火开场动画（spark class）保留时长
 const INTRO_MS = 5200; // 开场期间强制展示 dark1 的时长（结束后按实际火势图过渡）
 const FADE_MS = 1500; // 新图渐显时长，与 CSS animation 时长一致
+
+// 火势 0-4 → 火星数量（0 无火，4 熊熊最多）
+const SPARK_COUNT = [0, 2, 2, 3, 5];
+// 火星数量上限（生成一次稳定随机池，按火势切片复用，切换时已有火星不重播）
+const SPARK_POOL_SIZE = 5;
+
+/** 生成稳定的随机火星池：尺寸、水平飘散、升空时长/延迟、透明度、摆动各不相同 */
+function buildSparkPool() {
+  return new Array(SPARK_POOL_SIZE).fill(0).map(() => ({
+    ox: (Math.random() * 2 - 1) * 30, // 喷口横向散布更大（±30px），避免集中一起往上喷
+    drift: (Math.random() * 2 - 1) * 55, // 升空过程水平飘移更大（±55px），更像被气流裹挟的火星
+    dur: 1.0 + Math.random() * 0.8, // 一次升空 1~1.8s（更快，火星“蹦”出来）
+    delay: Math.random() * 2.5, // 交错出现，避免整齐划一
+    op: 0.5 + Math.random() * 0.4, // 亮度
+    scale: 1 + Math.random() * 1, // 火星大小倍率（1~2 随机）
+    sway: (Math.random() * 2 - 1) * 2.4, // 左右摇摆幅度更大（负左正右）
+    riseFactor: 0.7 + Math.random() * 1.5, // 升空高度倍率（0.7~1.5），火星会“突然蹿高”
+  }));
+}
 
 export default function RoomScene() {
   useTick();
@@ -95,14 +120,119 @@ export default function RoomScene() {
   // revealed=true 时遮罩最终透明；初章黑屏(chapterMask)或死亡黑屏(deathMask)时摘掉
   const revealed = firstLit && !chapterMask && !deathMask;
 
+  /* —— 火堆上方动态小火星：按火势等级增减，越旺越多、飞得越高 —— */
+  const sparkPool = useMemo(buildSparkPool, []);
+  const fireIdx = Math.max(0, Math.min(4, Number(fireValue) || 0));
+  const sparksCount = SPARK_COUNT[fireIdx];
+  const riseBase = 5 + level * 1.5; // 升空基准占图片显示高度的百分比（level 0-3 → 5/6.5/8/9.5）
+
+  /* —— 火花“爆燃”节拍：平时零星小火、慢而小，隔 5~20s 突然持续 ~2s 的大火花（火势窜一下）——
+     通过共享的 --pace（变速）与 --size（放大缩小）驱动所有火星一起变化。 —— */
+  const [pulse, setPulse] = useState({ pace: 0.8, size: 0.7, amp: 0.4 });
+  const [burst, setBurst] = useState(false);
+  useEffect(() => {
+    let burstTimeout;
+    let calmTimeout;
+    const flare = () => {
+      setBurst(true);
+      // 突然的大火花：变大、变快、火光更亮
+      setPulse({ pace: 1.4 + Math.random() * 0.4, size: 1.6 + Math.random() * 0.4, amp: 0.85 + Math.random() * 0.15 });
+      burstTimeout = setTimeout(calm, 5600 + Math.random() * 900); // 持续约 1.6~2.5s
+    };
+    const calm = () => {
+      setBurst(false);
+      // 平静：火星小、慢、零星，火光也暗一些
+      setPulse({ pace: 0.75 + Math.random() * 0.2, size: 0.65 + Math.random() * 0.2, amp: 0.35 + Math.random() * 0.15 });
+      calmTimeout = setTimeout(flare, 10000 + Math.random() * 15000); // 等 5~20s 再来一次
+    };
+    calm();
+    return () => {
+      clearTimeout(burstTimeout);
+      clearTimeout(calmTimeout);
+    };
+  }, []);
+
+  /* —— 测量：图片是 object-fit: cover，会按屏幕尺寸裁剪，直接用百分比会飘移。
+     用一张房间图探测原始像素尺寸 + ResizeObserver 量场景尺寸，算出 cover 后图片的
+     显示区域，把火堆锚点钉在图片内的火苗上（跨屏保持一致）。 —— */
+  const sceneRef = useRef(null);
+  const [imgGeo, setImgGeo] = useState(null); // {iw,ih} 图片原始尺寸
+  const [vpSize, setVpSize] = useState(null); // {w,h} 房间场景容器尺寸
+  useEffect(() => {
+    let alive = true;
+    const probe = new Image();
+    probe.onload = () => { if (alive) setImgGeo({ iw: probe.naturalWidth, ih: probe.naturalHeight }); };
+    probe.src = IMAGES[4]; // drak/light 同尺寸，任一张代表整组
+    return () => { alive = false; };
+  }, []);
+  useEffect(() => {
+    const el = sceneRef.current;
+    if (!el) return;
+    const measure = () => {
+      const r = el.getBoundingClientRect();
+      setVpSize({ w: r.width, h: r.height });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // cover 剪裁后图片的显示区域（居中）
+  const imgScale = imgGeo && vpSize ? Math.max(vpSize.w / imgGeo.iw, vpSize.h / imgGeo.ih) : 1;
+  const dispW = imgGeo ? imgGeo.iw * imgScale : 0;
+  const dispH = imgGeo ? imgGeo.ih * imgScale : 0;
+  const offX = imgGeo && vpSize ? (vpSize.w - dispW) / 2 : 0;
+  const offY = imgGeo && vpSize ? (vpSize.h - dispH) / 2 : 0;
+  // 火堆在屏幕上的像素坐标（由图片内相对比例换算而来，随裁剪正确钉在火苗上）
+  const firePX = offX + FIRE_X * dispW;
+  const firePY = offY + FIRE_Y * dispH;
+
+  // 平时按火势数量；突然爆燃时额外增加火星数量，形成“大火花”
+  const showCount = Math.min(SPARK_POOL_SIZE, Math.round(sparksCount * (burst ? 2.2 : 1)));
+
+  // 火光罩（忽明忽暗用）：以火堆为中心的一片暖光，尺寸与图片显示区域等比
+  const glowW = dispW * 0.42;
+  const glowH = dispH * 0.52;
+
   return (
-    <div className={`room-scene${revealed ? ' revealed' : ''}${spark ? ' spark' : ''}`}>
+    <div ref={sceneRef} className={`room-scene${revealed ? ' revealed' : ''}${spark ? ' spark' : ''}`} style={{ '--amp': pulse.amp }}>
       {IMAGES.map((src, i) => {
         let cls = 'room-img';
         if (i === prev) cls += ' prev';
         if (i === top) cls += ' top';
         return <img key={src} className={cls} src={src} alt="" draggable="false" />;
       })}
+      {revealed && lightsOff && imgGeo && vpSize && (
+        <>
+          {/* 火光罩：忽明忽暗，让火堆看起来在闪；强度由 --amp 控制（平静暗、爆燃亮）。
+              只在熄灯（夜）时展示火光与火星；开灯（昼）时背景明亮，不显示。 */}
+          <div
+            className="fire-flicker"
+            style={{ left: firePX + 'px', top: firePY + 'px', width: glowW + 'px', height: glowH + 'px' }}
+          />
+          {showCount > 0 && (
+            <div className="fire-sparks" style={{ left: firePX + 'px', top: firePY + 'px', '--pace': pulse.pace, '--size': pulse.size }}>
+              {sparkPool.slice(0, showCount).map((p, i) => (
+                <span
+                  key={i}
+                  className="fire-spark"
+                  style={{
+                    left: p.ox * imgScale + 'px',
+                    '--dx': p.drift * imgScale + 'px',
+                    '--rise': riseBase * p.riseFactor * (dispH / 100) + 'px',
+                    '--dur': p.dur + 's',
+                    '--delay': p.delay + 's',
+                    '--op': p.op,
+                    '--s': p.scale,
+                    '--sway': p.sway,
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </>
+      )}
       <div className="room-mask" />
     </div>
   );
