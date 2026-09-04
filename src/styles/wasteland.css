@@ -76,7 +76,7 @@ body {
   pointer-events: none;
   overflow: hidden;
   filter: blur(var(--scene-blur, 3px));
-  transition: filter 0.3s ease;
+  transition: filter 1s ease;
 }
 /* 初章期间：背景不模糊（不应用默认 3px），也不受菜单收起联动 */
 body.start-phase #scene-backdrop {
