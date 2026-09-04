@@ -51,6 +51,26 @@ function buildRain() {
   });
 }
 
+// 萤火虫：夜里远景右侧的一群光点，缓慢漂浮 + 规律明灭。位置按图片内相对比例换算成屏幕坐标
+// （复刻生火间 RoomScene 的 cover 裁剪定位法），后续只需改 FLY_X / FLY_Y 调整整体发光区域。
+const FIREFLY_COUNT = 12;
+const FLY_X = 0.72; // 右侧远处（图片内相对宽 0~1，后续可调）
+const FLY_Y = 0.5; // 纵向（0~1，自顶向下）
+function buildFireflies() {
+  return new Array(FIREFLY_COUNT).fill(0).map(() => ({
+    fx: (Math.random() * 2 - 1) * 0.15, // 相对图片宽度的横向散布（±5%）
+    fy: (Math.random() * 2 - 1) * 0.09, // 纵向散布（±9%）
+    size: 2 + Math.random() * 2, // 2~4px（远景，小）
+    dur: 1.6 + Math.random() * 3.4, // 明灭周期 1.6~3.4s
+    bdelay: Math.random() * 4, // 明灭相位（错开）
+    dx: (Math.random() * 2 - 1) * 10, // 漂移位移
+    dy: (Math.random() * 2 - 1) * 12,
+    ddur: 3 + Math.random() * 3, // 漂移周期 3~6s
+    ddelay: Math.random() * 3,
+    op: 0.6 + Math.random() * 0.35, // 亮度
+  }));
+}
+
 export default function OutsideScene() {
   useTick();
   const lightsOff = useEngine((s) => s.options.lightsOff);
@@ -58,8 +78,54 @@ export default function OutsideScene() {
 
   const huts = Number($SM.get('game.buildings["hut"]', true)) || 0;
 
-  /** 稳定的雨滴池，只在挂载时生成一次 */
+  /** 稳定的雨滴池 / 萤火虫池，只在挂载时生成一次 */
   const rain = useMemo(buildRain, []);
+  const fireflies = useMemo(buildFireflies, []);
+
+  /* —— 萤火虫渐显逻辑：入夜时先隐藏，5s 后再缓缓亮起；切白天时直接跟着场景渐隐 —— */
+  const [firefliesOn, setFirefliesOn] = useState(false);
+  useEffect(() => {
+    let t;
+    if (lightsOff) {
+      setFirefliesOn(false); // 刚入夜：先不显示
+      t = setTimeout(() => setFirefliesOn(true), 5000); // 5s 后渐渐亮起
+    } else {
+      setFirefliesOn(false); // 切白天：立即渐隐
+    }
+    return () => clearTimeout(t);
+  }, [lightsOff]);
+
+  /* —— 测量：森林图是 object-fit: cover，会按屏幕尺寸裁剪。用一张图探测原始尺寸 +
+     ResizeObserver 量场景尺寸，按 cover 公式算出图片实际显示区域，把萤火虫锚在
+     图片内“右侧远处”的相对位置（跨屏一致）。 —— */
+  const sceneRef = useRef(null);
+  const [imgGeo, setImgGeo] = useState(null); // {iw,ih}
+  const [vpSize, setVpSize] = useState(null); // {w,h}
+  useEffect(() => {
+    let alive = true;
+    const probe = new Image();
+    probe.onload = () => { if (alive) setImgGeo({ iw: probe.naturalWidth, ih: probe.naturalHeight }); };
+    probe.src = IMAGES[0]; // 取任一张代表整组
+    return () => { alive = false; };
+  }, []);
+  useEffect(() => {
+    const el = sceneRef.current;
+    if (!el) return;
+    const measure = () => {
+      const r = el.getBoundingClientRect();
+      setVpSize({ w: r.width, h: r.height });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const imgScale = imgGeo && vpSize ? Math.max(vpSize.w / imgGeo.iw, vpSize.h / imgGeo.ih) : 1;
+  const dispW = imgGeo ? imgGeo.iw * imgScale : 0;
+  const dispH = imgGeo ? imgGeo.ih * imgScale : 0;
+  const offX = imgGeo && vpSize ? (vpSize.w - dispW) / 2 : 0;
+  const offY = imgGeo && vpSize ? (vpSize.h - dispH) / 2 : 0;
 
   const level = levelForHuts(huts);
   const mode = lightsOff ? 'dark' : 'light';
@@ -131,7 +197,7 @@ export default function OutsideScene() {
   // 只是静谧森林 tab 由 room.openForest 在初章结束时才解锁展示。
   // 初章期间窗外被生火间黑遮罩覆盖，森林不露画面，但常驻 DOM 不会闪白。
   return (
-    <div className={`outside-scene ${scene}`}>
+    <div ref={sceneRef} className={`outside-scene ${scene}`}>
       {IMAGES.map((src, i) => {
         let cls = 'outside-img';
         if (i === prev) cls += ' prev';
@@ -167,6 +233,35 @@ export default function OutsideScene() {
           />
         ))}
       </div>
+      {/* 萤火虫：夜里远景右侧，缓慢漂浮 + 明灭；位置按图片 cover 裁剪换算（复刻 room 定位法）。
+          容器施加与森林图相同 transform（--px/--py 视差 + --shift/--shift-y 位移 + --zoom 缩放），
+          因此各场景单独调整 outside 背景位置时，萤火虫会跟着相对移动。
+          渐显：入夜等 5s 再缓缓亮起（--fade 2.5s）；切白天直接渐隐（--fade 1.5s）。 */}
+      {imgGeo && vpSize && (
+        <div
+          className={`fireflies${firefliesOn ? ' show' : ''}`}
+          style={{ '--px': `${tx}px`, '--py': `${ty}px`, '--fade': firefliesOn ? '2.5s' : '1.5s' }}
+        >
+          {fireflies.map((f, i) => (
+            <span
+              key={i}
+              className="firefly"
+              style={{
+                left: offX + FLY_X * dispW + f.fx * dispW + 'px',
+                top: offY + FLY_Y * dispH + f.fy * dispH + 'px',
+                '--sz': f.size + 'px',
+                '--dur': f.dur + 's',
+                '--bdelay': f.bdelay + 's',
+                '--dx': f.dx + 'px',
+                '--dy': f.dy + 'px',
+                '--ddur': f.ddur + 's',
+                '--ddelay': f.ddelay + 's',
+                '--op': f.op,
+              }}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

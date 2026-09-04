@@ -192,6 +192,49 @@ body:not(.start-phase).menu-collapsed #scene-backdrop {
   from { transform: translateY(0) rotate(var(--tilt, 6deg)); opacity: var(--op, 0.4); }
   to   { transform: translateY(125vh) rotate(var(--tilt, 6deg)); opacity: var(--op, 0.4); }
 }
+
+/* 萤火虫：夜里远景右侧的发光点，缓慢漂浮 + 规律明灭。
+   z-index 3：盖在森林图(0-2)之上、雨(4)之下（雨在前景）。 */
+.fireflies {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 3;
+  pointer-events: none;
+  /* 与森林图 .outside-img 同一套 transform：跟随各场景对背景的位移/缩放/鼠标视差 */
+  transform: translate(calc(var(--px, 0px) + var(--shift, 0vw)), calc(var(--py, 0px) + var(--shift-y, 0px))) scale(var(--zoom, 1.01));
+  /* 渐显/渐隐：入夜等 5s 后缓缓亮起（--fade 2.5s）；切白天直接渐隐（--fade 1.5s） */
+  opacity: 0;
+  transition: opacity var(--fade, 1.5s) linear;
+}
+.fireflies.show {
+  opacity: 1;
+}
+.firefly {
+  position: absolute;
+  width: var(--sz, 3px);
+  height: var(--sz, 3px);
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(235, 255, 170, 0.95) 0%,
+    rgba(180, 235, 90, 0.6) 45%,
+    rgba(120, 200, 40, 0) 70%);
+  box-shadow: 0 0 6px 2px rgba(190, 240, 90, 0.7);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation:
+    firefly-drift var(--ddur, 4s) ease-in-out var(--ddelay, 0s) infinite,
+    firefly-blink var(--dur, 2s) ease-in-out var(--bdelay, 0s) infinite;
+}
+@keyframes firefly-drift {
+  0%, 100% { transform: translate(0, 0); }
+  50%      { transform: translate(var(--dx, 8px), var(--dy, -10px)); }
+}
+@keyframes firefly-blink {
+  0%, 100% { opacity: 0; }
+  35%      { opacity: var(--op, 0.85); }
+  55%      { opacity: var(--op, 0.85); }
+}
 .outside-img {
   position: absolute;
   inset: 0;
