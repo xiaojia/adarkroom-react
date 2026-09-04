@@ -12,9 +12,14 @@ import { Path } from '../../modules/path';
 import { Pixel } from '../../modules/pixel';
 import PixelIcon from '../shared/PixelIcon';
 
-function MapTile({ t, homeRot, tile }) {
+const NOISE_PERIOD = 32; // 与 game.css 中 --terrain-noise 的 background-size 保持一致
+
+function MapTile({ t, homeRot, tile, col, row }) {
   let cls = 'px-tile';
   let inner = '';
+  // 让噪点纹理跨格子连续：按该格在世界坐标中的位置设置 background-position
+  const T = typeof tile === 'number' && tile > 0 ? tile : 50;
+  let spanStyle;
   if (t.isPlayer) {
     cls += ' px-player';
     inner = Pixel.svg('player', { pixel: 1 });
@@ -22,7 +27,7 @@ function MapTile({ t, homeRot, tile }) {
     const rad = (homeRot || 0) * (Math.PI / 180);
     const ox = Math.sin(rad);
     const oy = -Math.cos(rad);
-    const R = (typeof tile === 'number' && tile > 0 ? tile : 50) * 0.46; // 外围半径：角色的外圈，避免重叠
+    const R = T * 0.46; // 外围半径：角色的外圈，避免重叠
     inner += '<span class="px-home" style="left:calc(50% + ' +
       (ox * R).toFixed(1) + 'px); top:calc(50% + ' + (oy * R).toFixed(1) +
       'px); transform:translate(-50%,-50%) rotate(' + (homeRot || 0).toFixed(1) + 'deg)"></span>';
@@ -36,6 +41,9 @@ function MapTile({ t, homeRot, tile }) {
     } else if (t.base) {
       const tileCls = Pixel.tileClass(t.base) || 'px-unknown';
       cls += ' ' + tileCls;
+      spanStyle = {
+        backgroundPosition: (-((col * T) % NOISE_PERIOD)) + 'px ' + (-((row * T) % NOISE_PERIOD)) + 'px',
+      };
     } else {
       cls += ' px-unknown';
     }
@@ -45,7 +53,7 @@ function MapTile({ t, homeRot, tile }) {
   if (t.landmark) {
     inner += '<div class="tooltip bottom right">' + (t.label || '') + '</div>';
   }
-  return <span className={cls} dangerouslySetInnerHTML={{ __html: inner }} />;
+  return <span className={cls} style={spanStyle} dangerouslySetInnerHTML={{ __html: inner }} />;
 }
 
 export default function WorldPanel() {
@@ -142,7 +150,7 @@ export default function WorldPanel() {
           {st.map.map((row, j) => (
             <div className="px-row" key={j}>
               {row.map((t, i) => (
-                <MapTile key={i} t={t} homeRot={homeRot} tile={tile} />
+                <MapTile key={i} t={t} homeRot={homeRot} tile={tile} col={i} row={j} />
               ))}
             </div>
           ))}
