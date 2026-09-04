@@ -14,7 +14,7 @@
  * 渲染时机：初章期间就已渲染（完成预加载），静谧森林 tab 由 room.openForest
  *   在初章结束时才解锁展示。
  */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useEngine } from '../engine/Engine';
 import { $SM, useTick } from '../store/stateManager';
 
@@ -35,12 +35,31 @@ const ZOOM = 1.01; // 背景放大 101%，留出极小平移余量
 const MAX_OFF = (ZOOM - 1) / 2; // 每边可平移 0.5% 视口，正好对应鼠标到边缘时的极限
 const FADE_MS = 1500; // 新图渐显时长，与 CSS animation 时长一致
 
+// 淅淅小雨：生成一批随机雨滴（细长、稀疏、淡、轻微倾斜），负延迟让雨开场就铺满全屏。
+const RAIN_COUNT = 70;
+function buildRain() {
+  return new Array(RAIN_COUNT).fill(0).map(() => {
+    const dur = 1.4 + Math.random() * 1.6; // 1.4~3.0s 落一次
+    return {
+      left: Math.random() * 100, // 横向位置 %
+      len: 8 + Math.random() * 10, // 雨丝长度 8~18px
+      dur,
+      delay: -Math.random() * dur, // 负延迟：开场即随机分布在屏幕各处
+      op: 0.22 + Math.random() * 0.3, // 淡（淅淅小雨）
+      tilt: (Math.random() * 2 - 1) * 7, // 轻微斜 -7~7deg
+    };
+  });
+}
+
 export default function OutsideScene() {
   useTick();
   const lightsOff = useEngine((s) => s.options.lightsOff);
   const activeModule = useEngine((s) => s.activeModule);
 
   const huts = Number($SM.get('game.buildings["hut"]', true)) || 0;
+
+  /** 稳定的雨滴池，只在挂载时生成一次 */
+  const rain = useMemo(buildRain, []);
 
   const level = levelForHuts(huts);
   const mode = lightsOff ? 'dark' : 'light';
@@ -131,6 +150,23 @@ export default function OutsideScene() {
       {(activeModule === 'room' || activeModule === 'fabricator' || activeModule === 'ship')
         ? <div className={`outside-veil${lightsOff ? ' night' : ''}`} />
         : null}
+      {/* 淅淅小雨：落在森林背景上（窗外也能看到） */}
+      <div className="outside-rain">
+        {rain.map((r, i) => (
+          <span
+            key={i}
+            className="rain-drop"
+            style={{
+              left: r.left + '%',
+              height: r.len + 'px',
+              '--dur': r.dur + 's',
+              '--delay': r.delay + 's',
+              '--op': r.op,
+              '--tilt': r.tilt + 'deg',
+            }}
+          />
+        ))}
+      </div>
     </div>
   );
 }

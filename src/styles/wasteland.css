@@ -167,6 +167,31 @@ body:not(.start-phase).menu-collapsed #scene-backdrop {
 .outside-veil.night {
   opacity: 0.05;
 }
+
+/* 淅淅小雨：森林背景上一层细长、稀疏、微微倾斜的雨丝，不断从画面上方落下。
+   z-index 4：盖在森林图(0-2)与遮罩(3)之上；仍属于 outside-scene 层叠上下文，
+   因此生火间/造物台/飞船视图里，雨只会透出透明窗户区域，不会盖在房间画面上。 */
+.outside-rain {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 4;
+  pointer-events: none;
+}
+.rain-drop {
+  position: absolute;
+  top: -12vh; /* 从屏幕外上方落下 */
+  width: 1px;
+  background: linear-gradient(to bottom, rgba(210, 228, 246, 0.75), rgba(210, 228, 246, 0));
+  opacity: 0;
+  transform: translateY(0) rotate(var(--tilt, 6deg));
+  animation: rain-fall var(--dur, 2.2s) linear var(--delay, 0s) infinite;
+  will-change: transform;
+}
+@keyframes rain-fall {
+  from { transform: translateY(0) rotate(var(--tilt, 6deg)); opacity: var(--op, 0.4); }
+  to   { transform: translateY(125vh) rotate(var(--tilt, 6deg)); opacity: var(--op, 0.4); }
+}
 .outside-img {
   position: absolute;
   inset: 0;
