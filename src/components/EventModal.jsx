@@ -31,11 +31,14 @@ function Lines({ lines }) {
 }
 
 /** 战斗双方：精灵/字符 + 血条 + 状态标签 */
-function Fighter({ f, side }) {
+function Fighter({ f, side, anim }) {
   if (!f) return null;
   const pct = f.maxHp > 0 ? Math.max(0, Math.min(100, (f.hp / f.maxHp) * 100)) : 0;
   const status = f.status && f.status !== 'none' ? f.status : null;
   const cls = ['fighter', side, status].filter(Boolean).join(' ');
+  // 近战/拳击：攻击方朝对手突进再退回（用 key 切换重放 CSS 动画）
+  const lunging = anim && anim.side === side && anim.type === 'melee';
+  const figKey = lunging ? anim.id : undefined;
   return (
     <div className={cls}>
       <div className="hp">
@@ -46,7 +49,7 @@ function Fighter({ f, side }) {
           {f.hp}/{f.maxHp}
         </span>
       </div>
-      <div className="fig">
+      <div key={figKey} className={'fig' + (lunging ? ' lunge lunge-' + side : '')}>
         {side === 'player' && <PixelIcon name="player" pixel={3} />}
         {side === 'enemy' && f.sprite && <PixelIcon name={f.sprite} pixel={3} />}
         {side === 'enemy' && !f.sprite && <span className="chara">{f.chara || '?'}</span>}
@@ -74,6 +77,7 @@ function Loot({ loot }) {
   if (!loot) return null;
   return (
     <div id="lootButtons">
+      <div className="lootTitle">{_('take:')}</div>
       {loot.rows.map((r) => (
         <div className="lootRow" key={r.key}>
           <div className="row_key">
@@ -104,6 +108,7 @@ function Loot({ loot }) {
 function DropMenu({ rows }) {
   return (
     <div id="dropMenu">
+      <div className="dropTitle">{_('drop:')}</div>
       {rows.map((r) => (
         <div key={r.key} onClick={() => Events.actions.dropStuff(r.key, r.num)}>
           {_('drop {0} {1}', r.num, r.name)}
@@ -151,8 +156,11 @@ export default function EventModal() {
               <Lines lines={snap.lines} />
               <div className="arena">
                 <Floats floats={snap.floats} />
-                <Fighter f={snap.player} side="player" />
-                <Fighter f={snap.enemy} side="enemy" />
+                <Fighter f={snap.player} side="player" anim={snap.anim} />
+                <Fighter f={snap.enemy} side="enemy" anim={snap.anim} />
+                {snap.anim && snap.anim.type === 'ranged' && (
+                  <span key={snap.anim.id} className={'bullet bullet-' + snap.anim.side} />
+                )}
               </div>
               <div className="fightControls">
                 {snap.attackButtons.length > 0 && (

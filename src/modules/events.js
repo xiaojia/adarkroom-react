@@ -10,7 +10,7 @@
  */
 import { create } from 'zustand';
 import { _ } from '../i18n';
-import { $SM, Dispatch } from '../store/stateManager';
+import { $SM, Dispatch, commit } from '../store/stateManager';
 import { Engine } from '../engine/Engine';
 import { Notifications } from '../engine/notifications';
 import { requireModule } from '../engine/moduleLoader';
@@ -279,6 +279,8 @@ export const Events = {
       dmg = scene.damage;
     }
 
+    // 敌人攻击动画（远程用弹道，近战用突进）
+    Events._setAnim('enemy', scene.ranged ? 'ranged' : 'melee');
     Events._applyAttack(enemy, player, dmg, scene);
   },
 
@@ -585,6 +587,10 @@ export const Events = {
       World.updateSupplies();
     }
 
+    // 记录武器冷却 → 驱动按钮 loading（近战/拳击自动连击与手动点击共用同一状态）
+    $SM.set('cooldown.attack_' + weaponName.replace(/ /g, '-'), weapon.cooldown, true);
+    commit();
+
     // 伤害计算
     let dmg = -1;
     if (Math.random() <= World.getHitChance()) {
@@ -601,11 +607,14 @@ export const Events = {
     const wType = weapon.type === 'unarmed' ? 'UNARMED' : weapon.type === 'melee' ? 'MELEE' : weapon.type === 'ranged' ? 'RANGED' : null;
     if (wType) AudioEngine.playSound(AudioLibrary['WEAPON_' + wType + '_' + (Math.floor(Math.random() * 3) + 1)]);
 
-    // 处理击退等动画与结算
+    // 处理击退等动画与结算（近战/拳击 80ms 突进，远程 260ms 等弹道飞抵后再结算）
+    const animType = weapon.type === 'ranged' ? 'ranged' : 'melee';
+    const hitDelay = weapon.type === 'ranged' ? 260 : 80;
+    Events._setAnim('player', animType);
     setTimeout(() => {
       const scene = Events._curScene();
       Events._applyAttack(Events._playerFighter, enemy, dmg, scene);
-    }, 60);
+    }, hitDelay);
 
     // 首次攻击后敌人开始反击
     if (!Events._enemyAttackStarted) {
@@ -784,12 +793,13 @@ export const Events = {
   },
 
   winFight() {
+    // 击杀后停留约 1.5s（观看攻击特效/死亡动画）再切到捡东西界面，避免突兀
     Engine.setTimeout(() => {
       if (Events.fought) return;
       Events.endFight();
       Events._autoAttackClearAll();
       Events._sync();
-    }, 60);
+    }, 1500);
   },
 
   // 供 modal 判断胜利后展示哪种收尾
@@ -1195,6 +1205,12 @@ export const Events = {
     if (Events._floats.length > 8) Events._floats.shift();
   },
 
+  /** 记录一次攻击动画（近战突进/远程弹道），id 唯一，供 EventModal 触发 CSS 动画 */
+  _setAnim(side, type) {
+    Events._anim = { id: ++_seq, side, type };
+    Events._sync();
+  },
+
   /** 汇总当前可渲染状态 */
   _sync() {
     const event = Events.activeEvent();
@@ -1223,6 +1239,7 @@ export const Events = {
       player: null,
       enemy: null,
       floats: (Events._floats || []).slice(),
+      anim: Events._anim || null,
       textarea: null,
     };
 

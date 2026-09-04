@@ -34,7 +34,7 @@ function CooldownTicker() {
         changed = true;
       }
       if (changed) $SM.fireUpdate('cooldown', true);
-    }, 500);
+    }, 100);
     return () => clearInterval(iv);
   }, []);
   return null;

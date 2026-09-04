@@ -268,7 +268,7 @@ div.button div.cooldown {
   height: 100%;
   background-color: var(--cooldown);
   border-radius: inherit;
-  transition: width 0.5s linear;
+  transition: width 0.1s linear;
   pointer-events: none;
 }
 
@@ -1326,6 +1326,47 @@ body.space-view #content {
   100% { opacity: 1; }
 }
 
+/* —— 近战/拳击：攻击方朝对手突进再退回 —— */
+.fig.lunge-player { animation: lungePlayer 0.32s ease-in-out; }
+.fig.lunge-enemy  { animation: lungeEnemy 0.32s ease-in-out; }
+
+@keyframes lungePlayer {
+  0%   { transform: translateX(0); }
+  35%  { transform: translateX(54px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes lungeEnemy {
+  0%   { transform: translateX(0); }
+  35%  { transform: translateX(-54px); }
+  100% { transform: translateX(0); }
+}
+
+/* —— 远程：弹道从攻击方飞向目标 —— */
+.bullet {
+  position: absolute;
+  top: 42%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #e0c07a;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.bullet-player { left: 22%; animation: bulletFly 0.26s linear forwards; }
+.bullet-enemy  { right: 22%; animation: bulletFlyBack 0.26s linear forwards; }
+
+@keyframes bulletFly {
+  0%   { left: 22%; opacity: 1; }
+  100% { left: 78%; opacity: 0; }
+}
+
+@keyframes bulletFlyBack {
+  0%   { right: 22%; opacity: 1; }
+  100% { right: 78%; opacity: 0; }
+}
+
 /* —— 攻击/治疗按钮区 —— */
 .fightControls {
   display: flex;
@@ -1390,11 +1431,9 @@ body.space-view #content {
   gap: 4px;
   border-top: 1px solid var(--border);
   padding-top: 6px;
-  margin-top: 6px;
 }
 
-#lootButtons:before {
-  content: "take:";
+#lootButtons .lootTitle {
   display: block;
   font-size: 12px;
 }
@@ -1423,6 +1462,10 @@ body.space-view #content {
   width: auto;
   min-width: 60px;
   margin: 0;
+  font-size: 14px;
+  justify-content: center;
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 
 #lootButtons .lootRow .px-icon svg {
@@ -1446,8 +1489,7 @@ body.space-view #content {
   cursor: default;
 }
 
-#dropMenu:before {
-  content: "drop:";
+#dropMenu .dropTitle {
   display: block;
   border-bottom: 1px solid var(--border);
   margin-bottom: 4px;
