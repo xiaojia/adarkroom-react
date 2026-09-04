@@ -16,7 +16,7 @@
  *     遮罩 5 秒合拢黑屏；再置 false → 重新 revealed，5 秒打开露出白天场景。
  *   - 死亡结局：deathMask 置 true → 同样摘掉 revealed，5 秒黑屏后弹重启窗。
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useEngine } from '../engine/Engine';
 import { $SM, useTick } from '../store/stateManager';
 
@@ -39,21 +39,48 @@ const FADE_MS = 1500; // 新图渐显时长，与 CSS animation 时长一致
 
 // 火势 0-4 → 火星数量（0 无火，4 熊熊最多）
 const SPARK_COUNT = [0, 0, 1, 3, 5];
-// 火星数量上限（生成一次稳定随机池，按火势切片复用，切换时已有火星不重播）
-const SPARK_POOL_SIZE = 5;
 
-/** 生成稳定的随机火星池：尺寸、水平飘散、升空时长/延迟、透明度、摆动各不相同 */
-function buildSparkPool() {
-  return new Array(SPARK_POOL_SIZE).fill(0).map(() => ({
+// 每次起飞都重新掷一套随机轨迹，保证同一个火星的每次运动路径都不一样，避免齐步走
+let sparkSeq = 0;
+function makeSpark() {
+  return {
+    id: ++sparkSeq,
     ox: (Math.random() * 2 - 1) * 30, // 喷口横向散布更大（±30px），避免集中一起往上喷
     drift: (Math.random() * 2 - 1) * 55, // 升空过程水平飘移更大（±55px），更像被气流裹挟的火星
     dur: 1.0 + Math.random() * 0.8, // 一次升空 1~1.8s（更快，火星“蹦”出来）
-    delay: Math.random() * 2.5, // 交错出现，避免整齐划一
     op: 0.5 + Math.random() * 0.4, // 亮度
     scale: 1 + Math.random() * 1, // 火星大小倍率（1~2 随机）
     sway: (Math.random() * 2 - 1) * 2.4, // 左右摇摆幅度更大（负左正右）
     riseFactor: 0.7 + Math.random() * 1.5, // 升空高度倍率（0.7~1.5），火星会“突然蹿高”
-  }));
+  };
+}
+
+/** 单个火星：每次动画结束便随机“熄火”一阵，再换一条全新的随机轨迹重新起飞。
+ *  用 key=t.id 强制重挂载 → 动画以新轨迹重放，因此即便只有 1 个火星，每次路径也不同。 */
+function FireSpark({ imgScale, riseBase, dispH }) {
+  const [t, setT] = useState(makeSpark);
+  const [wait, setWait] = useState(() => 0.15 + Math.random() * 1.8); // 初始错峰延迟
+  const next = () => {
+    setWait(0.9 + Math.random() * 3.5); // 随机歇一小段，再喷下一颗
+    setT(makeSpark()); // 换随机轨迹 → key 变 → 重新起飞
+  };
+  return (
+    <span
+      key={t.id}
+      className="fire-spark"
+      onAnimationEnd={next}
+      style={{
+        left: t.ox * imgScale + 'px',
+        '--dx': t.drift * imgScale + 'px',
+        '--rise': riseBase * t.riseFactor * (dispH / 100) + 'px',
+        '--dur': t.dur + 's',
+        '--delay': wait + 's',
+        '--op': t.op,
+        '--s': t.scale,
+        '--sway': t.sway,
+      }}
+    />
+  );
 }
 
 export default function RoomScene() {
@@ -121,7 +148,6 @@ export default function RoomScene() {
   const revealed = firstLit && !chapterMask && !deathMask;
 
   /* —— 火堆上方动态小火星：按火势等级增减，越旺越多、飞得越高 —— */
-  const sparkPool = useMemo(buildSparkPool, []);
   const fireIdx = Math.max(0, Math.min(4, Number(fireValue) || 0));
   const sparksCount = SPARK_COUNT[fireIdx];
   const riseBase = 5 + level * 1.5; // 升空基准占图片显示高度的百分比（level 0-3 → 5/6.5/8/9.5）
@@ -191,7 +217,7 @@ export default function RoomScene() {
   const firePY = offY + FIRE_Y * dispH;
 
   // 平时按火势数量；突然爆燃时额外增加火星数量，形成“大火花”
-  const showCount = Math.min(SPARK_POOL_SIZE, Math.round(sparksCount * (burst ? 2.2 : 1)));
+  const showCount = Math.round(sparksCount * (burst ? 2.2 : 1));
 
   // 火光罩（忽明忽暗用）：以火堆为中心的一片暖光，尺寸与图片显示区域等比
   const glowW = dispW * 0.42;
@@ -215,21 +241,8 @@ export default function RoomScene() {
           />
           {showCount > 0 && (
             <div className="fire-sparks" style={{ left: firePX + 'px', top: firePY + 'px', '--pace': pulse.pace, '--size': pulse.size }}>
-              {sparkPool.slice(0, showCount).map((p, i) => (
-                <span
-                  key={i}
-                  className="fire-spark"
-                  style={{
-                    left: p.ox * imgScale + 'px',
-                    '--dx': p.drift * imgScale + 'px',
-                    '--rise': riseBase * p.riseFactor * (dispH / 100) + 'px',
-                    '--dur': p.dur + 's',
-                    '--delay': p.delay + 's',
-                    '--op': p.op,
-                    '--s': p.scale,
-                    '--sway': p.sway,
-                  }}
-                />
+              {Array.from({ length: showCount }).map((_, i) => (
+                <FireSpark key={'sp' + i} imgScale={imgScale} riseBase={riseBase} dispH={dispH} />
               ))}
             </div>
           )}

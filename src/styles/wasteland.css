@@ -352,7 +352,8 @@ body:not(.start-phase).menu-collapsed #scene-backdrop {
   animation-duration: calc(var(--dur, 1.4s) / var(--pace, 1));
   animation-timing-function: ease-out;
   animation-delay: var(--delay, 0s);
-  animation-iteration-count: infinite;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards; /* 每次只飞一次，结束后停在最后一帧(熄灭)，由 JS 换新轨迹再重启 */
   will-change: transform, opacity;
 }
 /* 火星轨迹：开头一小段“突然蹿高”，随后被气流横向漂走、渐小渐灭 —— 火苗迸火星的效果。
