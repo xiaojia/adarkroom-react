@@ -15,6 +15,8 @@ import { $SM, Dispatch } from '../store/stateManager';
 import { Engine } from '../engine/Engine';
 import { Notifications } from '../engine/notifications';
 import { requireModule } from '../engine/moduleLoader';
+import { AudioEngine } from '../engine/AudioEngine';
+import { AudioLibrary } from '../engine/audioLibrary';
 
 export const Ship = {
   LIFTOFF_COOLDOWN: 120,
@@ -63,6 +65,7 @@ export const Ship = {
     }
     $SM.add('stores["alien alloy"]', -Ship.ALLOY_PER_HULL);
     $SM.add('game.spaceShip.hull', 1);
+    AudioEngine.playSound(AudioLibrary.REINFORCE_HULL);
     return true;
   },
 
@@ -73,11 +76,13 @@ export const Ship = {
     }
     $SM.add('stores["alien alloy"]', -Ship.ALLOY_PER_THRUSTER);
     $SM.add('game.spaceShip.thrusters', 1);
+    AudioEngine.playSound(AudioLibrary.UPGRADE_ENGINE);
     return true;
   },
 
   liftOff() {
     Engine.event('progress', 'lift off');
+    AudioEngine.playSound(AudioLibrary.LIFT_OFF);
     Engine.travelTo('space');
   },
 

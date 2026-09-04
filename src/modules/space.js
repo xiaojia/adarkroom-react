@@ -18,6 +18,8 @@ import { Engine } from '../engine/Engine';
 import { Notifications } from '../engine/notifications';
 import { requireModule } from '../engine/moduleLoader';
 import { Pixel } from './pixel';
+import { AudioEngine } from '../engine/AudioEngine';
+import { AudioLibrary } from '../engine/audioLibrary';
 
 export const useSpace = create(() => ({
   shipX: 350,
@@ -226,6 +228,7 @@ export const Space = {
       if (xMin <= x && xMax >= x && aY <= y && aY + a.height >= y) {
         // 碰撞
         hull--;
+        AudioEngine.playSound(AudioLibrary['ASTEROID_HIT_' + (Math.floor(Math.random() * 8) + 1)]);
         if (hull === 0) crashed = true;
         continue; // 移除该小行星
       }
@@ -244,6 +247,7 @@ export const Space = {
     if (s.done) return;
     Space.cleanup();
     useSpace.setState({ done: true, crash: true, started: false });
+    AudioEngine.playSound(AudioLibrary.CRASH);
     Engine.keyLock = false;
     const Ship = requireModule('ship');
     Engine.travelTo('ship');

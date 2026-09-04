@@ -11,6 +11,7 @@
 import { create } from 'zustand';
 import { _ } from '../i18n';
 import { State, $SM, Dispatch, bindEngine, initStateManager, commit } from '../store/stateManager';
+import { AudioEngine } from './AudioEngine';
 
 /* ----------------------------- 引擎全局状态 ----------------------------- */
 
@@ -458,6 +459,11 @@ export const Engine = {
     useEngine.setState({ activeModule: moduleId, view: mod.fullscreen ? moduleId : 'locations' });
     Engine._setUrlModule(moduleId);
     if (mod.onArrival) mod.onArrival(1);
+    // 场景背景音乐跟随模块/火势/村庄规模切换
+    AudioEngine.setSceneMusic(moduleId, {
+      fire: $SM.get('game.fire.value', true),
+      huts: $SM.get('game.buildings["hut"]', true),
+    });
     // 打印该模块积压的通知
     const { Notifications } = requireNotifications();
     Notifications.printQueue(moduleId);

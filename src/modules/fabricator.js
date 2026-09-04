@@ -11,6 +11,8 @@ import { _ } from '../i18n';
 import { $SM, Dispatch } from '../store/stateManager';
 import { Notifications } from '../engine/notifications';
 import { requireModule } from '../engine/moduleLoader';
+import { AudioEngine } from '../engine/AudioEngine';
+import { AudioLibrary } from '../engine/audioLibrary';
 
 export const Fabricator = {
   name: _('Fabricator'),
@@ -127,6 +129,7 @@ export const Fabricator = {
       storeMod[key] = $SM.get('stores["' + key + '"]', true) - cost[key];
     }
     $SM.setM('stores', storeMod);
+    AudioEngine.playSound(AudioLibrary.CRAFT);
     $SM.add('stores["' + thing + '"]', craftable.quantity ?? 1);
 
     // 与 Room.build 一致：可携带的升级件自动装备

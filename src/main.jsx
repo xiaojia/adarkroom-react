@@ -142,6 +142,12 @@ async function boot() {
   // --- 6. 启动引擎（读档 / 模块初始化 / 进入房间） ---
   Engine.init();
 
+  // 音频：首次用户手势时初始化 AudioContext（浏览器自动播放限制），并播放排队中的场景音乐
+  const { AudioEngine } = await import('./engine/AudioEngine');
+  const unlockAudio = () => AudioEngine.init();
+  window.addEventListener('pointerdown', unlockAudio, { once: true });
+  window.addEventListener('keydown', unlockAudio, { once: true });
+
   // 开发期调试钩子：在浏览器控制台驱动事件系统做端到端验证
   if (import.meta.env.DEV) {
     const sm = await import('./store/stateManager');

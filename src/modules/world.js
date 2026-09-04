@@ -17,6 +17,8 @@ import { Notifications } from '../engine/notifications';
 import { requireModule } from '../engine/moduleLoader';
 import { Pixel } from './pixel';
 import { suppliesRank } from '../engine/storeCategories';
+import { AudioEngine } from '../engine/AudioEngine';
+import { AudioLibrary } from '../engine/audioLibrary';
 
 export const World = {
   RADIUS: 30,
@@ -250,6 +252,7 @@ export const World = {
     World.curPos[1] += direction[1];
     World.narrateMove(oldTile, World.state.map[World.curPos[0]][World.curPos[1]]);
     World.lightMap(World.curPos[0], World.curPos[1], World.state.mask);
+    AudioEngine.playSound(AudioLibrary['FOOTSTEPS_' + (Math.floor(Math.random() * 6) + 1)]);
     $SM.fireUpdate('world');
     World.doSpace();
     if (World.checkDanger()) {
@@ -583,6 +586,7 @@ export const World = {
   die() {
     if (!World.dead) {
       World.dead = true;
+      AudioEngine.playSound(AudioLibrary.DEATH);
       Engine.log('player death');
       Engine.event('game event', 'death');
       Engine.keyLock = true;

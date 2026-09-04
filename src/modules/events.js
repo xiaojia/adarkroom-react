@@ -15,6 +15,8 @@ import { Engine } from '../engine/Engine';
 import { Notifications } from '../engine/notifications';
 import { requireModule } from '../engine/moduleLoader';
 import { Pixel } from './pixel';
+import { AudioEngine } from '../engine/AudioEngine';
+import { AudioLibrary } from '../engine/audioLibrary';
 
 // 事件池数据（纯数据模块，无副作用）
 import { Global as PoolGlobal } from './eventsData/global';
@@ -102,9 +104,7 @@ export const Events = {
 
   startEvent(event, opts) {
     if (!event) return;
-    if (event.audio) {
-      // React 版无音频引擎，预留
-    }
+    if (event.audio) AudioEngine.playEventMusic(event.audio);
     Engine.event('game event', 'event');
     Engine.keyLock = true;
     Engine.tabNavigation = false;
@@ -129,6 +129,8 @@ export const Events = {
   endEvent() {
     Events._autoAttackClearAll();
     Events.clearTimeouts();
+    // 事件结束：恢复被压低的主背景音乐
+    AudioEngine.stopEventMusic();
     const ev = Events.eventStack.shift();
     if (ev && ev._onEnd) ev._onEnd();
     Events.activeScene = null;
@@ -159,6 +161,9 @@ export const Events = {
     const scene = event.scenes[name];
 
     if (!scene) return;
+
+    // 场景级音频覆盖事件级音频
+    if (scene.audio) AudioEngine.playEventMusic(scene.audio);
 
     // onLoad
     if (scene.onLoad) scene.onLoad();
@@ -592,6 +597,10 @@ export const Events = {
       }
     }
 
+    // 武器音效（赤手/近战/远程）
+    const wType = weapon.type === 'unarmed' ? 'UNARMED' : weapon.type === 'melee' ? 'MELEE' : weapon.type === 'ranged' ? 'RANGED' : null;
+    if (wType) AudioEngine.playSound(AudioLibrary['WEAPON_' + wType + '_' + (Math.floor(Math.random() * 3) + 1)]);
+
     // 处理击退等动画与结算
     setTimeout(() => {
       const scene = Events._curScene();
@@ -636,6 +645,8 @@ export const Events = {
     if (Path.outfit[healing] > 0) {
       Path.outfit[healing]--;
       World.updateSupplies();
+      if (kind === 'eat') AudioEngine.playSound(AudioLibrary.EAT_MEAT);
+      else if (kind === 'meds') AudioEngine.playSound(AudioLibrary.USE_MEDS);
       let hp = World.health + cured;
       hp = Math.min(World.getMaxHealth(), hp);
       World.setHp(hp);

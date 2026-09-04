@@ -8,6 +8,8 @@ import { _ } from '../i18n';
 import { $SM, Dispatch } from '../store/stateManager';
 import { Engine } from '../engine/Engine';
 import { Notifications } from '../engine/notifications';
+import { AudioEngine } from '../engine/AudioEngine';
+import { AudioLibrary } from '../engine/audioLibrary';
 
 export const Outside = {
   name: _('Outside'),
@@ -258,12 +260,14 @@ export const Outside = {
   },
 
   gatherWood() {
+    AudioEngine.playSound(AudioLibrary.GATHER_WOOD);
     Notifications.notify(Outside, _('dry brush and dead branches litter the forest floor'));
     const gatherAmt = $SM.get('game.buildings["cart"]', true) > 0 ? 50 : 10;
     $SM.add('stores.wood', gatherAmt);
   },
 
   checkTraps() {
+    AudioEngine.playSound(AudioLibrary.CHECK_TRAPS);
     const drops = {};
     const msg = [];
     const numTraps = $SM.get('game.buildings["trap"]', true);

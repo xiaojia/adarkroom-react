@@ -13,6 +13,8 @@ import { Engine } from '../engine/Engine';
 import { Notifications } from '../engine/notifications';
 import { requireModule } from '../engine/moduleLoader';
 import { suppliesRank } from '../engine/storeCategories';
+import { AudioEngine } from '../engine/AudioEngine';
+import { AudioLibrary } from '../engine/audioLibrary';
 
 export const Path = {
   DEFAULT_BAG_SPACE: 10,
@@ -230,6 +232,7 @@ export const Path = {
 
   embark() {
     const World = requireModule('world');
+    AudioEngine.playSound(AudioLibrary.EMBARK);
     // 把携带的物品从基地库存中扣除（与旧版一致），Path.outfit 保留键值供旅途消耗
     for (const k in Path.outfit) {
       $SM.add('stores["' + k + '"]', -Path.outfit[k]);

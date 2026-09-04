@@ -9,6 +9,8 @@ import { $SM } from '../store/stateManager';
 import { Engine } from '../engine/Engine';
 import { Notifications } from '../engine/notifications';
 import { requireModule } from '../engine/moduleLoader';
+import { AudioEngine } from '../engine/AudioEngine';
+import { AudioLibrary } from '../engine/audioLibrary';
 
 export const Room = {
   // 时间常量
@@ -291,6 +293,11 @@ export const Room = {
     document.body.classList.toggle('start-phase', !$SM.get('game.chapterDone'));
   },
 
+  /** 火势变化时更新房间背景音乐 */
+  _updateFireMusic() {
+    AudioEngine.setSceneMusic('room', { fire: $SM.get('game.fire.value', true) });
+  },
+
   lightFire() {
     if (Room.isChapterAnimating() || $SM.get('game.deathMask')) return false;
     const wood = $SM.get('stores.wood', true);
@@ -305,12 +312,14 @@ export const Room = {
       return false;
     }
     $SM.set('stores.wood', wood - 5);
+    AudioEngine.playSound(AudioLibrary.LIGHT_FIRE);
 
     if (Room.inStartPhase()) {
       // 开始阶段：生火只点起小火（1 级），之后要反复添柴升温
       const firstEver = !$SM.get('game.fireLit');
       $SM.set('game.fire', Room.FireEnum.Smoldering);
       $SM.set('game.fireLit', true); // 首次点火标记：驱动 RoomScene 黑遮罩开场
+      Room._updateFireMusic();
       if (firstEver) {
         // 第一次点火是「试火」：展示 dark1 开场，5 秒后自动熄灭
         $SM.set('game.trialActive', true);
@@ -340,6 +349,7 @@ export const Room = {
     if (!Room.inStartPhase()) return;
     if ($SM.get('game.fire.value', true) > 0) {
       $SM.set('game.fire', Room.FireEnum.Dead);
+      Room._updateFireMusic();
       Notifications.notify(Room, _('the fire went out. it is cold'));
       Room.setTitle();
     }
@@ -365,6 +375,8 @@ export const Room = {
     $SM.set('stores.wood', wood - 1);
     const nv = cur + 1;
     $SM.set('game.fire', Room.FireEnum.fromInt(nv));
+    AudioEngine.playSound(AudioLibrary.STOKE_FIRE);
+    Room._updateFireMusic();
 
     if (Room.inStartPhase()) {
       if (nv >= Room.FireEnum.Roaring.value) {
@@ -389,6 +401,7 @@ export const Room = {
 
   onFireChange() {
     if (Room.inStartPhase()) return; // 开始阶段的火势变化走独立流程，不走这里
+    Room._updateFireMusic();
     if (Engine.activeModuleId !== 'room') {
       Room.changed = true;
     }
@@ -479,6 +492,7 @@ export const Room = {
     const nv = cur - 1;
     $SM.set('game.fire', Room.FireEnum.fromInt(nv));
     Room.setTitle();
+    Room._updateFireMusic();
     Room.checkDoomed();
     if (!$SM.get('game.deathMask')) {
       if (nv > 0) {
@@ -515,6 +529,7 @@ export const Room = {
     clearTimeout(Room._tempTimer);
     $SM.set('game.chapterMask', false);
     $SM.set('game.deathMask', true); // RoomScene：摘掉 revealed → 黑屏 5 秒
+    AudioEngine.playSound(AudioLibrary.DEATH);
     Notifications.notify(Room, _('the stranger falls asleep in the freezing room, and never wakes up'));
     Room.scheduleDeathModal();
   },
@@ -662,6 +677,7 @@ export const Room = {
     const storeMod = {};
     for (const k in cost) storeMod[k] = $SM.get('stores["' + k + '"]', true) - cost[k];
     $SM.setM('stores', storeMod);
+    AudioEngine.playSound(AudioLibrary.BUY);
 
     Notifications.notify(Room, good.buildMsg);
     $SM.add('stores["' + thing + '"]', 1);
@@ -706,6 +722,7 @@ export const Room = {
     for (const k in cost) storeMod[k] = $SM.get('stores["' + k + '"]', true) - cost[k];
     $SM.setM('stores', storeMod);
 
+    AudioEngine.playSound(craftable.type === 'building' ? AudioLibrary.BUILD : AudioLibrary.CRAFT);
     Notifications.notify(Room, craftable.buildMsg);
 
     switch (craftable.type) {
