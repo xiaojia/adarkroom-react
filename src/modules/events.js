@@ -1115,7 +1115,18 @@ export const Events = {
     Events._eventTimeout = Engine.setTimeout(Events.triggerEvent, nextEvent * 60 * 1000);
   },
 
+  /** 当前是否仍处于初章（开始阶段，chapterDone=false）：初章期间不触发任何随机事件 */
+  _isStartPhase() {
+    return !$SM.get('game.chapterDone');
+  },
+
   triggerEvent() {
+    // 初章（chapterDone=false）期间不触发任何随机事件：本次跳过，稍后再调度检查，
+    // 待初章结束（chapterDone=true）后**下一次**调度到期即开始正常随机事件。
+    if (Events._isStartPhase()) {
+      Events.scheduleNextEvent(0.5);
+      return;
+    }
     if (Events.activeEvent() === null) {
       const possibleEvents = [];
       const pool = Events.EventPool || [];
