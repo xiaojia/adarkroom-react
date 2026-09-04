@@ -4,7 +4,7 @@
  * 纯展示：从 World 逻辑层查询函数派生 UI。
  * 地图以 flex 行+列渲染（px-tile），四周提供方向按钮。
  */
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { _ } from '../../i18n';
 import { useTick } from '../../store/stateManager';
 import { World } from '../../modules/world';
@@ -14,7 +14,8 @@ import PixelIcon from '../shared/PixelIcon';
 
 const NOISE_PERIOD = 32; // 与 game.css 中 --terrain-noise 的 background-size 保持一致
 
-function MapTile({ t, homeRot, tile, col, row }) {
+// 记忆化：只有该格子数据真的变化（可见性/地标/玩家位置/纹理对齐）时才重渲染一次。
+const MapTile = memo(function MapTile({ t, homeRot, tile, col, row }) {
   let cls = 'px-tile';
   let inner = '';
   // 让噪点纹理跨格子连续：按该格在世界坐标中的位置设置 background-position
@@ -54,7 +55,7 @@ function MapTile({ t, homeRot, tile, col, row }) {
     inner += '<div class="tooltip bottom right">' + (t.label || '') + '</div>';
   }
   return <span className={cls} style={spanStyle} dangerouslySetInnerHTML={{ __html: inner }} />;
-}
+});
 
 export default function WorldPanel() {
   useTick();
@@ -150,7 +151,7 @@ export default function WorldPanel() {
           {st.map.map((row, j) => (
             <div className="px-row" key={j}>
               {row.map((t, i) => (
-                <MapTile key={i} t={t} homeRot={homeRot} tile={tile} col={i} row={j} />
+                <MapTile key={i} t={t} homeRot={t.isPlayer ? homeRot : 0} tile={tile} col={i} row={j} />
               ))}
             </div>
           ))}

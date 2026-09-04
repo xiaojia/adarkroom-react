@@ -782,15 +782,22 @@ export const World = {
     };
   },
 
-  /** 地图快照：按行返回 [{char, visible, visited, isPlayer, landmark, label}] */
+  /** 地图快照：按行返回 [{char, visible, visited, isPlayer, landmark, label}]
+   *  带格子对象缓存：未变化的格子复用同一对象，保证引用稳定，配合 React.memo 避免每次移动/tick 全量重渲染。 */
   getMapGrid() {
-    const grid = [];
-    if (!World.state) return grid;
+    if (!World.state) return [];
     const mask = World.state.mask;
     const map = World.state.map;
-    for (let j = 0; j <= World.RADIUS * 2; j++) {
-      const row = [];
-      for (let i = 0; i <= World.RADIUS * 2; i++) {
+    const size = World.RADIUS * 2 + 1;
+    let grid = World._grid;
+    if (!grid || grid.length !== size) {
+      grid = [];
+      for (let k = 0; k < size; k++) grid.push(new Array(size));
+      World._grid = grid;
+    }
+    const cache = (World._cellCache = World._cellCache || {});
+    for (let j = 0; j < size; j++) {
+      for (let i = 0; i < size; i++) {
         const isPlayer = World.curPos && World.curPos[0] === i && World.curPos[1] === j;
         const visible = !!(mask && mask[i] && mask[i][j]);
         let char = visible ? map[i][j] : null;
@@ -798,31 +805,30 @@ export const World = {
         let label = null;
         if (visible && char) {
           const base = char.length > 1 ? char[0] : char;
-          const visited = char.length > 1;
           if (base === World.TILE.VILLAGE) {
             landmark = 'lm_village';
             label = _('The\u00a0Village');
           } else if (typeof World.LANDMARKS[base] !== 'undefined') {
             landmark = Pixel.TILE_ICONS[base];
             label = World.LANDMARKS[base].label;
-            if (visited || base === World.TILE.OUTPOST) char = base;
+            if (char.length > 1 || base === World.TILE.OUTPOST) char = base;
           }
         }
         const raw = char || '';
         const bb = raw.length > 1 ? raw[0] : raw;
-        row.push({
-          char,
-          base: bb || null,
-          visible,
-          visited: visible && raw.length > 1,
-          // 被解放（清除守卫后变成哨站/安全点）的地块
-          liberated: visible && bb === World.TILE.OUTPOST,
-          isPlayer,
-          landmark,
-          label,
-        });
+        const visited = visible && raw.length > 1;
+        const liberated = visible && bb === World.TILE.OUTPOST;
+        const key = i + ',' + j;
+        const prev = cache[key];
+        const sig = (visible ? 1 : 0) + '|' + (char || '') + '|' + (isPlayer ? 1 : 0)
+          + '|' + (landmark || '') + '|' + (label || '') + '|' + (visited ? 1 : 0) + '|' + (liberated ? 1 : 0);
+        if (prev && prev.sig === sig) {
+          grid[j][i] = prev.obj;
+        } else {
+          grid[j][i] = { char, base: bb || null, visible, visited, liberated, isPlayer, landmark, label };
+          cache[key] = { sig, obj: grid[j][i] };
+        }
       }
-      grid.push(row);
     }
     return grid;
   },
