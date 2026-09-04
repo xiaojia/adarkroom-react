@@ -125,6 +125,8 @@ export default function RoomScene() {
   const fireIdx = Math.max(0, Math.min(4, Number(fireValue) || 0));
   const sparksCount = SPARK_COUNT[fireIdx];
   const riseBase = 5 + level * 1.5; // 升空基准占图片显示高度的百分比（level 0-3 → 5/6.5/8/9.5）
+  // 火光明暗随火势缩放：最大火(4) = 满值，小火按比例缩小（1→0.25，2→0.5，3→0.75）
+  const fireLight = fireIdx / 4;
 
   /* —— 火花“爆燃”节拍：平时零星小火、慢而小，隔 5~20s 突然持续 ~2s 的大火花（火势窜一下）——
      通过共享的 --pace（变速）与 --size（放大缩小）驱动所有火星一起变化。 —— */
@@ -196,7 +198,7 @@ export default function RoomScene() {
   const glowH = dispH * 0.52;
 
   return (
-    <div ref={sceneRef} className={`room-scene${revealed ? ' revealed' : ''}${spark ? ' spark' : ''}`} style={{ '--amp': pulse.amp }}>
+    <div ref={sceneRef} className={`room-scene${revealed ? ' revealed' : ''}${spark ? ' spark' : ''}`} style={{ '--amp': pulse.amp * fireLight }}>
       {IMAGES.map((src, i) => {
         let cls = 'room-img';
         if (i === prev) cls += ' prev';
