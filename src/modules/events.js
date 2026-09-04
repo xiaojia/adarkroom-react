@@ -110,6 +110,12 @@ export const Events = {
     Engine.tabNavigation = false;
     Events.eventStack.unshift(event);
     event._snap = null;
+    // 每次进入事件都重置战利品/丢弃状态：同一场景对象（如多个哨站共用 Setpieces['outpost']）
+    // 会在多次访问间共享 _lootRows，导致「一个哨站拿光后其它哨站也显示为空」。
+    // 重置后按各自坐标的补给重新掷取（哨站补给是 per-coordinate 的）。
+    event._lootRows = null;
+    event._dropMenu = null;
+    event._dropFor = null;
     // 新事件开始：清空上一场的战斗/浮字状态
     Events._floats = [];
     Events.fought = false;

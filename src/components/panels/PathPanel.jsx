@@ -7,6 +7,7 @@
 import { _ } from '../../i18n';
 import { $SM, useTick } from '../../store/stateManager';
 import { Path } from '../../modules/path';
+import { World } from '../../modules/world';
 import { Pixel } from '../../modules/pixel';
 import { Slot } from '../../engine/uiRegistry';
 import GameButton from '../shared/GameButton';
@@ -95,6 +96,7 @@ export default function PathPanel() {
           <GameButton
             id="embarkButton"
             text={_('embark')}
+            cooldown={World.DEATH_COOLDOWN}
             disabled={!st.canEmbark}
             onClick={() => Path.embark()}
           />

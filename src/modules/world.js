@@ -594,11 +594,11 @@ export const World = {
       World.state = null;
       const Path = requireModule('path');
       Path.outfit = {};
-      const Room = requireModule('room');
-      const Outside = requireModule('outside');
-      Engine.travelTo('outside');
+      // 死亡惩罚：出发（embark）按钮进入冷却（对应旧版 Button.cooldown($('#embarkButton'))）
+      $SM.set('cooldown.embarkButton', World.DEATH_COOLDOWN);
+      // 死亡后默认回到「漫漫尘途」：可看到出发按钮的冷却倒计时
+      Engine.travelTo('path');
       Engine.keyLock = false;
-      Outside.onArrival();
     }
   },
 
@@ -609,6 +609,8 @@ export const World = {
     const Room = requireModule('room');
 
     $SM.setM('game.world', World.state);
+    // 安全返回：清除出发冷却（对应旧版 Button.clearCooldown）
+    $SM.remove('cooldown.embarkButton');
     if (World.state.sulphurmine && $SM.get('game.buildings["sulphur mine"]', true) === 0) {
       $SM.add('game.buildings["sulphur mine"]', 1);
       Engine.event('progress', 'sulphur mine');
