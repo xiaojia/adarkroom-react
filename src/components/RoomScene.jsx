@@ -38,7 +38,7 @@ const INTRO_MS = 5200; // 开场期间强制展示 dark1 的时长（结束后�
 const FADE_MS = 1500; // 新图渐显时长，与 CSS animation 时长一致
 
 // 火势 0-4 → 火星数量（0 无火，4 熊熊最多）
-const SPARK_COUNT = [0, 0, 1, 3, 5];
+const SPARK_COUNT = [0, 1, 2, 3, 4];
 
 // 每次起飞都重新掷一套随机轨迹，保证同一个火星的每次运动路径都不一样，避免齐步走
 let sparkSeq = 0;

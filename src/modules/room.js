@@ -190,7 +190,8 @@ export const Room = {
 
     if (typeof $SM.get('features.location.room') === 'undefined') {
       $SM.set('features.location.room', true);
-      $SM.set('game.builder.level', -1);
+      // 陌生人（建造者）从开局就在房间里（lvl=1），初章后不再重复“踉跄进门”
+      $SM.set('game.builder.level', 1);
     }
 
     // 温度/火势初始化（兼容旧存档）
@@ -248,6 +249,8 @@ export const Room = {
     Notifications.notify(Room, _('the room is {0}', Room.TempEnum.fromInt($SM.get('game.temperature.value')).text));
     Notifications.notify(Room, _('the fire is {0}', Room.FireEnum.fromInt($SM.get('game.fire.value')).text));
     if (isFreshGame) {
+      // 开场：陌生人（建造者）先踉跄进门倒在角落，紧接提示身旁有木柴 —— 仅在初章开局提示这一次
+      Notifications.notify(Room, _('a ragged stranger stumbles through the door and collapses in the corner'));
       Notifications.notify(Room, _('there are some logs beside you, you can light a fire'));
     }
   },
