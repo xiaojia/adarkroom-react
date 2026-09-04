@@ -5,11 +5,80 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>A Dark Room (React)</title>
-    <script type="module" crossorigin src="/assets/index-BuO329OJ.js"></script>
+    <style>
+      /* 启动屏：在 JS/模块加载期间即时显示，避免白屏。
+         React 的 Preloader 复用同一套类名（.boot-splash / .bs-*），视觉无缝衔接。 */
+      .boot-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(120% 90% at 50% 38%, #1c1610 0%, #0d0b08 62%, #060504 100%);
+        color: #c9a86a;
+        font-family: ui-monospace, "Courier New", monospace;
+        opacity: 1;
+        transition: opacity 0.35s ease;
+      }
+      .boot-splash.done {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .bs-inner {
+        text-align: center;
+        padding: 0 24px;
+      }
+      .bs-title {
+        font-size: 34px;
+        letter-spacing: 6px;
+        color: #e8d6a8;
+        text-shadow: 0 0 14px rgba(255, 180, 80, 0.35);
+        margin-bottom: 14px;
+      }
+      .bs-sub {
+        font-size: 14px;
+        color: #9c8660;
+        margin-bottom: 22px;
+        min-height: 1em;
+      }
+      .bs-bar {
+        width: min(320px, 72vw);
+        height: 8px;
+        margin: 0 auto;
+        background: #241c12;
+        border: 1px solid #3a2f1e;
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .bs-fill {
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, #a67c3a, #e8c979);
+        transition: width 0.18s ease;
+        border-radius: 1px;
+      }
+      /* 仅 index.html 的初始静态启动屏（无真实进度）用“呼吸”脉冲代替；React 版有真实宽度，不走这里 */
+      #boot-splash:not(.done) .bs-fill {
+        animation: bs-breathe 1.6s ease-in-out infinite;
+      }
+      @keyframes bs-breathe {
+        0%, 100% { opacity: 0.45; }
+        50% { opacity: 1; }
+      }
+    </style>
+    <script type="module" crossorigin src="/assets/index-C1W_snqS.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/rolldown-runtime-hePW80VL.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-BeblsD0P.css">
+    <link rel="stylesheet" crossorigin href="/assets/index-CiE_wbUJ.css">
   </head>
   <body>
+    <div id="boot-splash" class="boot-splash">
+      <div class="bs-inner">
+        <div class="bs-title">A DARK ROOM</div>
+        <div class="bs-sub">正在加载…</div>
+        <div class="bs-bar"><div class="bs-fill"></div></div>
+      </div>
+    </div>
     <div id="root"></div>
   </body>
 </html>
