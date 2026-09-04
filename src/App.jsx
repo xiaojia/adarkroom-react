@@ -100,6 +100,18 @@ function App() {
     };
   }, []);
 
+  // 小屏检测：视口较窄时给 <body> 加 .small-screen 标识，
+  // 供 CSS 对小屏幕背景做取景/位移微调（JS 只负责加/去标识，具体数值交给 CSS，便于后面微调）。
+  useEffect(() => {
+    const SMALL_PX = 900; // 小屏阈值(px)，可按需调整
+    const apply = () => {
+      document.body.classList.toggle('small-screen', window.innerWidth < SMALL_PX);
+    };
+    apply();
+    window.addEventListener('resize', apply);
+    return () => window.removeEventListener('resize', apply);
+  }, []);
+
   const mod = activeModule ? ModuleRegistry.get(activeModule) : null;
   const Panel = mod && mod.Component ? mod.Component : null;
 

@@ -3,15 +3,18 @@
  * 地图瓦片是 DOM 像素画（不涉及图片请求），这里只预加载各场景的背景图。
  */
 
+// 资源部署基准路径（vite base: './' 时为 './'，与 public/ 下资源相对位置一致）
+const BASE = import.meta.env.BASE_URL;
+
 // 首屏最关键：房间（生火间）的火势背景图 —— 进度条以这批为准，加载完即可进入游戏
-export const BG_CRITICAL = ['drak', 'light'].flatMap((m) => [0, 1, 2, 3].map((i) => `/bg/room/${m}${i}.png`));
+export const BG_CRITICAL = ['drak', 'light'].flatMap((m) => [0, 1, 2, 3].map((i) => `${BASE}bg/room/${m}${i}.png`));
 
 // 其余场景背景图：进入游戏后在后台静默预加载，避免切换场景时再卡顿
 export const BG_LAZY = [
-  ...['dark', 'light'].flatMap((m) => [0, 1, 2, 3].map((i) => `/bg/outside/${m}${i}.jpeg`)),
-  '/bg/path/dark0.png', '/bg/path/light0.png',
-  '/bg/ship/dark0.png', '/bg/ship/light0.png',
-  '/bg/fabricator/dark0.png', '/bg/fabricator/light0.png',
+  ...['dark', 'light'].flatMap((m) => [0, 1, 2, 3].map((i) => `${BASE}bg/outside/${m}${i}.jpeg`)),
+  `${BASE}bg/path/dark0.png`, `${BASE}bg/path/light0.png`,
+  `${BASE}bg/ship/dark0.png`, `${BASE}bg/ship/light0.png`,
+  `${BASE}bg/fabricator/dark0.png`, `${BASE}bg/fabricator/light0.png`,
 ];
 
 /**

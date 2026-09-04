@@ -22,8 +22,10 @@ import { $SM, useTick } from '../store/stateManager';
 
 // fire 0-4 -> 图下标 0-3（roaring 与 burning 共用图 3）
 const LEVEL = [0, 1, 2, 3, 3];
+// 资源部署基准路径（vite base: './' 时为 './'，与 public/ 下资源相对位置一致）
+const BASE = import.meta.env.BASE_URL;
 // 常驻 DOM 的 8 张图：[drak0..drak3, light0..light3]
-const IMAGES = ['drak', 'light'].flatMap((m) => [0, 1, 2, 3].map((i) => `/bg/room/${m}${i}.png`));
+const IMAGES = ['drak', 'light'].flatMap((m) => [0, 1, 2, 3].map((i) => `${BASE}bg/room/${m}${i}.png`));
 // 熄灯(夜)→drak0-3；开灯(昼)→light0-3（下标偏移 4）
 const IMG_IDX = (mode, level) => (mode === 'drak' ? level : 4 + level);
 

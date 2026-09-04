@@ -950,3 +950,33 @@ body.noMask #notifyGradient { background: linear-gradient(rgba(12, 8, 4, 0), rgb
   padding: 2px 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }
+
+/* ============================================================
+ * 小屏背景取景/位移微调
+ * ------------------------------------------------------------
+ * 触发：JS 在视口较窄时给 <body> 加 .small-screen（见 App.jsx），
+ *      JS 只负责加/去标识，具体数值全部在这里用 CSS 调，方便后面逐步微调。
+ *
+ * 说明：
+ *   - 各场景背景图为 object-fit: cover（会裁掉超出部分）。小屏（通常更窄更高）
+ *     会用 object-position 把取景中心往关键区域挪，避免画面被裁得只剩一片空地。
+ *   - 静谧森林那层用 --shift / --shift-y 控制平移（本就有这机制），小屏下可覆盖微调。
+ * 数值均为占位初值，直接改这里即可。
+ * ============================================================ */
+body.small-screen #scene-backdrop .room-img,
+body.small-screen #scene-backdrop .path-img,
+body.small-screen #scene-backdrop .ship-img,
+body.small-screen #scene-backdrop .fabricator-img,
+body.small-screen #scene-backdrop .outside-img {
+  object-position: 50% 38%; /* 取景中心向上挪一些（10% 38% = 偏上），数值按需改 */
+}
+body.small-screen #scene-backdrop .room-img       { object-position: 50% 30%; }
+body.small-screen #scene-backdrop .path-img       { object-position: 50% 40%; }
+body.small-screen #scene-backdrop .fabricator-img { object-position: 50% 35%; }
+body.small-screen #scene-backdrop .ship-img       { object-position: 50% 60%; }
+
+/* 静谧森林背景平移（复用场景类的 --shift 机制），小屏下可单独覆盖微调 */
+body.small-screen .outside-scene.scene-room       { --shift-y: -8vw; }
+body.small-screen .outside-scene.scene-path       { --shift-y:  4vw; }
+body.small-screen .outside-scene.scene-fabricator { --shift-y: -10vw; }
+body.small-screen .outside-scene.scene-ship       { --shift-y: -240px; }

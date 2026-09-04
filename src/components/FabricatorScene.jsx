@@ -11,8 +11,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useEngine } from '../engine/Engine';
 
+// 资源部署基准路径（vite base: './' 时为 './'，与 public/ 下资源相对位置一致）
+const BASE = import.meta.env.BASE_URL;
 // 常驻 DOM 的 2 张图：[dark0, light0]
-const IMAGES = [`/bg/fabricator/dark0.png`, `/bg/fabricator/light0.png`];
+const IMAGES = [`${BASE}bg/fabricator/dark0.png`, `${BASE}bg/fabricator/light0.png`];
 // 熄灯(夜)→dark0(下标0)；开灯(昼)→light0(下标1)
 const IMG_IDX = (mode) => (mode === 'dark' ? 0 : 1);
 

@@ -26,8 +26,10 @@ function levelForHuts(huts) {
   return 0;
 }
 
+// 资源部署基准路径（vite base: './' 时为 './'，与 public/ 下资源相对位置一致）
+const BASE = import.meta.env.BASE_URL;
 // 常驻 DOM 的 8 张图：[dark0..dark3, light0..light3]
-const IMAGES = ['dark', 'light'].flatMap((m) => [0, 1, 2, 3].map((i) => `/bg/outside/${m}${i}.jpeg`));
+const IMAGES = ['dark', 'light'].flatMap((m) => [0, 1, 2, 3].map((i) => `${BASE}bg/outside/${m}${i}.jpeg`));
 // 熄灯(夜)→dark0-3；开灯(昼)→light0-3（下标偏移 4）
 const IMG_IDX = (mode, level) => (mode === 'dark' ? level : 4 + level);
 
