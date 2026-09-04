@@ -453,277 +453,335 @@ Pixel.TILE_ICONS = {
 	'U': 'lm_cache'
 };
 
-// —— 地标：村庄 ——
+// —— 地标：村庄（三座圆形茅舍 + 绿茵）——
 Pixel.define('lm_village', {
 	palette: {
-		'o': '#1a120a', 'W': '#d8c090', 'w': '#a89058',
-		'R': '#a04a2a', 'r': '#7a2e1a', 'G': '#3a6a2a'
+		'o': '#1a120a', 'R': '#b0502a', 'r': '#7a2e1a',
+		'W': '#d8c090', 'w': '#a89058', 'K': '#3a2a16', 'G': '#3f6b2c', 'g': '#5a8a3a'
 	},
 	grid: [
-		'............',
-		'.oooooooooo.',
-		'.oWWWWWWWWo.',
-		'.oWWpWWpWWo.',
-		'.oWWWWWWWWo.',
-		'.oWWWWWWWWo.',
-		'.oooooooooo.',
-		'..oRRRRRRo..',
-		'..oRrrrrRo..',
-		'..oRaRaaRo..',
-		'..ooooooooo.',
-		'...ooGGoo...'
+		'................',
+		'................',
+		'..oo...oo...oo..',
+		'.oRRo.oRRo.oRRo.',
+		'.oRRo.oRRo.oRRo.',
+		'.oWWo.oWWo.oWWo.',
+		'.oWWo.oWWo.oWWo.',
+		'.oKoo.oKoo.oKoo.',
+		'.oooooooooooooo.',
+		'.oGGGGGGGGGGGGo.',
+		'.oGgGGGGGGgGGGo.',
+		'.oGGGGGGGGGGGGo.',
+		'..oGGGGGGGGGGo..',
+		'...oGGGGGGGGo...',
+		'................',
+		'................'
 	]
 });
 
-// —— 地标：铁矿 ——
+// —— 地标：铁矿（灰色山体 + 红色矿脉）——
 Pixel.define('lm_iron', {
 	palette: {
-		'o': '#1a120a', 'R': '#8a2a1a', 'r': '#6a1e12', 'G': '#3a6a2a', 'g': '#2e551d'
+		'o': '#1a120a', 'R': '#c04a2a', 'r': '#7a2412',
+		'K': '#5c5c66', 'k': '#3f3f46', 'M': '#8a8a92',
+		'G': '#3f6b2c', 'g': '#5a8a3a'
 	},
 	grid: [
-		'............',
-		'.....oo.....',
-		'....oRRo....',
-		'...oRRRRo...',
-		'....oRRo....',
-		'...oRRRRo...',
-		'......o.....',
-		'.oooooooooo.',
-		'.oGGGGGGGGo.',
-		'.oGgGGgGGgo.',
-		'.oGGGGGGGGo.',
-		'...oooooo...'
+		'................',
+		'.......oo.......',
+		'......oKKo......',
+		'.....oKMRKo.....',
+		'.....oKRRKo.....',
+		'....oKMRRKko....',
+		'....oKMRRKko....',
+		'...oKMMRRKkko...',
+		'...oKMRRRKkKo...',
+		'..oKMMRRRKkKko..',
+		'..oKKRRRRKkKko..',
+		'.oooooooooooooo.',
+		'.oGGGGGGGGGGGGo.',
+		'.oGgGGGGGGgGGGo.',
+		'..oGGGGGGGGGGo..',
+		'................'
 	]
 });
 
-// —— 地标：煤矿 ——
+// —— 地标：煤矿（黑色煤堆，中空矿口）——
 Pixel.define('lm_coal', {
 	palette: {
-		'o': '#1a120a', 'K': '#3a3a3a', 'k': '#1e1e1e', 'G': '#3a6a2a', 'g': '#2e551d'
+		'o': '#1a120a', 'K': '#3b3b3b', 'k': '#1b1b1b', 'S': '#6a6a6e', 'G': '#3f6b2c', 'g': '#5a8a3a'
 	},
 	grid: [
-		'............',
-		'.....oo.....',
-		'....oKko....',
-		'...oKKkKo...',
-		'....oKo.....',
-		'...oKkKKo...',
-		'......o.....',
-		'.oooooooooo.',
-		'.oGGGGGGGGo.',
-		'.oGgGGgGGgo.',
-		'.oGGGGGgGGo.',
-		'...oooooo...'
+		'................',
+		'................',
+		'....oo...oo.....',
+		'...oKKo.oKKo....',
+		'..oKkKKo.oKKo...',
+		'..oKkSKkKKKKo...',
+		'..oKKkkkKKKKo...',
+		'...oKkKKkKKo....',
+		'....oKkkkKo.....',
+		'.....oKKKKo.....',
+		'.oooooooooooooo.',
+		'.oGGGGGGGGGGGGo.',
+		'.oGgGGkGGgGGGGo.',
+		'..oGGGGgGGGGGo..',
+		'...ooGGGGGGoo...',
+		'................'
 	]
 });
 
-// —— 地标：硫磺矿 ——
+// —— 地标：硫磺矿（黄色晶簇）——
 Pixel.define('lm_sulphur', {
 	palette: {
-		'o': '#1a120a', 'Y': '#e0c01a', 'y': '#a89010', 'G': '#3a6a2a', 'g': '#2e551d'
+		'o': '#1a120a', 'Y': '#ecc81a', 'y': '#a88810', 'K': '#3a3a3a', 'G': '#3f6b2c', 'g': '#5a8a3a'
 	},
 	grid: [
-		'............',
-		'.....oo.....',
-		'....oYYo....',
-		'...oYYyYo...',
-		'....oYy.....',
-		'...oYyYYo...',
-		'......o.....',
-		'.oooooooooo.',
-		'.oGGGGGGGGo.',
-		'.oGgGGgGGgo.',
-		'.oGGGGGGGGo.',
-		'...oooooo...'
+		'................',
+		'................',
+		'....o..o........',
+		'...oYYo.oY......',
+		'...oYYYo.oYo....',
+		'....oYo..oYo....',
+		'...oYYYo.oYYo...',
+		'..oKYYYyo.oYo...',
+		'...oYYYo.oYyo...',
+		'....oYo..oYo....',
+		'....oo...oo.....',
+		'.oooooooooooooo.',
+		'.oGGGGGGGGGGGGo.',
+		'.oGgGGyGGgGGGGo.',
+		'..oGGGGGGGGGGo..',
+		'................'
 	]
 });
 
-// —— 地标：老房子 ——
+// —— 地标：老房子（单间大茅屋 + 门）——
 Pixel.define('lm_house', {
 	palette: {
-		'o': '#1a120a', 'W': '#d8c090', 'w': '#a89058', 'R': '#a04a2a', 'r': '#7a2e1a', 'H': '#e8e0d0'
+		'o': '#1a120a', 'R': '#b0502a', 'r': '#7a2e1a',
+		'W': '#d8c090', 'w': '#a89058', 'K': '#3a2a16', 'G': '#3f6b2c', 'g': '#5a8a3a'
 	},
 	grid: [
-		'............',
-		'.....oo.....',
-		'....oRRo....',
-		'...oRRRRo...',
-		'..oRRRRRRo..',
-		'.oooooooooo.',
-		'.oWWWWWWWWo.',
-		'.oWHWWWHWWo.',
-		'.oWWWWWWWWo.',
-		'.oWWWWWWWWo.',
-		'.oooooooooo.',
-		'............'
+		'................',
+		'................',
+		'................',
+		'........oo......',
+		'.......oRRo.....',
+		'......oRRRRo....',
+		'.....oRRRRRRo...',
+		'....oRRRRRRRRo..',
+		'..oRRRRRRRRRRo..',
+		'..oooooooooooo..',
+		'..oWWWWWWWWWWo..',
+		'..oWWWWWWWWWWo..',
+		'..oWWWWWKWWWWo..',
+		'..oWWWWWWWWWWo..',
+		'..oooooooooooo..',
+		'................'
 	]
 });
 
-// —— 地标：洞穴 ——
+// —— 地标：洞穴（土丘 + 黑色洞口）——
 Pixel.define('lm_cave', {
 	palette: {
-		'o': '#1a120a', 'R': '#2a2a2a', 'r': '#1a1a1a', 'G': '#3a6a2a', 'g': '#2e551d'
+		'o': '#1a120a', 'D': '#2a2a2a', 'd': '#161616', 'G': '#3f6b2c', 'g': '#5a8a3a'
 	},
 	grid: [
-		'............',
-		'...oooo.....',
-		'..oGGGGo....',
-		'.oGGGGGGo...',
-		'.oGGRRRGo...',
-		'.oGRrrrRGo..',
-		'.oGrrrrrGo..',
-		'.oGRrrrRGo..',
-		'..oGGGGGo...',
-		'...ooooo....',
-		'............',
-		'............'
+		'................',
+		'................',
+		'.....oooooo.....',
+		'....oGGGGGGo....',
+		'...oGGGGGGGGo...',
+		'..oGGGGGGGGGGo..',
+		'..oGGGDDDDGGGo..',
+		'..oGGDddddDGGo..',
+		'..oGGDddddDGGo..',
+		'..oGGGDDDDGGGo..',
+		'..oGGGGGGGGGGo..',
+		'...oGGGGGGGGo...',
+		'....oGGGGGGo....',
+		'.....oooooo.....',
+		'................',
+		'................'
 	]
 });
 
-// —— 地标：废弃小镇 ——
+// —— 地标：废弃小镇（棕色排屋 + 街道）——
 Pixel.define('lm_town', {
 	palette: {
-		'o': '#1a120a', 'W': '#c8a070', 'w': '#a08050', 'R': '#a04a2a', 'r': '#7a2e1a', 'K': '#3a3a3a'
+		'o': '#1a120a', 'W': '#c9a06a', 'w': '#a58050',
+		'R': '#a04a2a', 'r': '#7a2e1a', 'K': '#3a3a3a', 'k': '#23231f', 'G': '#3f6b2c', 'g': '#5a8a3a'
 	},
 	grid: [
-		'.o.o.o.o.o.o',
-		'oooooooooooo',
-		'..oWWoWWo..o',
-		'..oWWoWWoRo.',
-		'..oWWoWWoRo.',
-		'..ooooooooo.',
-		'..oWWoOOoWWo',
-		'..oWWoOOoWWo',
-		'..oWWooooWWo',
-		'..oWWWWWWWWo',
-		'..oooooooooo',
-		'............'
+		'..o..o..o..o....',
+		'..o..o..o..o....',
+		'.oRRo.oRRo.oRRo.',
+		'.oRRo.oRRo.oRRo.',
+		'.ooooooooooooo..',
+		'.oWWo.oWWo.oWWo.',
+		'.oKWo.oKWo.oKRo.',
+		'.oWWo.oWWo.oWWo.',
+		'.oWWo.oWWo.oWWo.',
+		'.oooooooooooooo.',
+		'.oWWo.oWWo.oWWo.',
+		'.oKRo.oKWo.oKRo.',
+		'.oWWo.oWWo.oWWo.',
+		'.oooooooooooooo.',
+		'.oGGGo.oGo.oGG..',
+		'................'
 	]
 });
 
-// —— 地标：废墟城市 ——
+// —— 地标：废墟城市（灰色高楼群，残缺楼顶）——
 Pixel.define('lm_city', {
 	palette: {
-		'o': '#1a120a', 'W': '#c8a070', 'w': '#a08050', 'K': '#4a4a4a', 'G': '#3a6a2a'
+		'o': '#1a120a', 'K': '#5c5c64', 'k': '#3f3f46',
+		'w': '#a9a9a0', 'G': '#3f6b2c', 'g': '#5a8a3a'
 	},
 	grid: [
-		'..o..o.o..o..',
-		'.oKo.oKo.oKo.',
-		'.oWo.oWo.oWo.',
-		'.oWo.oWo.oWo.',
-		'oooooooooooo',
-		'.oWo.oWo.oWo.',
-		'.oWo.oWo.oWo.',
-		'.ooooooooooo.',
-		'..oWo.oooWoo.',
-		'..oWo.oGoWoo.',
-		'..ooo.oGooo..',
-		'............'
+		'................',
+		'................',
+		'..o.............',
+		'..oKo....oKo....',
+		'..oKo....oKo....',
+		'..oKo....oKo....',
+		'..oKo....oKo....',
+		'..oKo....oKo....',
+		'..oKko...oKko...',
+		'..oKkKo..oKkKo..',
+		'..oKKKKkooKKKKo.',
+		'..oooooooooooo..',
+		'..owowo.owow....',
+		'..oGGGo.oGoGo...',
+		'................',
+		'................'
 	]
 });
 
-// —— 地标：哨站 ——
+// —— 地标：哨站（瞭望塔 + 红旗）——
 Pixel.define('lm_outpost', {
 	palette: {
-		'o': '#1a120a', 'W': '#d8c090', 'w': '#a89058', 'H': '#7aa03a', 'G': '#3a6a2a'
+		'o': '#1a120a', 'W': '#d8c090', 'w': '#a89058',
+		'R': '#c04a3a', 'G': '#3f6b2c', 'g': '#5a8a3a'
 	},
 	grid: [
-		'............',
-		'...oooo.....',
-		'...oWWo.....',
-		'...oWWo..o..',
-		'.ooooooo../.',
-		'.oWWWWW.//..',
-		'.oWHWWW.....',
-		'.oWWWWW.....',
-		'.ooooooo....',
-		'..oGGo.oGo..',
-		'..oGo..oGo..',
-		'............'
+		'..oRRRRRo.......',
+		'..oRRRRRo.......',
+		'..oWWWWWo.......',
+		'..oWWWWWo.......',
+		'..oWWWWWo.......',
+		'..ooooooo.......',
+		'...wwwww........',
+		'..oWo.oWo.......',
+		'..oWo.oWo.......',
+		'..oWo.oWo.......',
+		'..oWo.oWo.......',
+		'..oWo.oWo.......',
+		'..oo...oo.......',
+		'..oGGGGGGo......',
+		'.oGGGGGGGGo.....',
+		'................'
 	]
 });
 
-// —— 地标：坠落飞船 ——
+// —— 地标：坠落飞船（碟形残骸）——
 Pixel.define('lm_ship', {
 	palette: {
-		'o': '#1a120a', 'S': '#8a9296', 's': '#5a6064', 'B': '#4a7aa0', 'b': '#2a4a68', 'W': '#f0f0f0'
+		'o': '#1a120a', 'B': '#4a7aa0', 'b': '#2a4a68', 'W': '#e8ecf0', 'w': '#5a7a9a', 'S': '#8a9296', 's': '#5a6064', 'R': '#c86a2a'
 	},
 	grid: [
-		'......oo....',
-		'..o..oBBo...',
-		'.oSo.oBBBo..',
-		'.oSSo.oBbo..',
-		'.oSSo.obbo..',
-		'..oSo.oo....',
-		'.ooooooooooo',
-		'.oSSSSSSSSSo',
-		'.oWWWoWWWWWo',
-		'.oBBBoBBBBBo',
-		'..ooo..oooo.',
-		'............'
+		'................',
+		'.......oo.......',
+		'......oWBBo.....',
+		'.....oWBBBBo....',
+		'.....oBBBBBo....',
+		'....oBBBBBBBo...',
+		'...oSSSSSSSSSo..',
+		'..oSSSSSSSSSSSo.',
+		'..oSSSSSSSSSSSo.',
+		'...oSSSSSSSSSo..',
+		'....ooSSSSoo....',
+		'.....oooooo.....',
+		'...oR.oRo.oRo...',
+		'..oRRo.oRRo.o...',
+		'................',
+		'................'
 	]
 });
 
-// —— 地标：钻井 ——
+// —— 地标：钻井（高塔式井架）——
 Pixel.define('lm_borehole', {
 	palette: {
-		'o': '#1a120a', 'K': '#3a3a3a', 'k': '#1e1e1e', 'G': '#3a6a2a', 'g': '#2e551d'
+		'o': '#1a120a', 'M': '#8a8a8a', 'm': '#5a5a5e', 'K': '#3b3b3b', 'k': '#1e1e1e', 'G': '#3f6b2c', 'g': '#5a8a3a'
 	},
 	grid: [
-		'.....oo.....',
-		'.....oKo....',
-		'....oKkKo...',
-		'....oKKKo...',
-		'....oKkKo...',
-		'.....oKo....',
-		'.....oo.....',
-		'.oooooooooo.',
-		'.oGGGGGGGGo.',
-		'.oGgGGGgGGo.',
-		'.oGGGGGgGGo.',
-		'...oooooo...'
+		'.......MM.......',
+		'.......MM.......',
+		'......oMMo......',
+		'......oMMo......',
+		'......oMMo......',
+		'.....oMMMMo.....',
+		'....oMoMMoMo....',
+		'...oMooMMooMo...',
+		'..oMo..MM..oMo..',
+		'..oM...MM...oM..',
+		'..oM...MM...oM..',
+		'..oM...KK...oM..',
+		'..oooooooooooo..',
+		'..oGGgGGGGgGGo..',
+		'....oGGGGGGo....',
+		'................'
 	]
 });
 
-// —— 地标：战场 ——
+// —— 地标：战场（交叉双剑）——
 Pixel.define('lm_battlefield', {
 	palette: {
-		'o': '#1a120a', 'K': '#3a3a3a', 'k': '#1e1e1e', 'R': '#a04a2a', 'G': '#3a6a2a', 'g': '#2e551d'
+		'o': '#1a120a', 'S': '#c8d2d8', 's': '#98a0a5', 'R': '#a04a2a', 'K': '#5a3a2a', 'G': '#3f6b2c', 'g': '#5a8a3a'
 	},
 	grid: [
-		'............',
-		'..oGKogo....',
-		'.oKGo.oGo...',
-		'..oGKo.Ko...',
-		'....oKGo....',
-		'.....oKo....',
-		'....oo..o...',
-		'.oooKooKoo..',
-		'.oKKKKKKKo..',
-		'.oKKoKoKKo..',
-		'..oo...oo...',
-		'............'
+		'................',
+		'...o........o...',
+		'...oS.......So..',
+		'....oS.....So...',
+		'.....oS...So....',
+		'......oS.So.....',
+		'.......oSo......',
+		'........o.......',
+		'......ooooo.....',
+		'.....oRRRRRo....',
+		'......oRRRo.....',
+		'.......oKo......',
+		'.......ooo......',
+		'................',
+		'................',
+		'................'
 	]
 });
 
-// —— 地标：沼泽 ——
+// —— 地标：补给箱（木质货箱 + 黄色封条）——
 Pixel.define('lm_cache', {
 	palette: {
-		'o': '#1a120a', 'K': '#3a3a3a', 'k': '#1e1e1e', 'W': '#d8c090', 'w': '#a89058'
+		'o': '#1a120a', 'W': '#c9a06a', 'w': '#a58050', 'K': '#4a2e18', 'Y': '#e0c01a', 'G': '#3f6b2c', 'g': '#5a8a3a'
 	},
 	grid: [
-		'..oo.oo.oo..',
-		'.oWWoKKoWWo.',
-		'.oWWKKKKWWo.',
-		'.oWWKWKWWWo.',
-		'..oKKKKKko..',
-		'...oKkkkKo..',
-		'....oKKKo...',
-		'.....oKo....',
-		'.....oKo....',
-		'....ooooo...',
-		'............',
-		'............'
+		'................',
+		'................',
+		'................',
+		'....oooooo......',
+		'...oWWWWWWo.....',
+		'..oWKWWWWKWo....',
+		'..oWWKWKWWWo....',
+		'..oWWWWKWWWo....',
+		'..oWKWWWWKWo....',
+		'..oWWWWWWWWo....',
+		'...oWwWWwWo.....',
+		'....oWWWWo......',
+		'.....oYKYo......',
+		'......oKo.......',
+		'................',
+		'................'
 	]
 });
 

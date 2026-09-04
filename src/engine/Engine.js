@@ -244,10 +244,22 @@ export const Engine = {
   },
 
   import64(string64) {
-    string64 = string64.replace(/\s/g, '').replace(/\./g, '').replace(/\n/g, '');
-    const decodedSave = Base64.decode(string64);
-    localStorage.gameState = decodedSave;
-    location.reload();
+    try {
+      // 只剥离空白/换行/点号，不做任何内容判断
+      string64 = string64.replace(/\s/g, '').replace(/\./g, '').replace(/\n/g, '');
+      const decodedSave = Base64.decode(string64);
+      // 仅做格式校验：解码结果必须是合法 JSON；格式允许才直接覆盖导入
+      const parsed = JSON.parse(decodedSave);
+      // 先把内存里的 State 同步成导入内容，避免 reload 之前的自动存档把当前状态写回、覆盖刚导入的存档
+      for (const k of Object.keys(State)) delete State[k];
+      Object.assign(State, parsed);
+      localStorage.gameState = decodedSave;
+      location.reload();
+    } catch (e) {
+      // 格式不合法：不覆盖，给出提示
+      console.error('[import] invalid save code:', e);
+      window.alert(_('can\'t read the words.'));
+    }
   },
 
   event(cat, act) {

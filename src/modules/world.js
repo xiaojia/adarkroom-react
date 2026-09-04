@@ -808,7 +808,19 @@ export const World = {
             if (visited || base === World.TILE.OUTPOST) char = base;
           }
         }
-        row.push({ char, base: char ? (char.length > 1 ? char[0] : char) : null, visible, visited: visible && char && char.length > 1, isPlayer, landmark, label });
+        const raw = char || '';
+        const bb = raw.length > 1 ? raw[0] : raw;
+        row.push({
+          char,
+          base: bb || null,
+          visible,
+          visited: visible && raw.length > 1,
+          // 被解放（清除守卫后变成哨站/安全点）的地块
+          liberated: visible && bb === World.TILE.OUTPOST,
+          isPlayer,
+          landmark,
+          label,
+        });
       }
       grid.push(row);
     }
@@ -825,6 +837,8 @@ export const World = {
       dir: World.dir,
       map: World.getMapGrid(),
       bag: World.getBagState(),
+      // 玩家在当前地图网格中的位置（[col, row]，即 [curPos[0], curPos[1]]）
+      pos: World.curPos ? [World.curPos[0], World.curPos[1]] : [World.RADIUS, World.RADIUS],
     };
   },
 };

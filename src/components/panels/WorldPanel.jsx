@@ -12,16 +12,27 @@ import { Path } from '../../modules/path';
 import { Pixel } from '../../modules/pixel';
 import PixelIcon from '../shared/PixelIcon';
 
-function MapTile({ t }) {
+function MapTile({ t, homeRot, tile }) {
   let cls = 'px-tile';
   let inner = '';
   if (t.isPlayer) {
     cls += ' px-player';
     inner = Pixel.svg('player', { pixel: 1 });
+    // 指向村庄的方向箭头：从玩家中心沿朝向偏出到角色外围（不与角色重叠），并旋转指向村庄
+    const rad = (homeRot || 0) * (Math.PI / 180);
+    const ox = Math.sin(rad);
+    const oy = -Math.cos(rad);
+    const R = (typeof tile === 'number' && tile > 0 ? tile : 50) * 0.46; // 外围半径：角色的外圈，避免重叠
+    inner += '<span class="px-home" style="left:calc(50% + ' +
+      (ox * R).toFixed(1) + 'px); top:calc(50% + ' + (oy * R).toFixed(1) +
+      'px); transform:translate(-50%,-50%) rotate(' + (homeRot || 0).toFixed(1) + 'deg)"></span>';
   } else if (t.visible) {
     if (t.landmark) {
       cls += ' px-landmark' + (t.visited ? ' px-visited' : '');
       inner = Pixel.svg(t.landmark, { pixel: 1 });
+      // 角标：被解放（绿旗）/ 已探访（黄点）
+      if (t.liberated) inner += '<span class="tile-badge lib"></span>';
+      else if (t.visited) inner += '<span class="tile-badge vis"></span>';
     } else if (t.base) {
       const tileCls = Pixel.tileClass(t.base) || 'px-unknown';
       cls += ' ' + tileCls;
@@ -41,29 +52,58 @@ export default function WorldPanel() {
   useTick();
   const st = World.getWorldState();
   const mapRef = useRef(null);
+  const mapRowRef = useRef(null);
 
   const rows = st.map.length;
   const cols = st.map[0] ? st.map[0].length : rows;
 
-  // 根据视口尺寸动态计算瓦片大小，让整张地图在视口内完整显示：
-  // 避免页面滚动条（键盘方向键移动角色 + 页面滚动双触发）。
-  const [vp, setVp] = useState({ w: window.innerWidth, h: window.innerHeight });
+  // 地图「放大 + 以玩家为中心 + 卷轴」：
+  // 以 #mapRow 为视口边界（overflow hidden），地图用更大瓦片渲染并整体位移，把玩家格对准视口中心。
+  const [vp, setVp] = useState({ w: 0, h: 0 });
   useEffect(() => {
-    const onResize = () => setVp({ w: window.innerWidth, h: window.innerHeight });
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+    const el = mapRowRef.current;
+    if (!el) return;
+    const measure = () => setVp({ w: el.clientWidth, h: el.clientHeight });
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
   }, []);
-  let tile = 11.4;
-  if (rows > 0 && cols > 0) {
-    const availH = vp.h - 200; // 顶部面板/标题/菜单/边距预留
-    const availW = vp.w - 26;
-    tile = Math.max(4, Math.min(12, Math.floor(availW / cols), Math.floor(availH / rows)));
+
+  // 放大后的瓦片边长（比默认铺满视口的 ~11px 更大，地图超出视口形成卷轴）
+  const ZOOM_TILE = 40;
+  const tile = rows > 0 && cols > 0 ? ZOOM_TILE : 11.4;
+
+  // 玩家格在网格中的 [col, row]（即 st.pos = [curPos[0], curPos[1]]）
+  const pcol = st.pos ? st.pos[0] : Math.floor(cols / 2);
+  const prow = st.pos ? st.pos[1] : Math.floor(rows / 2);
+  // 村庄位于地图中心 (RADIUS, RADIUS)；计算指向村庄的箭头旋转角（0°=朝上，顺时针）
+  const dHomeX = World.RADIUS - pcol;
+  const dHomeY = World.RADIUS - prow;
+  const homeRot = Math.atan2(dHomeX, -dHomeY) * (180 / Math.PI);
+  const pcx = pcol * tile + tile / 2; // 玩家格中心（相对地图左上角）
+  const pcy = prow * tile + tile / 2;
+  const mapW = cols * tile;
+  const mapH = rows * tile;
+  // 位移 + 边界 clamp：地图未到边界时玩家居中；到边界后地图停住，让玩家往边缘移动。
+  let tx = 0;
+  let ty = 0;
+  if (vp.w > 0) {
+    tx = mapW <= vp.w
+      ? (vp.w - mapW) / 2
+      : Math.max(vp.w - mapW, Math.min(0, vp.w / 2 - pcx));
+  }
+  if (vp.h > 0) {
+    ty = mapH <= vp.h
+      ? (vp.h - mapH) / 2
+      : Math.max(vp.h - mapH, Math.min(0, vp.h / 2 - pcy));
   }
 
   const handleMapClick = (e) => {
-    const map = mapRef.current;
-    if (!map || st.map.length === 0) return;
-    const rect = map.getBoundingClientRect();
+    const row = mapRowRef.current;
+    if (!row || st.map.length === 0) return;
+    // 玩家固定在 #mapRow 中心，以视口中心为参照判断移动方向
+    const rect = row.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
     const clickX = e.clientX - cx;
@@ -97,12 +137,12 @@ export default function WorldPanel() {
         </div>
       </div>
 
-      <div id="mapRow">
-        <div id="map" ref={mapRef} onClick={handleMapClick} style={{ '--tile': `${tile}px` }}>
+      <div id="mapRow" ref={mapRowRef}>
+        <div id="map" ref={mapRef} onClick={handleMapClick} style={{ '--tile': `${tile}px`, transform: `translate(${tx}px, ${ty}px)` }}>
           {st.map.map((row, j) => (
             <div className="px-row" key={j}>
               {row.map((t, i) => (
-                <MapTile key={i} t={t} />
+                <MapTile key={i} t={t} homeRot={homeRot} tile={tile} />
               ))}
             </div>
           ))}
