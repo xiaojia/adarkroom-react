@@ -67,6 +67,11 @@ function App() {
     document.body.classList.toggle('menu-collapsed', !!menuCollapsed);
   }, [menuCollapsed]);
 
+  // 太空全屏界面：关闭内容区滚动（自适应高度、无滚动条）
+  useEffect(() => {
+    document.body.classList.toggle('space-view', activeModule === 'space');
+  }, [activeModule]);
+
   // 浏览器标签标题跟随模块（翻译文案）
   useEffect(() => {
     const titles = {

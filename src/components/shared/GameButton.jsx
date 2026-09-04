@@ -12,6 +12,16 @@ import { _ } from '../../i18n';
 import PixelIcon from './PixelIcon';
 import { Pixel } from '../../modules/pixel';
 
+/** 成本是否可负担（cost 可能是对象，也可能是返回对象的函数） */
+function isCostAffordable(cost) {
+  if (!cost) return true;
+  const c = typeof cost === 'function' ? cost() : cost;
+  for (const k in c) {
+    if (($SM.get('stores["' + k + '"]', true) || 0) < c[k]) return false;
+  }
+  return true;
+}
+
 export function GameButton({
   id,
   text,
@@ -33,10 +43,10 @@ export function GameButton({
 
   const handleClick = () => {
     if (isDisabled) return;
-    // 点击即生效冷却：无论处理是否成功，都从本次点击开始冷却。
-    // 这样火到最高级（添柴返回 false）时不会因「取消冷却」而被无限点击。
-    // 冷却由 CooldownTicker 按真实秒数递减，按钮在冷却期间禁用。
-    if (cooldown > 0 && id) {
+    // 成本不足（如木头不够点火/添柴）时：不进入冷却（loading），但仍调用处理函数提示「木头不足」。
+    // 成本足够时：点击即生效冷却，无论处理是否成功（如火已到最高级）都按本次点击计冷却，避免无限点击。
+    const affordable = isCostAffordable(cost);
+    if (cooldown > 0 && id && affordable) {
       $SM.set('cooldown.' + id, cooldown, true);
       commit();
     }

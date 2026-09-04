@@ -78,8 +78,12 @@ body {
   filter: blur(var(--scene-blur, 3px));
   transition: filter 0.3s ease;
 }
-/* 收起菜单：背景由模糊变清晰 */
-body.menu-collapsed #scene-backdrop {
+/* 初章期间：背景不模糊（不应用默认 3px），也不受菜单收起联动 */
+body.start-phase #scene-backdrop {
+  --scene-blur: 0;
+}
+/* 收起菜单：背景由模糊变清晰（仅过初章后生效） */
+body:not(.start-phase).menu-collapsed #scene-backdrop {
   --scene-blur: 0;
 }
 #scene-backdrop .scene {
@@ -142,13 +146,13 @@ body.menu-collapsed #scene-backdrop {
 }
 /* 生火间：窗外朝右侧看森林 → 森林左移 50%（不扩图）＋高斯模糊。
    窗户透出的部分不多，右侧露空会被生火间房间图盖住，无需拓宽图片。 */
-.outside-scene.scene-room { --shift: -50vw; --blur: blur(2.5px); }
+.outside-scene.scene-room { --shift: -50vw; --shift-y: -5vw; --blur: blur(2.5px); }
 /* 漫漫尘途：窗外森林右移 10%（背景图已左右镜像）＋高斯模糊 */
 .outside-scene.scene-path { --shift: 10vw; --blur: blur(2.5px); }
 /* 造物台：左侧门洞朝右看森林 → 森林左移/上下/缩放/模糊均可按需改（见下注释） */
-.outside-scene.scene-fabricator { --shift: -45vw; --shift-y: 0vw; --blur: blur(0); }
+.outside-scene.scene-fabricator { --shift: 10vw; --shift-y: -10vw; --blur: blur(2.5px); }
 /* 飞船：右侧仓门/条窗透出森林 → 位移/上下/缩放/模糊均可按需改（--shift/--shift-y/--zoom/--blur） */
-.outside-scene.scene-ship { --shift: -10vw; --shift-y: -200px; --zoom: 1.01; --blur: blur(0); }
+.outside-scene.scene-ship { --shift: -10vw; --shift-y: -200px; --blur: blur(2.5px); }
 /* 生火间窗外：在森林上方加一层白色半透明遮罩（透过窗户的蒙雾感） */
 .outside-veil {
   position: absolute;
@@ -442,9 +446,8 @@ div.btnColumn,
     inset -2px -2px 0 var(--bevel-lo),
     0 3px 8px rgba(0, 0, 0, 0.4);
   image-rendering: pixelated;
-  padding: 15px 10px 10px;
+  padding: 20px 10px 10px;
 }
-div#weapons { padding-top: 13px; }
 div.btnColumn, #fabricateButtons, #blueprints { padding: 20px 13px 10px; }
 
 /* 面板文字统一暖米色 */

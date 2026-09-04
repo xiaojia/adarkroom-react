@@ -623,7 +623,7 @@ div.perkRow {
 
 .menu {
   position: fixed;
-  left: 10px;
+  left: 20px;
   bottom: 10px;
   color: var(--accent);
   display: flex;
@@ -1026,13 +1026,18 @@ body.noMask #worldPanel #map { filter: brightness(0.55) saturate(0.6); }
 #spacePanel {
   position: relative;
   width: 700px;
-  height: calc(100vh - 60px);
+  height: 100%;
   min-height: 400px;
+  box-sizing: border-box;
   background: transparent;
   overflow: hidden;
   border: 1px solid var(--border);
   flex: none;
   z-index: 1;
+}
+/* 太空全屏界面：内容区关闭滚动，避免太空界面产生滚动条 */
+body.space-view #content {
+  overflow: hidden;
 }
 
 /* 飞行时整屏浮现的黑色背景 + 星空层（固定铺满视口） */
@@ -1105,6 +1110,7 @@ body.noMask #worldPanel #map { filter: brightness(0.55) saturate(0.6); }
   top: 6px;
   left: 6px;
   z-index: 5;
+  white-space: nowrap;
 }
 
 #altitudeDisplay {

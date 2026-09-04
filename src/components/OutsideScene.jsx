@@ -96,14 +96,15 @@ export default function OutsideScene() {
   }, []);
 
   // 固定位移 / 缩放 / 模糊全部由 CSS 场景类名（scene-room / scene-path / scene-fabricator / scene-ship）控制，
-  // JS 只负责：挂类名 + 注入动态鼠标视差变量 --px/--py（漫漫尘途/造物台/飞船固定、不视差）。
+  // JS 只负责：挂类名 + 注入动态鼠标视差变量 --px/--py。
+  // 视差：生火间/造物台 跟随鼠标；漫漫尘途/飞船 固定不动。
   const scene =
     activeModule === 'room' ? 'scene-room'
     : activeModule === 'path' ? 'scene-path'
     : activeModule === 'fabricator' ? 'scene-fabricator'
     : activeModule === 'ship' ? 'scene-ship'
     : '';
-  const parallax = activeModule !== 'path' && activeModule !== 'fabricator' && activeModule !== 'ship';
+  const parallax = activeModule !== 'path' && activeModule !== 'ship';
   const tx = parallax ? mouse.x * MAX_OFF * viewport.w : 0; // 视差：±5% 视口宽
   const ty = parallax ? mouse.y * MAX_OFF * viewport.h : 0;
 

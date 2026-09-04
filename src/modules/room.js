@@ -15,7 +15,7 @@ export const Room = {
   _FIRE_COOL_DELAY: 5 * 60 * 1000, // 正式阶段：火 5 分钟降一级
   _START_COOL_DELAY: 20 * 1000, // 开始阶段：火 20 秒降一级
   _START_WARN_DELAY: 15 * 1000, // 开始阶段：15 秒没续柴就提示
-  _TRIAL_DELAY: 5 * 1000, // 试火：第一次生火 5 秒后自动熄灭
+  _TRIAL_DELAY: 11 * 1000, // 试火：第一次生火 8 秒后自动熄灭
   _ROOM_WARM_DELAY: 30 * 1000,
   _BUILDER_STATE_DELAY: 0.5 * 60 * 1000,
   _STOKE_COOLDOWN: 10,
@@ -220,6 +220,9 @@ export const Room = {
       Room.openForest();
     }
 
+    // 同步「初章中」body 类（决定是否展示收起菜单、背景是否走模糊联动）
+    Room._syncStartPhaseClass();
+
     // 兼容：旧存档一旦处于「已过初章」的正式阶段，就解锁熄灯/开灯按钮并持久化，
     // 避免此类存档因火势从未达到最高而看不到熄灯按钮。
     if (!$SM.get('game.lightsOffUnlocked') && !Room.inStartPhase()) {
@@ -282,6 +285,12 @@ export const Room = {
     return !!$SM.get('game.chapterAnim');
   },
 
+  /** 同步「初章中」body 类：初章期间隐藏收起菜单、背景不走模糊联动 */
+  _syncStartPhaseClass() {
+    if (typeof document === 'undefined' || !document.body) return;
+    document.body.classList.toggle('start-phase', !$SM.get('game.chapterDone'));
+  },
+
   lightFire() {
     if (Room.isChapterAnimating() || $SM.get('game.deathMask')) return false;
     const wood = $SM.get('stores.wood', true);
@@ -316,8 +325,8 @@ export const Room = {
       return true;
     }
 
-    // 正式阶段：与旧版一致，直接烧旺（3 级）
-    $SM.set('game.fire', Room.FireEnum.Burning);
+    // 正式阶段：点火先点起小火（1 级），之后每添一次柴升一级（0→1→2→3→4）
+    $SM.set('game.fire', Room.FireEnum.Smoldering);
     $SM.set('game.fireLit', true);
     Room.onFireChange();
     return true;
@@ -557,6 +566,7 @@ export const Room = {
       Room._chapterTimers = [];
       $SM.set('game.chapterDone', true);
       $SM.set('game.chapterAnim', false);
+      Room._syncStartPhaseClass();
       Room.openForest();
     });
   },

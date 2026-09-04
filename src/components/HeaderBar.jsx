@@ -41,6 +41,8 @@ export default function HeaderBar() {
 
   // 熄灯按钮：默认熄灯(夜)，但按钮仅在第一次火势到达最高(roaring)后解锁展示
   const lightsOffUnlocked = !!$SM.get('game.lightsOffUnlocked');
+  // 初章中：隐藏「收起菜单」按钮（背景也不走菜单收起联动）
+  const startPhase = !$SM.get('game.chapterDone');
 
   const mods = ModuleRegistry.available();
   const curLang = String(location.search.match(/[?|&]lang=([^&;]+?)(&|#|;|$)/)?.[1] || localStorage.lang || 'en').toLowerCase();
@@ -71,12 +73,14 @@ export default function HeaderBar() {
             {options.lightsOff ? _('lights on.') : _('lights off.')}
           </span>
         )}
-        <span
-          className="menuBtn"
-          onClick={() => useEngine.setState((s) => ({ menuCollapsed: !s.menuCollapsed }))}
-        >
-          {menuCollapsed ? _('expand menu') : _('collapse menu')}
-        </span>
+        {!startPhase && (
+          <span
+            className="menuBtn"
+            onClick={() => useEngine.setState((s) => ({ menuCollapsed: !s.menuCollapsed }))}
+          >
+            {menuCollapsed ? _('expand menu') : _('collapse menu')}
+          </span>
+        )}
         <span className="menuBtn" onClick={() => Engine.toggleDoubleTime()}>
           {options.doubleTime ? _('classic.') : _('hyper.')}
         </span>
