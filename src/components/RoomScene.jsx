@@ -203,10 +203,10 @@ export default function RoomScene() {
         if (i === top) cls += ' top';
         return <img key={src} className={cls} src={src} alt="" draggable="false" />;
       })}
-      {revealed && lightsOff && imgGeo && vpSize && (
+      {revealed && fireValue > 0 && lightsOff && imgGeo && vpSize && (
         <>
           {/* 火光罩：忽明忽暗，让火堆看起来在闪；强度由 --amp 控制（平静暗、爆燃亮）。
-              只在熄灯（夜）时展示火光与火星；开灯（昼）时背景明亮，不显示。 */}
+              只在熄灯（夜）、且火还燃着时才展示火光与火星；火灭或开灯（昼）时不显示。 */}
           <div
             className="fire-flicker"
             style={{ left: firePX + 'px', top: firePY + 'px', width: glowW + 'px', height: glowH + 'px' }}
