@@ -14,6 +14,8 @@ import { useEngine } from '../engine/Engine';
 import RoomScene from './RoomScene';
 import OutsideScene from './OutsideScene';
 import PathScene from './PathScene';
+import FabricatorScene from './FabricatorScene';
+import ShipScene from './ShipScene';
 
 const SCENES = ['room', 'path', 'village', 'equip', 'desert', 'fabricator', 'ship', 'space'];
 
@@ -50,6 +52,8 @@ export default function SceneBackdrop() {
         <div key={s} className={`scene${s === current ? ' active' : ''}`} data-scene={s}>
           {s === 'room' && <RoomScene />}
           {s === 'path' && <PathScene />}
+          {s === 'fabricator' && <FabricatorScene />}
+          {s === 'ship' && <ShipScene />}
         </div>
       ))}
     </div>

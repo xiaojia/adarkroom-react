@@ -54,18 +54,18 @@ function OutfitRow({ r }) {
       <div className="row_val">
         <span>{r.num}</span>
         <span className={'workerStepper'}>
-          <span className={'workerBtn icon' + (r.canUpMany ? '' : ' disabled')} title="+10" onClick={() => r.canUpMany && Path.increaseSupply(r.key, 10)}>
-            <PixelIcon name="arrow" pixel={2} />
-          </span>
-          <span className={'workerBtn icon down' + (r.canDnMany ? '' : ' disabled')} title="-10" onClick={() => r.canDnMany && Path.decreaseSupply(r.key, 10)}>
-            <PixelIcon name="arrow" pixel={2} />
-          </span>
-        </span>
-        <span className={'workerStepper'}>
           <span className={'workerBtn icon' + (r.canUp ? '' : ' disabled')} title="+1" onClick={() => r.canUp && Path.increaseSupply(r.key, 1)}>
             <PixelIcon name="arrow" pixel={2} />
           </span>
           <span className={'workerBtn icon down' + (r.canDn ? '' : ' disabled')} title="-1" onClick={() => r.canDn && Path.decreaseSupply(r.key, 1)}>
+            <PixelIcon name="arrow" pixel={2} />
+          </span>
+        </span>
+        <span className={'workerStepper'}>
+          <span className={'workerBtn icon' + (r.canUpMany ? '' : ' disabled')} title="+10" onClick={() => r.canUpMany && Path.increaseSupply(r.key, 10)}>
+            <PixelIcon name="arrow" pixel={2} />
+          </span>
+          <span className={'workerBtn icon down' + (r.canDnMany ? '' : ' disabled')} title="-10" onClick={() => r.canDnMany && Path.decreaseSupply(r.key, 10)}>
             <PixelIcon name="arrow" pixel={2} />
           </span>
         </span>
@@ -92,6 +92,12 @@ export default function PathPanel() {
     <div id="pathPanel" className="location">
       <div id="pathBody">
         <div id="pathMain">
+          <GameButton
+            id="embarkButton"
+            text={_('embark')}
+            disabled={!st.canEmbark}
+            onClick={() => Path.embark()}
+          />
           <div id="outfitting">
             <div id="outfittingHeader">
               <span id="outfittingTitle">{_('supplies')}</span>
@@ -109,13 +115,6 @@ export default function PathPanel() {
               <OutfitRow key={r.key} r={r} />
             ))}
           </div>
-
-          <GameButton
-            id="embarkButton"
-            text={_('embark')}
-            disabled={!st.canEmbark}
-            onClick={() => Path.embark()}
-          />
         </div>
 
         {st.equipRows.length > 0 && (

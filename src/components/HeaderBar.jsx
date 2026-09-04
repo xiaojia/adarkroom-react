@@ -37,6 +37,7 @@ export default function HeaderBar() {
   const activeId = useEngine((s) => s.activeModule);
   const view = useEngine((s) => s.view);
   const options = useEngine((s) => s.options);
+  const menuCollapsed = useEngine((s) => s.menuCollapsed);
 
   // 熄灯按钮：默认熄灯(夜)，但按钮仅在第一次火势到达最高(roaring)后解锁展示
   const lightsOffUnlocked = !!$SM.get('game.lightsOffUnlocked');
@@ -70,22 +71,25 @@ export default function HeaderBar() {
             {options.lightsOff ? _('lights on.') : _('lights off.')}
           </span>
         )}
+        <span
+          className="menuBtn"
+          onClick={() => useEngine.setState((s) => ({ menuCollapsed: !s.menuCollapsed }))}
+        >
+          {menuCollapsed ? _('expand menu') : _('collapse menu')}
+        </span>
         <span className="menuBtn" onClick={() => Engine.toggleDoubleTime()}>
           {options.doubleTime ? _('classic.') : _('hyper.')}
         </span>
         <span className="menuBtn" onClick={() => Engine.confirmDelete()}>
           {_('restart.')}
         </span>
-        <span className="menuBtn" onClick={() => Engine.share()}>
-          {_('share.')}
-        </span>
         <span className="menuBtn" onClick={() => Engine.exportImport()}>
           {_('save.')}
         </span>
         <span className="customSelect menuBtn">
+          <span className="customSelectLabel">{_('language.')}</span>
           <span className="customSelectOptions">
             <ul>
-              <li>{_('language.')}</li>
               {SUPPORTED_LANGS.map((l) => (
                 <li
                   key={l.code}

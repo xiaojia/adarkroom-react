@@ -1,0 +1,56 @@
+/**
+ * ShipScene — 飞船（舱库）场景背景（dark0/light0 两张图常驻 DOM + 无缝切换）
+ * --------------------------------------------------------------
+ * 与造物台 FabricatorScene 同一机制：只有两张图，熄灯/夜 → dark0；开灯/昼 → light0。
+ * 背景图为透明镂空 PNG（右侧仓门 / 顶部条窗），透到下方常驻的静谧森林远景层（OutsideScene）。
+ * 参照 RoomScene 的 prev/top 交叉淡出模型：当前显示图永远为 .top（不降级），
+ * prev 仅在切换瞬间临时垫底、动画结束后清除。
+ *
+ * 注意：与 path 不同，飞船图片不做水平镜像（按作者原图呈现）。
+ */
+import { useEffect, useRef, useState } from 'react';
+import { useEngine } from '../engine/Engine';
+
+// 常驻 DOM 的 2 张图：[dark0, light0]
+const IMAGES = [`/bg/ship/dark0.png`, `/bg/ship/light0.png`];
+// 熄灯(夜)→dark0(下标0)；开灯(昼)→light0(下标1)
+const IMG_IDX = (mode) => (mode === 'dark' ? 0 : 1);
+
+const FADE_MS = 1500; // 新图渐显时长，与 CSS animation 时长一致
+
+export default function ShipScene() {
+  const lightsOff = useEngine((s) => s.options.lightsOff);
+
+  const mode = lightsOff ? 'dark' : 'light';
+  const targetIdx = IMG_IDX(mode);
+
+  const [top, setTop] = useState(targetIdx);
+  const [prev, setPrev] = useState(null);
+  const lastTarget = useRef(targetIdx);
+  const fadeTimer = useRef(null);
+
+  useEffect(() => {
+    if (targetIdx === lastTarget.current) return;
+    lastTarget.current = targetIdx;
+    clearTimeout(fadeTimer.current);
+    setPrev(top); // 上一个显示图临时垫底（保持 opaque）
+    setTop(targetIdx); // 新图成为 .top，渐显压住 prev
+    fadeTimer.current = setTimeout(() => {
+      setPrev(null); // 动画完成 → 移除 prev，只保留 top
+    }, FADE_MS);
+    return () => {
+      if (fadeTimer.current) clearTimeout(fadeTimer.current);
+    };
+  }, [targetIdx, top]);
+
+  return (
+    <div className="ship-scene">
+      {IMAGES.map((src, i) => {
+        let cls = 'ship-img';
+        if (i === prev) cls += ' prev';
+        if (i === top) cls += ' top';
+        return <img key={src} className={cls} src={src} alt="" draggable="false" />;
+      })}
+    </div>
+  );
+}

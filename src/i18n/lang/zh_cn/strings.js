@@ -221,8 +221,8 @@ _.setTranslation({
 "thieves": "小偷",
 "the towers that haven't crumbled jut from the landscape like the ribcage of some ancient beast.": "尚未坍塌的塔楼耸立在大地上，宛如某些古老野兽的肋骨",
 "lights off.": "熄灯.",
-"hyper.": "超速",
-"classic.": "经典",
+"hyper.": "超速.",
+"classic.": "经典.",
 "someone had been stockpiling loot here.": "有人把战利品存在了这里",
 "learned to look ahead": "学会往前看",
 "the mine is now safe for workers.": "现在工人可以安全地采矿了",
@@ -1043,4 +1043,7 @@ _.setTranslation({
 "save code:": "存档代码:",
 "select it and copy it somewhere safe": "选中它并复制到安全的地方保存",
 "supplies": "补给",
+"work": "工作",
+"collapse menu": "收起菜单.",
+"expand menu": "展开菜单.",
 });

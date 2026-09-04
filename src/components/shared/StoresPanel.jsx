@@ -20,6 +20,35 @@ import { Engine } from '../../engine/Engine';
 import { requireModule } from '../../engine/moduleLoader';
 import PixelIcon from './PixelIcon';
 import { Pixel } from '../../modules/pixel';
+import { weaponRank } from '../../engine/storeCategories';
+
+/* 库存分组排序（按用户语义分三组）：
+   1) 消耗类 —— 原材料 / 制造原料，被拿去合成或交易；
+   2) 人员消耗 —— 村民/建造者口粮；
+   3) 直接使用 —— 探索/治疗/工具/能源等一次性消耗品。
+   熏肉（cured meat）置顶（compareStores 中特判）。
+   未列出的库存 key 会排到最后（保持字母序），不会丢失。 */
+const STORE_GROUPS = [
+  ['wood', 'fur', 'cloth', 'leather', 'scales', 'teeth', 'coal', 'iron', 'steel', 'sulphur', 'alien alloy'],
+  ['meat'],
+  ['torch', 'charm', 'medicine', 'bullets', 'energy cell', 'hypo', 'stim', 'glowstone', 'water'],
+];
+
+const STORE_RANK = {};
+STORE_GROUPS.forEach((group, gi) => {
+  group.forEach((k, ki) => {
+    STORE_RANK[k] = gi * 100 + ki;
+  });
+});
+/** 排序：熏肉置顶 → 按分组序（组内按字母序）；未归类的排在最后按字母序 */
+function compareStores(a, b) {
+  if (a === 'cured meat') return -1;
+  if (b === 'cured meat') return 1;
+  const ra = STORE_RANK[a] ?? 1000;
+  const rb = STORE_RANK[b] ?? 1000;
+  if (ra !== rb) return ra - rb;
+  return a < b ? -1 : a > b ? 1 : 0;
+}
 
 /** 判断某资源的类型：weapon / upgrade / good / tool / building / null */
 function getResourceType(k) {
@@ -82,7 +111,9 @@ function StoreRow({ k }) {
       </div>
       <div className="row_val">
         {Math.floor(num)}
-        {netVal !== 0 && ' (' + (netVal > 0 ? '+' : '') + netVal + ')'}
+        {netVal !== 0 && (
+          <span className="incomeDiff">{' (' + (netVal > 0 ? '+' : '') + netVal + ')'}</span>
+        )}
       </div>
       {incomeRows.length > 0 && (
         <div className="tooltip bottom right">
@@ -118,13 +149,20 @@ export default function StoresPanel() {
 
   const storeRows = [];
   const weaponRows = [];
-  const keys = Object.keys(stores).sort();
+  const keys = Object.keys(stores).sort(compareStores);
   for (const k of keys) {
     const type = getResourceType(k);
     if (type === 'upgrade') continue;
     if (type === 'weapon') weaponRows.push(k);
     else storeRows.push(k);
   }
+  // 武器区块：近战 → 远程 → 其他武器
+  weaponRows.sort((a, b) => {
+    const ra = weaponRank(a);
+    const rb = weaponRank(b);
+    if (ra !== rb) return ra - rb;
+    return a < b ? -1 : a > b ? 1 : 0;
+  });
 
   return (
     <div id="storesContainer">

@@ -1977,6 +1977,69 @@ Pixel.define('res_glowstone', {
 });
 
 // —— 通用物资（未知物资的兜底）——
+// —— 舰队信标（信号塔 + 顶灯）——
+Pixel.define('res_fleetbeacon', {
+	palette: {
+		'o': '#1a120a', 'W': '#e8f2ff', 'B': '#6a9adf', 'b': '#2a4a7a', 'Y': '#ffd24a'
+	},
+	grid: [
+		'............',
+		'.....oYo....',
+		'....oYYYo...',
+		'....oYYYo...',
+		'.....oYo....',
+		'....oWWo....',
+		'...oWBBWo...',
+		'...oWBBWo...',
+		'....oBBo....',
+		'....oBBo....',
+		'...oBBBBo...',
+		'....oooo....'
+	]
+});
+
+// —— 飞船外壳（钢质护板）——
+Pixel.define('res_hull', {
+	palette: {
+		'o': '#1a120a', 'B': '#5a8adf', 'b': '#2a4a7a', 'W': '#cfe0f5'
+	},
+	grid: [
+		'............',
+		'....oooo....',
+		'...oBBBBo...',
+		'..oBBBBBBo..',
+		'..oBWBBBBo..',
+		'..oBBBBBBo..',
+		'..oBBBBBBo..',
+		'..oBBBBBBo..',
+		'...oBBbbo...',
+		'....oBBo....',
+		'.....oo.....',
+		'............'
+	]
+});
+
+// —— 飞船引擎（推进器喷口 + 火焰）——
+Pixel.define('res_engine', {
+	palette: {
+		'o': '#1a120a', 'M': '#a8a8b0', 'm': '#6a6a72', 'F': '#ff7a1a', 'f': '#ffd24a', 'R': '#d8442a'
+	},
+	grid: [
+		'............',
+		'....oMMo....',
+		'....oMMo....',
+		'...oMMMMo...',
+		'...oMmmmMo..',
+		'...oMMMMo...',
+		'....oMMo....',
+		'....oRRo....',
+		'...oRFFRo...',
+		'....oFFo....',
+		'.....oF.....',
+		'............'
+	]
+});
+
 Pixel.define('res_generic', {
 	palette: {
 		'o': '#1a120a', 'K': '#6a6a6a', 'k': '#4a4a4a'
@@ -2121,7 +2184,9 @@ Pixel.resourceSprite = function(name) {
 		'compass': 'res_compass',
 		'hypo': 'res_hypo',
 		'stim': 'res_stim',
-		'glowstone': 'res_glowstone'
+		'glowstone': 'res_glowstone',
+		'torch': 'tool_torch',
+		'fleetbeacon': 'res_fleetbeacon'
 	};
 	return map[name] || 'res_generic';
 };

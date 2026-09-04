@@ -95,13 +95,15 @@ export default function OutsideScene() {
     };
   }, []);
 
-  // 固定位移 / 缩放 / 模糊全部由 CSS 场景类名（scene-room / scene-path）控制，
-  // JS 只负责：挂类名 + 注入动态鼠标视差变量 --px/--py（漫漫尘途固定、不视差）。
+  // 固定位移 / 缩放 / 模糊全部由 CSS 场景类名（scene-room / scene-path / scene-fabricator / scene-ship）控制，
+  // JS 只负责：挂类名 + 注入动态鼠标视差变量 --px/--py（漫漫尘途/造物台/飞船固定、不视差）。
   const scene =
     activeModule === 'room' ? 'scene-room'
     : activeModule === 'path' ? 'scene-path'
+    : activeModule === 'fabricator' ? 'scene-fabricator'
+    : activeModule === 'ship' ? 'scene-ship'
     : '';
-  const parallax = activeModule !== 'path';
+  const parallax = activeModule !== 'path' && activeModule !== 'fabricator' && activeModule !== 'ship';
   const tx = parallax ? mouse.x * MAX_OFF * viewport.w : 0; // 视差：±5% 视口宽
   const ty = parallax ? mouse.y * MAX_OFF * viewport.h : 0;
 
@@ -125,7 +127,9 @@ export default function OutsideScene() {
           />
         );
       })}
-      {activeModule === 'room' && <div className={`outside-veil${lightsOff ? ' night' : ''}`} />}
+      {(activeModule === 'room' || activeModule === 'fabricator' || activeModule === 'ship')
+        ? <div className={`outside-veil${lightsOff ? ' night' : ''}`} />
+        : null}
     </div>
   );
 }

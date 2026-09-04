@@ -55,11 +55,17 @@ function SaveNotify() {
 function App() {
   const activeModule = useEngine((s) => s.activeModule);
   const lightsOff = useEngine((s) => s.options.lightsOff);
+  const menuCollapsed = useEngine((s) => s.menuCollapsed);
 
   // 关灯模式：body.noMask 切换主题
   useEffect(() => {
     document.body.classList.toggle('noMask', !!lightsOff);
   }, [lightsOff]);
+
+  // 收起菜单：body.menu-collapsed 让背景由模糊变清晰
+  useEffect(() => {
+    document.body.classList.toggle('menu-collapsed', !!menuCollapsed);
+  }, [menuCollapsed]);
 
   // 浏览器标签标题跟随模块（翻译文案）
   useEffect(() => {
@@ -97,7 +103,7 @@ function App() {
         <NotificationBar />
         <div id="main">
           <HeaderBar />
-          <div id="content">
+          <div id="content" className={menuCollapsed ? 'collapsed' : ''}>
             {Panel && <Panel />}
           </div>
         </div>

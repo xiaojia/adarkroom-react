@@ -19,6 +19,7 @@ export const useEngine = create(() => ({
   view: 'locations', // 'locations' | 'world' | 'space'
   options: { debug: false, doubleTime: false, state: null, lightsOff: true },
   GAME_OVER: false,
+  menuCollapsed: false, // 收起菜单：隐藏 content 并让背景清晰
 }));
 
 /* 保存提示（右下角 "saved."） */
@@ -125,6 +126,8 @@ export const Engine = {
     // 首页启动：URL 指定的模块合法（tab 栏页面且已解锁）则直接进入；否则进默认生火间。
     // _setUrlModule 会把不合法/缺失的 URL 同步为默认 tab（room）。
     Engine.travelTo(Engine.getUrlModule() || 'room');
+    // 打印所有积压通知：避免开局落在非生火间 tab 时丢失 room 等模块在 init 时产生的消息
+    requireNotifications().Notifications.printAll();
   },
 
   /* ------------------------------- 存档 ------------------------------- */

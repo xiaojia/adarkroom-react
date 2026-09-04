@@ -62,6 +62,22 @@ export const Notifications = {
     });
   },
 
+  /** 打印所有积压队列（启动时用：避免开局落在非生火间 tab 时丢失 room 等模块的消息） */
+  printAll() {
+    useNotifications.setState((s) => {
+      const queue = s.notifyQueue;
+      if (!queue || Object.keys(queue).length === 0) return s;
+      const newMsgs = [];
+      for (const mod in queue) {
+        for (const text of queue[mod]) {
+          const icon = Pixel.notificationIcon ? Pixel.notificationIcon(text) : null;
+          newMsgs.push({ id: ++_seq, text, icon });
+        }
+      }
+      return { messages: [...newMsgs.reverse(), ...s.messages].slice(0, 60), notifyQueue: {} };
+    });
+  },
+
   clearHidden() {
     // React 端通过渲染数量控制，逻辑层无需清理
   },

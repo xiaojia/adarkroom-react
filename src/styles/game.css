@@ -152,7 +152,13 @@ div.headerButton.selected:hover {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
-  padding: 10px 0;
+  padding: 10px 0 45px;
+  transition: opacity 0.3s ease; /* 收起菜单时的渐隐 */
+}
+/* 收起菜单：隐藏主内容（0.3s 渐隐后不再可交互） */
+#content.collapsed {
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* ---------------- 面板通用 ---------------- */
@@ -168,7 +174,6 @@ div.location {
 
 /* 行（商店/库存/工人列表通用） */
 div.row_key {
-  white-space: nowrap;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -183,6 +188,12 @@ div.storeRow {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  position: relative;
+}
+
+/* 库存里数值后括号内净增减改为 12px */
+div.storeRow .incomeDiff {
+  font-size: 12px;
 }
 
 div.storeRow .px-icon svg {
@@ -233,7 +244,7 @@ div.button {
   user-select: none;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 4px;
 }
 
@@ -347,6 +358,7 @@ div.tooltip {
   display: flex;
   flex-direction: row;
   gap: 8px;
+  padding-bottom: 5px;
 }
 
 #roomBtnColumns {
@@ -391,6 +403,7 @@ div.tooltip {
   display: flex;
   flex-direction: row;
   gap: 8px;
+  padding-bottom: 5px;
 }
 
 #outsideRight {
@@ -431,6 +444,7 @@ div.tooltip {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  position: relative;
   gap: 8px;
 }
 
@@ -541,8 +555,6 @@ div.outfitRow .tooltip {
   border-radius: 7px;
   cursor: default;
   padding: 10px 10px 5px;
-  width: 200px;
-  margin-top: 6px;
 }
 
 #equipList:before {
@@ -617,7 +629,7 @@ div.perkRow {
   display: flex;
   flex-direction: row;
   gap: 20px;
-  z-index: 50;
+  z-index: 150; /* 高于主面板内容，保证语言下拉展开时不被内容盖住 */
 }
 
 .menu span {
@@ -631,36 +643,43 @@ div.perkRow {
 .menu .customSelect {
   height: 20px;
   position: relative;
-  width: 80px;
 }
 
+/* 下拉面板：悬停按钮时出现，位于按钮正上方
+   用 opacity/visibility 做干净过渡，背景不会在收起瞬间抽离 */
 .menu .customSelectOptions {
+  position: absolute;
+  bottom: 100%;
+  left: -1px;
   display: block;
-  width: 80px;
-  height: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease;
+  z-index: 1000;
+}
+.menu .customSelect:hover .customSelectOptions,
+.menu .customSelectOptions:hover {
+  opacity: 1;
+  visibility: visible;
 }
 
 .menu .customSelectOptions ul {
-  max-height: 20px;
-  width: 80px;
-  overflow: hidden;
-  padding: 0;
+  min-width: 70px;
+  width: max-content;
+  padding: 4px 8px 6px;
   margin: 0;
-  position: absolute;
-  left: 0;
-  right: auto;
-  bottom: 0;
   list-style: none;
-  transition: max-height 1s;
-}
-
-.menu .customSelectOptions ul:hover {
-  max-height: 400px;
+  max-height: calc(100vh - 60px); /* 防止语言过多超出屏幕 */
+  overflow-y: auto;
 }
 
 .menu .customSelectOptions ul li {
   height: 20px;
-  padding: 0 0 3px 0;
+  padding: 0 4px 0 2px;
+  white-space: nowrap;
+  cursor: pointer;
+  padding: 3px 0;
+  margin: 5px 0;
 }
 
 .menu .customSelectOptions ul li:hover {
@@ -671,11 +690,6 @@ div.perkRow {
 .menu .customSelectOptions ul li.selected {
   text-decoration: underline;
   font-weight: bold;
-}
-
-.menu .customSelectOptions ul li.selected::before {
-  content: '\2713 ';
-  color: var(--accent);
 }
 
 /* ---------------- 事件弹窗 ---------------- */
@@ -756,7 +770,7 @@ div.perkRow {
 #saveNotify {
   position: fixed;
   top: 23px;
-  right: 10px;
+  right: 20px;
   background: var(--bg);
   opacity: 0;
   z-index: 60;
@@ -783,12 +797,14 @@ div.perkRow {
 
 #worldPanel {
   min-height: 100%;
+  overflow: hidden; /* 地图自适应视口尺寸，避免页面滚动条 */
 }
 
 #worldOuter {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  padding-top: 10px;
 }
 
 #bagspace-world {
@@ -810,14 +826,29 @@ div.perkRow {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  align-items: center; /* 每行上下居中 */
   gap: 4px;
   min-height: 26px;
 }
 
 div.supplyItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   border: 1px solid var(--border);
-  padding: 0 5px;
+  border-radius: 3px;
+  padding: 2px 5px;
   cursor: default;
+  white-space: nowrap;
+  background: var(--panel-bg);
+  box-shadow:
+    inset 1px 1px 0 var(--bevel-mid),
+    inset -1px -1px 0 var(--bevel-lo);
+}
+
+div.supplyItem .px-icon svg {
+  width: 16px;
+  height: 16px;
 }
 
 #shortRow {
@@ -831,6 +862,12 @@ div.supplyItem {
 #healthCounter {
   font-size: 14px;
   white-space: nowrap;
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  background: var(--panel-bg);
+  box-shadow:
+    inset 1px 1px 0 var(--bevel-mid),
+    inset -1px -1px 0 var(--bevel-lo);
 }
 
 #mapRow {
@@ -839,12 +876,7 @@ div.supplyItem {
   align-items: center;
   justify-content: center;
   gap: 8px;
-}
-
-#mapControls {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
+  flex: 1;
 }
 
 #map {
@@ -866,8 +898,8 @@ div.supplyItem {
 #map .px-tile {
   flex: none;
   position: relative;
-  width: 11.4px;
-  height: 11.4px;
+  width: var(--tile, 11.4px);
+  height: var(--tile, 11.4px);
   box-sizing: border-box;
 }
 
@@ -900,8 +932,8 @@ div.supplyItem {
 }
 
 #map .px-tile .px-svg {
-  width: 11px;
-  height: 11px;
+  width: var(--tile, 11.4px);
+  height: var(--tile, 11.4px);
 }
 
 #map .terr-forest  { background: #3f6b2c; }
@@ -910,15 +942,34 @@ div.supplyItem {
 #map .terr-road    { background: #d8c184; }
 #map .terr-swamp   { background: #4e8880; }
 
+/* 开灯：世界背景调成与地图相近的橄榄绿/土色，避免与亮色地图反差过大 */
+#scene-backdrop .scene[data-scene="desert"] { background-color: #3a4529; }
+/* 关灯：地图整体压暗，与暗色渐变背景协调 */
+body.noMask #worldPanel #map { filter: brightness(0.55) saturate(0.6); }
+
 /* ---------------- Ship 面板 ---------------- */
 
-div#hullRow,
-div#engineRow {
-  width: 70px;
+#shipStats {
+  position: relative;
+  width: 200px;
+  padding: 10px 10px 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
 }
-
-div#engineRow {
-  margin-bottom: 20px;
+#shipStats .blueprintRow {
+  justify-content: space-between;
+  align-items: center;
+}
+#shipStats .row_key,
+#shipStats .row_val {
+  color: var(--panel-fg);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
+}
+#shipStats .row_val {
+  color: var(--panel-fg-glow);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6), 0 0 6px rgba(242, 196, 94, 0.2);
 }
 
 /* ---------------- Fabricator 面板 ---------------- */
@@ -939,7 +990,6 @@ div#engineRow {
   flex-direction: column;
   gap: 4px;
   align-items: flex-start;
-  margin-top: 6px;
 }
 
 #blueprints {

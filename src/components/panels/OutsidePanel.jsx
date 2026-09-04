@@ -26,22 +26,6 @@ function WorkerRow({ worker }) {
             <span className={'workerStepper'}>
               <span
                 className={'workerBtn icon' + (canUp ? '' : ' disabled')}
-                title="+10"
-                onClick={() => canUp && Outside.increaseWorker(key, 10)}
-              >
-                <PixelIcon name="arrow" pixel={2} />
-              </span>
-              <span
-                className={'workerBtn icon down' + (canDn ? '' : ' disabled')}
-                title="-10"
-                onClick={() => canDn && Outside.decreaseWorker(key, 10)}
-              >
-                <PixelIcon name="arrow" pixel={2} />
-              </span>
-            </span>
-            <span className={'workerStepper'}>
-              <span
-                className={'workerBtn icon' + (canUp ? '' : ' disabled')}
                 title="+1"
                 onClick={() => canUp && Outside.increaseWorker(key, 1)}
               >
@@ -51,6 +35,22 @@ function WorkerRow({ worker }) {
                 className={'workerBtn icon down' + (canDn ? '' : ' disabled')}
                 title="-1"
                 onClick={() => canDn && Outside.decreaseWorker(key, 1)}
+              >
+                <PixelIcon name="arrow" pixel={2} />
+              </span>
+            </span>
+            <span className={'workerStepper'}>
+              <span
+                className={'workerBtn icon' + (canUp ? '' : ' disabled')}
+                title="+10"
+                onClick={() => canUp && Outside.increaseWorker(key, 10)}
+              >
+                <PixelIcon name="arrow" pixel={2} />
+              </span>
+              <span
+                className={'workerBtn icon down' + (canDn ? '' : ' disabled')}
+                title="-10"
+                onClick={() => canDn && Outside.decreaseWorker(key, 10)}
               >
                 <PixelIcon name="arrow" pixel={2} />
               </span>
@@ -108,7 +108,7 @@ export default function OutsidePanel() {
           </div>
 
           {workers.length > 0 && (
-            <div id="workers">
+            <div id="workers" data-title={_('work')}>
               {workers.map((w) => (
                 <WorkerRow key={w.key} worker={w} />
               ))}

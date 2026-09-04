@@ -12,6 +12,7 @@ import { $SM, Dispatch } from '../store/stateManager';
 import { Engine } from '../engine/Engine';
 import { Notifications } from '../engine/notifications';
 import { requireModule } from '../engine/moduleLoader';
+import { suppliesRank } from '../engine/storeCategories';
 
 export const Path = {
   DEFAULT_BAG_SPACE: 10,
@@ -149,7 +150,12 @@ export const Path = {
         });
       }
     }
-    rows.sort((a, b) => (a.key < b.key ? -1 : 1));
+    rows.sort((a, b) => {
+      const ra = suppliesRank(a.key);
+      const rb = suppliesRank(b.key);
+      if (ra !== rb) return ra - rb;
+      return a.key < b.key ? -1 : 1;
+    });
 
     // 装备切换行
     const equipRows = [];

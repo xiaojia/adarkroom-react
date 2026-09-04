@@ -16,6 +16,7 @@ import { Engine } from '../engine/Engine';
 import { Notifications } from '../engine/notifications';
 import { requireModule } from '../engine/moduleLoader';
 import { Pixel } from './pixel';
+import { suppliesRank } from '../engine/storeCategories';
 
 export const World = {
   RADIUS: 30,
@@ -270,8 +271,10 @@ export const World = {
       case 65: World.moveWest(); break;
       case 39:
       case 68: World.moveEast(); break;
-      default: break;
+      default: return;
     }
+    // 阻止方向键默认滚页，避免「移动角色 + 页面滚动」双触发
+    if (event.preventDefault) event.preventDefault();
   },
 
   checkDanger() {
@@ -759,6 +762,13 @@ export const World = {
         }
       }
     }
+    // 排序：水 → 熏肉 → 其余（近战/远程/消耗品/其他，内部按字母序）
+    items.sort((a, b) => {
+      const ra = a.key === 'water' ? 0 : a.key === 'cured meat' ? 1 : 2 + suppliesRank(a.key);
+      const rb = b.key === 'water' ? 0 : b.key === 'cured meat' ? 1 : 2 + suppliesRank(b.key);
+      if (ra !== rb) return ra - rb;
+      return a.key < b.key ? -1 : 1;
+    });
     return {
       water: World.water,
       items,

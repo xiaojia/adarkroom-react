@@ -75,7 +75,12 @@ body {
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  filter: blur(3px);
+  filter: blur(var(--scene-blur, 3px));
+  transition: filter 0.3s ease;
+}
+/* 收起菜单：背景由模糊变清晰 */
+body.menu-collapsed #scene-backdrop {
+  --scene-blur: 0;
 }
 #scene-backdrop .scene {
   position: absolute;
@@ -105,6 +110,16 @@ body {
   background-color: transparent;
   background-image: none;
 }
+/* 造物台（fabricator）：同 path，透明镂空（左侧门洞透出森林） */
+#scene-backdrop .scene[data-scene="fabricator"] {
+  background-color: transparent;
+  background-image: none;
+}
+/* 飞船（ship）：同 path，透明镂空（右侧仓门 / 顶部条窗透出森林） */
+#scene-backdrop .scene[data-scene="ship"] {
+  background-color: transparent;
+  background-image: none;
+}
 /* ============================================================
  * 静谧森林（outside）：8 张森林全景图（夜/昼 × 木屋数量 0-3）
  * 作为常驻最底层渲染（DOM 最前），供生火间透明窗户透视 / 森林 tab 直接展示。
@@ -116,9 +131,13 @@ body {
   overflow: hidden;
   /* 建立独立层叠上下文，隔离内部图片的 z-index，确保永远垫底在 .scene 之下 */
   z-index: 0;
-  /* 固定位移 / 模糊用场景类名（scene-room / scene-path）控制；
-     JS 只注入动态视差变量 --px/--py。默认：居中、不模糊。 */
+  /* 固定位移 / 缩放 / 模糊用场景类名（scene-room / scene-path / scene-fabricator）控制；
+     JS 只注入动态视差变量 --px/--py。默认：居中、不模糊。
+     --shift：左右位移（—vw）；--shift-y：垂直位移（=如 30px，正值下移/负值上移）；
+     --zoom：缩放（如 1.01 微放大，>1 放大、<1 缩小）；--blur：模糊。 */
   --shift: 0vw;
+  --shift-y: 0px;
+  --zoom: 1.01;
   --blur: none;
 }
 /* 生火间：窗外朝右侧看森林 → 森林左移 50%（不扩图）＋高斯模糊。
@@ -126,6 +145,10 @@ body {
 .outside-scene.scene-room { --shift: -50vw; --blur: blur(2.5px); }
 /* 漫漫尘途：窗外森林右移 10%（背景图已左右镜像）＋高斯模糊 */
 .outside-scene.scene-path { --shift: 10vw; --blur: blur(2.5px); }
+/* 造物台：左侧门洞朝右看森林 → 森林左移/上下/缩放/模糊均可按需改（见下注释） */
+.outside-scene.scene-fabricator { --shift: -45vw; --shift-y: 0vw; --blur: blur(0); }
+/* 飞船：右侧仓门/条窗透出森林 → 位移/上下/缩放/模糊均可按需改（--shift/--shift-y/--zoom/--blur） */
+.outside-scene.scene-ship { --shift: -10vw; --shift-y: -200px; --zoom: 1.01; --blur: blur(0); }
 /* 生火间窗外：在森林上方加一层白色半透明遮罩（透过窗户的蒙雾感） */
 .outside-veil {
   position: absolute;
@@ -149,9 +172,9 @@ body {
   object-position: center;
   opacity: 0; /* 8 张图常驻 DOM（同时完成预加载），只点亮需要的那张 */
   z-index: 0;
-  /* 固定位移(--shift)与模糊(--blur)由容器场景类名决定；--px/--py 为组件注入的动态视差。
-     缩放 1.01 与 OutsideScene.jsx 的 ZOOM 常量对应（留出视差余量）。 */
-  transform: translate(calc(var(--px, 0px) + var(--shift, 0vw)), var(--py, 0px)) scale(1.01);
+  /* 固定位移(--shift / --shift-y)、缩放(--zoom)与模糊(--blur)由容器场景类名决定；
+     --px/--py 为组件注入的动态视差。默认缩放 1.01，与 OutsideScene.jsx 的 ZOOM 常量对应（留出视差余量）。 */
+  transform: translate(calc(var(--px, 0px) + var(--shift, 0vw)), calc(var(--py, 0px) + var(--shift-y, 0px))) scale(var(--zoom, 1.01));
   filter: var(--blur, none);
 }
 /* prev：上一张图，作为底层始终保持 opacity 1（切换瞬间不露底） */
@@ -232,6 +255,62 @@ body {
 }
 /* 漫漫尘途背景图水平镜像：让镂空透出的森林朝指定方向，无需再移动森林层 */
 .path-img, .path-img.prev, .path-img.top { transform: scaleX(-1); }
+/* 造物台：dark0/light0 两张图常驻 DOM（同时完成预加载），按熄灯/开灯切换。
+   与 path 同机制；但不做镜像（门洞在左，按原图呈现，森林透过门洞可见）。 */
+.fabricator-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.fabricator-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0; /* 2 张图常驻 DOM（同时完成预加载），只点亮需要的那张 */
+  z-index: 0;
+}
+/* prev：上一张图，作为底层始终保持 opacity 1（切换瞬间不露底） */
+.fabricator-img.prev {
+  opacity: 1;
+  z-index: 1;
+}
+/* top：新目标图，z-index 最高，animation 渐显并 forwards 停在最后一帧 */
+.fabricator-img.top {
+  opacity: 1;
+  z-index: 2;
+  animation: path-img-in 1.4s ease forwards;
+}
+/* 飞船：dark0/light0 两张图常驻 DOM（同时完成预加载），按熄灯/开灯切换。
+   与造物台同机制；不做镜像（按原图呈现，森林透过仓门/条窗可见）。 */
+.ship-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.ship-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0; /* 2 张图常驻 DOM（同时完成预加载），只点亮需要的那张 */
+  z-index: 0;
+}
+/* prev：上一张图，作为底层始终保持 opacity 1（切换瞬间不露底） */
+.ship-img.prev {
+  opacity: 1;
+  z-index: 1;
+}
+/* top：新目标图，z-index 最高，animation 渐显并 forwards 停在最后一帧 */
+.ship-img.top {
+  opacity: 1;
+  z-index: 2;
+  animation: path-img-in 1.4s ease forwards;
+}
 /* 黑遮罩：进场前全黑；最上层盖住所有背景图。
    三种受控动画：
    - .spark（首次点火）：闪开约 0.3s → 合拢 → 5s 渐隐，露出 dark1 开场；
@@ -259,7 +338,7 @@ body {
 #layout { position: relative; z-index: 1; }
 
 /* 关灯：其余场景整体压暗降饱和；生火间熄灯/开灯直接切换 drak/light 图，无需滤镜 */
-body.noMask #scene-backdrop .scene.active:not([data-scene="room"]):not([data-scene="path"]) { filter: brightness(0.34) saturate(0.7); }
+body.noMask #scene-backdrop .scene.active:not([data-scene="room"]):not([data-scene="path"]):not([data-scene="fabricator"]):not([data-scene="ship"]) { filter: brightness(0.34) saturate(0.7); }
 body.noMask {
   --bg: rgba(12, 8, 4, 0.55);
   --fg: #d9c3a0;
@@ -348,7 +427,8 @@ div#equipList,
 div#bagspace-world,
 div.btnColumn,
 #fabricateButtons,
-#blueprints {
+#blueprints,
+#shipStats {
   position: relative;
   color: var(--panel-fg);
   border-radius: 4px;
@@ -410,11 +490,13 @@ div.btnColumn, div.btnColumn * {
 #weapons:before,
 #perks:before,
 #village:before,
+#workers:before,
 #equipList:before,
 #bagspace-world:before,
 .btnColumn:before,
 #fabricateButtons:before,
-#blueprints:before {
+#blueprints:before,
+#shipStats:before {
   content: attr(data-title) attr(data-legend);
   display: block;
   position: absolute;
@@ -521,6 +603,13 @@ div.equipBtn:hover { filter: brightness(1.2); color: var(--amber-hi); }
   filter: none;
   cursor: default;
 }
+/* disabled 的像素图标（颜色硬编码为琥珀色）：去饱和+调暗，明显区分开 */
+.workerBtn.disabled .px-icon,
+.upBtn.disabled .px-icon, .upManyBtn.disabled .px-icon,
+.dnBtn.disabled .px-icon, .dnManyBtn.disabled .px-icon {
+  filter: grayscale(1) brightness(0.55);
+  opacity: 0.5;
+}
 /* 工人增减：±1 / ±10 各上下排列，像素图标按钮 */
 .workerStepper {
   display: inline-flex;
@@ -560,15 +649,39 @@ div.tooltip {
 }
 
 /* ---------------- 右下角菜单 ---------------- */
-.menu { color: var(--amber); text-shadow: 0 0 4px rgba(216, 154, 43, 0.4); }
+.menu { color: var(--amber); text-shadow: 0 0 4px rgba(0,0,0,1); gap: 12px; }
 .menu > span, .menu .menuBtn { cursor: pointer; padding: 2px 5px; border-radius: 3px; }
 .menu span:hover, .menu .menuBtn:hover { color: var(--amber-hi); text-decoration: none; text-shadow: 0 0 8px rgba(242, 193, 78, 0.7); }
 
+/* 副菜单按钮：仿 tab 按钮样式但更低调（暗底、细边、小号、无渐变），不压过顶部 tab */
+.menu .menuBtn {
+  cursor: pointer;
+  position: relative;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  color: var(--panel-fg-dim);
+  padding: 4px 9px;
+  border-radius: 3px;
+  border: 1px solid var(--panel-rim);
+  background: #2a1a0e;
+  box-shadow: inset 1px 1px 0 var(--bevel-mid), inset -1px -1px 0 var(--bevel-lo);
+  text-shadow: 1px 1px 0 #000;
+  white-space: nowrap;
+}
+.menu .menuBtn:hover {
+  color: #efd198;
+  background: #38220f;
+  text-decoration: none;
+  text-shadow: 0 0 8px rgba(242, 193, 78, 0.5);
+}
+/* 语言触发按钮：改回自适应高度，容纳按钮内边距 */
+.menu .customSelect { height: auto; }
+
+/* 语言下拉面板外观（深色底 + 边框 + 阴影），悬停时由 game.css 控制显隐 */
 .menu .customSelectOptions ul {
   background-color: #33271a;
   border: 2px solid var(--panel-rim);
   box-shadow: inset 2px 2px 0 var(--bevel-mid), 0 4px 8px rgba(0, 0, 0, 0.55);
-  padding: 2px 8px 4px;
   color: var(--panel-fg);
 }
 .menu .customSelectOptions ul li:hover { color: var(--amber-hi); }
