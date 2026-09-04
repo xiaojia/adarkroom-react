@@ -855,7 +855,10 @@ div.supplyItem .px-icon svg {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 16px;
+  gap: 5px;
+  position: absolute;
+  left: 80px;
+  top: 1px;
 }
 
 #backpackSpace,
@@ -944,8 +947,7 @@ div.supplyItem .px-icon svg {
 
 /* 开灯：世界背景调成与地图相近的橄榄绿/土色，避免与亮色地图反差过大 */
 #scene-backdrop .scene[data-scene="desert"] { background-color: #3a4529; }
-/* 关灯：地图整体压暗，与暗色渐变背景协调 */
-body.noMask #worldPanel #map { filter: brightness(0.55) saturate(0.6); }
+/* 荒芜世界固定为“开灯”外观：熄灯/关灯时地图也不压暗，避免整片太黑 */
 
 /* ---------------- Ship 面板 ---------------- */
 
@@ -1207,8 +1209,7 @@ body.space-view #content {
   justify-content: space-around;
   align-items: flex-start;
   gap: 12px;
-  padding: 6px 10px 30px;
-  min-height: 150px;
+  padding: 20px 10px 20px;
   border: 1px solid var(--border);
 }
 

@@ -479,8 +479,9 @@ body:not(.start-phase).menu-collapsed #scene-backdrop {
 
 #layout { position: relative; z-index: 1; }
 
-/* 关灯：其余场景整体压暗降饱和；生火间熄灯/开灯直接切换 drak/light 图，无需滤镜 */
-body.noMask #scene-backdrop .scene.active:not([data-scene="room"]):not([data-scene="path"]):not([data-scene="fabricator"]):not([data-scene="ship"]) { filter: brightness(0.34) saturate(0.7); }
+/* 关灯：其余场景整体压暗降饱和；生火间熄灯/开灯直接切换 drak/light 图，无需滤镜。
+   荒芜世界(desert)固定为“开灯”外观，不参与压暗。 */
+body.noMask #scene-backdrop .scene.active:not([data-scene="room"]):not([data-scene="path"]):not([data-scene="fabricator"]):not([data-scene="ship"]):not([data-scene="desert"]) { filter: brightness(0.34) saturate(0.7); }
 body.noMask {
   --bg: rgba(12, 8, 4, 0.55);
   --fg: #d9c3a0;
@@ -495,6 +496,24 @@ body.noMask {
   --bevel-mid: #36230f;
   --bevel-lo: #150c05;
   --tex-dither: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%3E%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%23301e0e%22%2F%3E%3Crect%20y%3D%220%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%231e1107%22%2F%3E%3Crect%20y%3D%224%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%231e1107%22%2F%3E%3Crect%20y%3D%228%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%231e1107%22%2F%3E%3Crect%20y%3D%2212%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%231e1107%22%2F%3E%3Crect%20y%3D%221%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%23422714%22%2F%3E%3Crect%20y%3D%225%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%23422714%22%2F%3E%3Crect%20y%3D%229%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%23422714%22%2F%3E%3Crect%20y%3D%2213%22%20width%3D%2216%22%20height%3D%221%22%20fill%3D%22%23422714%22%2F%3E%3Crect%20x%3D%223%22%20y%3D%222%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%23221409%22%2F%3E%3Crect%20x%3D%2211%22%20y%3D%226%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%23221409%22%2F%3E%3Crect%20x%3D%226%22%20y%3D%2210%22%20width%3D%222%22%20height%3D%222%22%20fill%3D%22%23402a12%22%2F%3E%3C%2Fsvg%3E");
+}
+
+/* 荒芜世界界面固定为“开灯”外观：即使处于熄灯/关灯状态，整个世界屏也保持白天配色（避免过黑）。
+   只作用于 #worldPanel 及其子元素（覆盖 body.noMask 的暗色变量），不影响其它场景的昼夜切换。 */
+body.noMask #worldPanel {
+  --bg: rgba(24, 16, 8, 0.5);
+  --fg: #f3e5c8;
+  --border: rgba(232, 196, 118, 0.45);
+  --panel-bg: rgba(43, 28, 15, 0.74);
+  --panel-bg2: rgba(38, 25, 13, 0.8);
+  --panel-fg: #f0e0bd;
+  --panel-fg-dim: #b99a68;
+  --panel-border: #2c1b0e;
+  --panel-rim: #1a0f06;
+  --rust: #b0692a;
+  --bevel-hi: #7a5326;
+  --bevel-mid: #4a2f18;
+  --bevel-lo: #20120a;
 }
 
 /* 像素化滚动条 */
