@@ -18,7 +18,7 @@ async function boot() {
 
   // --- 0. 启动加载屏（轻量模块，立即展示） ---
   const { default: Preloader } = await import('./components/Preloader');
-  const { BG_CRITICAL, BG_LAZY, preloadAssets } = await import('./engine/preload');
+  const { BG_CRITICAL, BG_LAZY } = await import('./engine/preload');
 
   // App 节点在 i18n 就绪后才创建（App 内用 _()，需保证翻译已初始化）
   let appElement = null;
@@ -167,15 +167,14 @@ async function boot() {
     appElement = <App />;
   })();
 
-  // --- 2. 渲染：启动屏（预加载关键背景图 + 并行等模块就绪）→ 就绪后挂载游戏 ---
+  // --- 2. 渲染：启动屏（预加载所有场景背景图 + 并行等模块就绪）→ 就绪后挂载游戏 ---
+  // 全部背景图（生火间/静谧森林/漫漫尘途/飞船/造物台）都进加载屏等待，
+  // 网络慢时也不会出现"加载完成但切场图片还在慢慢加载/弹图"。
   root.render(
     <StrictMode>
-      <Preloader assets={BG_CRITICAL} ready={modules} renderApp={() => appElement} />
+      <Preloader assets={[...BG_CRITICAL, ...BG_LAZY]} ready={modules} renderApp={() => appElement} />
     </StrictMode>,
   );
-
-  // --- 3. 模块就绪后，后台静默预加载其余场景背景图（不阻塞进入游戏） ---
-  modules.then(() => preloadAssets(BG_LAZY));
 
   await modules;
 }

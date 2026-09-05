@@ -70,7 +70,9 @@ body {
 #game { position: relative; background: transparent; }
 
 #scene-backdrop {
-  position: fixed;
+  /* 跟随 #game 容器（#game 为 relative，最小宽 940px）：铺满 #game，
+     手机上 #game 比视口宽导致横向滚动时，背景层与内容一起滚动不脱节 */
+  position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;

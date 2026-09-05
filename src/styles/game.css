@@ -57,9 +57,8 @@ select.menuBtn {
 #game {
   height: 100%;
   display: flex;
-  padding: 0 10px;
   justify-content: flex-start;
-  min-width: 950px;
+  min-width: 940px;
 }
 
 #layout {

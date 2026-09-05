@@ -69,6 +69,10 @@ export const Engine = {
   VERSION: 1.3,
   MAX_STORE: 99999999999999,
   SAVE_DISPLAY: 30 * 1000,
+  // 存档防抖：高频 $SM.set 不再每次全量序列化 State，而是合并到一次写入（见 saveGame/_flushSave）
+  SAVE_DEBOUNCE: 800,
+  _saveTimer: null,
+  _saveQueued: false,
   GAME_OVER: false,
 
   keyLock: false,
@@ -124,6 +128,15 @@ export const Engine = {
     Engine._incomeTimeout = setTimeout(() => $SM.collectIncome(), 1000);
 
     Engine.saveLanguage();
+
+    // 离开/切后台前立即冲刷存档，避免防抖窗口内的改动丢失
+    const flushSave = () => Engine._flushSave();
+    window.addEventListener('pagehide', flushSave);
+    window.addEventListener('beforeunload', flushSave);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') flushSave();
+    });
+
     // 首页启动：URL 指定的模块合法（tab 栏页面且已解锁）则直接进入；否则进默认生火间。
     // _setUrlModule 会把不合法/缺失的 URL 同步为默认 tab（room）。
     Engine.travelTo(Engine.getUrlModule() || 'room');
@@ -134,6 +147,16 @@ export const Engine = {
   /* ------------------------------- 存档 ------------------------------- */
 
   saveGame() {
+    // 防抖：把多次 $SM.set 合并成一次真实落盘，降低主线程 JSON 序列化频率（长时间游玩易卡死/崩溃）。
+    Engine._saveQueued = true;
+    if (Engine._saveTimer) return;
+    Engine._saveTimer = setTimeout(() => Engine._flushSave(), Engine.SAVE_DEBOUNCE);
+  },
+
+  _flushSave() {
+    Engine._saveTimer = null;
+    if (!Engine._saveQueued) return;
+    Engine._saveQueued = false;
     try {
       if (typeof Storage !== 'undefined' && localStorage) {
         localStorage.gameState = JSON.stringify(State);
@@ -237,7 +260,7 @@ export const Engine = {
   },
 
   export64() {
-    Engine.saveGame();
+    Engine._flushSave(); // 立即同步落盘，避免导出到防抖窗口内的旧数据
     let string64 = Base64.encode(localStorage.gameState);
     string64 = string64.replace(/\s/g, '').replace(/\./g, '').replace(/\n/g, '');
     return string64;
