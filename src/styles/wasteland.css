@@ -581,18 +581,10 @@ body.noMask #worldPanel {
  * 面板通用：暖木像素板 + 像素倒角 + 金色高光
  * 纹理仅用内嵌像素木纹（无网络请求、无平铺接缝）。
  * ============================================================ */
-div#stores,
-div#weapons,
-div#perks,
-div#village,
-div#workers,
-div#outfitting,
-div#equipList,
-div#bagspace-world,
 div.btnColumn,
 #fabricateButtons,
 #blueprints,
-#shipStats {
+.panel {
   position: relative;
   color: var(--panel-fg);
   border-radius: 4px;
@@ -606,7 +598,7 @@ div.btnColumn,
     inset -2px -2px 0 var(--bevel-lo),
     0 3px 8px rgba(0, 0, 0, 0.4);
   image-rendering: pixelated;
-  padding: 20px 10px 10px;
+  padding: 15px 10px 10px;
 }
 div.btnColumn, #fabricateButtons, #blueprints { padding: 20px 13px 10px; }
 
@@ -630,8 +622,8 @@ div#outfitting .row_val, div#bagspace-world .row_val {
 }
 
 /* 面板/顶栏文字禁用文本选择光标，统一为默认箭头（去除 I 形竖线光标） */
-#stores, #weapons, #perks, #village, #workers, #outfitting, #equipList, #bagspace-world,
-#fabricateButtons, #blueprints {
+#fabricateButtons, #blueprints,
+.panel {
   cursor: default;
   user-select: none;
 }
@@ -649,17 +641,10 @@ div.btnColumn, div.btnColumn * {
 }
 
 /* ---------------- 标题铭牌（统一一段：像素木质小标签） ---------------- */
-#stores:before,
-#weapons:before,
-#perks:before,
-#village:before,
-#workers:before,
-#equipList:before,
-#bagspace-world:before,
 .btnColumn:before,
 #fabricateButtons:before,
 #blueprints:before,
-#shipStats:before {
+.panel[data-title]::before {
   content: attr(data-title) attr(data-legend);
   display: block;
   position: absolute;
@@ -684,7 +669,6 @@ div.btnColumn, div.btnColumn * {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin: -12px -6px 8px;
   padding: 5px 12px 6px;
   border-radius: 3px;
   background: #3a2716;

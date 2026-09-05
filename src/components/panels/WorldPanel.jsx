@@ -11,6 +11,7 @@ import { World } from '../../modules/world';
 import { Path } from '../../modules/path';
 import { Pixel } from '../../modules/pixel';
 import PixelIcon from '../shared/PixelIcon';
+import Panel from '../shared/Panel';
 
 const NOISE_PERIOD = 32; // 与 game.css 中 --terrain-noise 的 background-size 保持一致
 
@@ -126,7 +127,7 @@ export default function WorldPanel() {
   return (
     <div id="worldPanel" className="location">
       <div id="worldOuter">
-        <div id="bagspace-world" data-title={st.bag.title}>
+        <Panel id="bagspace-world" title={st.bag.title}>
           <div id="supplies">
             {st.bag.items.map((it) => (
               <div className="supplyItem" key={it.key}>
@@ -135,7 +136,7 @@ export default function WorldPanel() {
               </div>
             ))}
           </div>
-        </div>
+        </Panel>
         <div id="shortRow">
           <div className="row_val" id="healthCounter">
             {_('hp: {0}/{1}', st.health, st.maxHealth)}

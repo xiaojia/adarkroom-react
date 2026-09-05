@@ -12,6 +12,7 @@ import { Pixel } from '../../modules/pixel';
 import { Slot } from '../../engine/uiRegistry';
 import GameButton from '../shared/GameButton';
 import PixelIcon from '../shared/PixelIcon';
+import Panel from '../shared/Panel';
 
 /** 能力描述（key 即会被翻译的名称，desc 为 tooltip 说明） */
 const PERKS = {
@@ -34,14 +35,14 @@ function PerksPanel() {
   const keys = Object.keys(perks).filter((k) => perks[k]);
   if (keys.length === 0) return null;
   return (
-    <div id="perks" data-title={_('perks')}>
+    <Panel id="perks" title={_('perks')}>
       {keys.map((k) => (
         <div id={'perk_' + k.replace(/ /g, '-')} className="perkRow" key={k}>
           <div className="row_key">{_(k)}</div>
           <div className="tooltip bottom right">{PERKS[k] || _(k)}</div>
         </div>
       ))}
-    </div>
+    </Panel>
   );
 }
 
@@ -100,7 +101,7 @@ export default function PathPanel() {
             disabled={!st.canEmbark}
             onClick={() => Path.embark()}
           />
-          <div id="outfitting">
+          <Panel id="outfitting">
             <div id="outfittingHeader">
               <span id="outfittingTitle">{_('supplies')}</span>
               <span id="bagspace">{_('free {0}/{1}', st.free, st.capacity)}</span>
@@ -116,11 +117,11 @@ export default function PathPanel() {
             {st.rows.map((r) => (
               <OutfitRow key={r.key} r={r} />
             ))}
-          </div>
+          </Panel>
         </div>
 
         {st.equipRows.length > 0 && (
-          <div id="equipList" data-title={_('equipment')}>
+          <Panel id="equipList" title={_('equipment')}>
             {st.equipRows.map((r) => (
               <div className="outfitRow equipRow" key={r.key}>
                 <div className="row_key">
@@ -137,7 +138,7 @@ export default function PathPanel() {
                 </div>
               </div>
             ))}
-          </div>
+          </Panel>
         )}
 
         <div id="pathSidebar">

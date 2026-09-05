@@ -10,6 +10,7 @@ import { Slot } from '../../engine/uiRegistry';
 import { Pixel } from '../../modules/pixel';
 import GameButton from '../shared/GameButton';
 import PixelIcon from '../shared/PixelIcon';
+import Panel from '../shared/Panel';
 
 function WorkerRow({ worker }) {
   const { key, name, count, canUp, canDn, income } = worker;
@@ -108,16 +109,16 @@ export default function OutsidePanel() {
           </div>
 
           {workers.length > 0 && (
-            <div id="workers" data-title={_('work')}>
+            <Panel id="workers" title={_('work')}>
               {workers.map((w) => (
                 <WorkerRow key={w.key} worker={w} />
               ))}
-            </div>
+            </Panel>
           )}
         </div>
 
         <div id="outsideRight">
-          <div id="village" data-title={hasHuts ? _('village') : _('forest')}>
+          <Panel id="village" title={hasHuts ? _('village') : _('forest')}>
             <div className="storeRow">
               <div className="row_key">{_('pop ') + population + '/' + maxPop}</div>
             </div>
@@ -130,7 +131,7 @@ export default function OutsidePanel() {
                 <div className="row_val">{b.count}</div>
               </div>
             ))}
-          </div>
+          </Panel>
 
           <Slot name="stores" />
         </div>

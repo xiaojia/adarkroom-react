@@ -19,6 +19,7 @@ import { $SM, useTick } from '../../store/stateManager';
 import { Engine } from '../../engine/Engine';
 import { requireModule } from '../../engine/moduleLoader';
 import PixelIcon from './PixelIcon';
+import Panel from './Panel';
 import { Pixel } from '../../modules/pixel';
 import { weaponRank } from '../../engine/storeCategories';
 
@@ -179,17 +180,17 @@ export default function StoresPanel() {
 
   return (
     <div id="storesContainer">
-      <div id="stores" data-title={_('stores')}>
+      <Panel id="stores" title={_('stores')}>
         {storeRows.map((k) => (
           <StoreRow key={k} k={k} />
         ))}
-      </div>
+      </Panel>
       {weaponRows.length > 0 && (
-        <div id="weapons" data-title={_('weapons')}>
+        <Panel id="weapons" title={_('weapons')}>
           {weaponRows.map((k) => (
             <StoreRow key={k} k={k} />
           ))}
-        </div>
+        </Panel>
       )}
     </div>
   );

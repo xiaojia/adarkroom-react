@@ -206,11 +206,9 @@ div.storeRow .px-icon svg {
 /* ---------------- 库存面板（共享展示组件） ---------------- */
 
 div#stores,
-div#weapons {
-  position: relative;
-  border: 1px solid var(--border);
-  cursor: default;
-  padding: 10px 10px 5px;
+div#weapons,
+div#perks,
+div#village {
   width: 200px;
 }
 
@@ -264,10 +262,13 @@ div.button.disabled:hover {
 
 div.button div.cooldown {
   position: absolute;
-  top: 0px;
-  left: 0px;
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  /* 宽度由 JS 按冷却进度设置（百分比），用上限收住右侧，避免铺满时溢出按钮右边界；
+     top/bottom/left 与 max-width 共同形成四周 2px 间距。 */
+  max-width: calc(100% - 4px);
   z-index: 1;
-  height: 100%;
   background-color: var(--cooldown);
   border-radius: inherit;
   transition: width 0.1s linear;
@@ -417,10 +418,7 @@ div.tooltip {
 
 #village {
   position: relative;
-  border: 1px solid var(--border);
   cursor: default;
-  padding: 10px 10px 5px;
-  width: 200px;
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -432,8 +430,6 @@ div.tooltip {
 }
 
 #workers {
-  border: 1px solid var(--border);
-  padding: 10px 10px 5px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -506,10 +502,8 @@ div.tooltip {
 
 #outfitting {
   position: relative;
-  border: 1px solid var(--border);
   width: 200px;
   margin-bottom: 5px;
-  padding: 5px 10px;
   display: flex;
   flex-direction: column;
 }
@@ -553,7 +547,6 @@ div.outfitRow .tooltip {
 
 #equipList {
   position: relative;
-  border: 2px solid var(--border);
   border-radius: 7px;
   cursor: default;
   padding: 10px 10px 5px;
@@ -599,10 +592,7 @@ div.equipBtn:hover {
 
 div#perks {
   position: relative;
-  border: 1px solid var(--border);
   cursor: default;
-  padding: 10px 10px 5px;
-  width: 200px;
   display: flex;
   flex-direction: column;
   gap: 3px;

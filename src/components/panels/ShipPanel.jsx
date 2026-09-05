@@ -9,6 +9,7 @@ import { useTick } from '../../store/stateManager';
 import { Ship } from '../../modules/ship';
 import { Pixel } from '../../modules/pixel';
 import GameButton from '../shared/GameButton';
+import Panel from '../shared/Panel';
 
 const SHIP_STAT_ICON = {
   hull: 'res_hull',
@@ -21,7 +22,7 @@ export default function ShipPanel() {
 
   return (
     <div id="shipPanel" className="location">
-      <div id="shipStats" data-title={_('Ship')}>
+      <Panel id="shipStats" title={_('Ship')}>
         <div className="blueprintRow">
           <div className="row_key">
             <span className="px-icon">
@@ -40,7 +41,7 @@ export default function ShipPanel() {
           </div>
           <div className="row_val">{st.thrusters}</div>
         </div>
-      </div>
+      </Panel>
       <GameButton
         id="reinforceButton"
         text={_('reinforce hull')}
